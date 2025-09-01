@@ -7,7 +7,8 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 //import Chatbot from "./components/ui/chatbot";
-import ChatbotSimulado from "./components/ui/chatbot_simulado";
+//import ChatbotSimulado from "./components/ui/chatbot_simulado";
+import HerStoryBot from "./components/HerStoryBot"; 
 
 
 const queryClient = new QueryClient(); // ← Definir aquí
@@ -17,13 +18,14 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <ChatbotSimulado /> {/* Burbuja flotante */}
+      
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <HerStoryBot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
