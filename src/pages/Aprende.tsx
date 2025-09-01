@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
@@ -6,16 +6,44 @@ import headerImage from "@/assets/herstory-header.jpg";
 import Quiz from "../components/quiz";
 import QuizTrivias from "@/components/QuizTrivias"
 import banner from "@/assets/banner_trivias.png";
+import { supabase } from "@/lib/supabaseClient";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
-
+import { giveFifthBadge } from "@/lib/badges";
 
   const Aprende = () => {
   const { toast } = useToast();
  const [showQuiz, setShowQuiz] = useState(false);
+ const [user, setUser] = useState(null);
 
+ useEffect(() => {
+   const fetchUser = async () => {
+     const { data: { user: currentUser } } = await supabase.auth.getUser();
+     setUser(currentUser);
+   };
+ 
+   fetchUser();
+ }, []);
+ 
 
+const handleStartTrivia = async () => {
+   try {
+    // Asignar la quinta insignia
+    if (user?.id) {
+      await giveFifthBadge(user.id);
+      toast({
+        title: "¡Insignia asignada! 🎉",
+        description: "Has recibido tu insignia por comenzar la trivia",
+      });
+    }
+
+    // Mostrar el quiz
+    setShowQuiz(true);
+  } catch (error) {
+    console.error("Error asignando la insignia:", error);
+  }
+};
  
 
   return (
@@ -122,7 +150,7 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
           <Button 
             size="lg" 
             variant="secondary"
-            onClick={() => setShowQuiz(true)}
+            onClick={handleStartTrivia}
             className="text-lg px-8 py-4 h-auto font-semibold"
           >
             <Play className="h-5 w-5 mr-2" />

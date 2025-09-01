@@ -27,7 +27,7 @@ try{
       .from("profile")
       .select("*")
       .eq("id", user.id)
-      .single();
+      .single()
 
         if (!profile) {
       const { data: newProfile } = await supabase
@@ -41,19 +41,19 @@ try{
         .single();
       profile = newProfile;
     }
-
-    setUserData({
+    
+      setUserData({
       ...profile,
       email: user.email
     });
 
     // Obtener todas las insignias
-      const { data: allBadges } = await supabase
+       const { data: allBadges } = await supabase
         .from("insignia")
         .select("*");
 
       // Obtener insignias que el usuario ya tiene
-      const { data: userBadges } = await supabase
+      const { data: userBadges} = await supabase
         .from("usuario_insignia")
         .select("insignia_id, fecha_obtenida")
         .eq("user_id", user.id);
@@ -64,8 +64,9 @@ try{
       const mappedBadges = allBadges?.map((badge: any) => ({
         id: badge.id,
         name: badge.titulo,
-        description: badge.descripcion,
-        icon: "star", // Puedes cambiar según badge.tipo si lo tienes
+        //description: badge.descripcion,
+        //icon: "star", // Puedes cambiar según badge.tipo si lo tienes
+        img : badge.imagen_url,
         earned: earnedIds.includes(badge.id),
         earnedDate: earnedIds.find((id: any) => id === badge.id)
           ? userBadges?.find((b: any) => b.insignia_id === badge.id)?.fecha_obtenida
@@ -97,6 +98,7 @@ try{
   if (loading || !userData) return <div>Cargando...</div>;
 
   const getInitials = (name: string) => {
+     if (!name) return "";
     return name.split(" ").map((n: string) => n[0]).join("").toUpperCase();
   };
 

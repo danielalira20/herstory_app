@@ -6,7 +6,7 @@ interface BadgeItem {
   id: string;
   name: string;
   description: string;
-  icon: string;
+   img: string;
   earned: boolean;
   earnedDate?: string;
 }
@@ -27,7 +27,6 @@ export const BadgeGrid = ({ badges }: BadgeGridProps) => {
   const availableBadges = badges.filter(badge => !badge.earned);
 
   const BadgeCard = ({ badge }: { badge: BadgeItem }) => {
-    const IconComponent = iconMap[badge.icon as keyof typeof iconMap] || Star;
     
     return (
       <Card className={`transition-smooth hover:scale-105 ${
@@ -36,18 +35,27 @@ export const BadgeGrid = ({ badges }: BadgeGridProps) => {
           : 'bg-muted/50 opacity-75 hover:opacity-90'
       }`}>
         <CardContent className="p-4 text-center">
-          <div className="mb-3">
-            {badge.earned ? (
-              <IconComponent className="w-8 h-8 mx-auto text-primary-foreground" />
-            ) : (
-              <Lock className="w-8 h-8 mx-auto text-muted-foreground" />
-            )}
+          <div className="mb-3 flex justify-center">
+             {badge.img ? (
+            <img
+              src={badge.img}
+              alt={badge.name}
+              className={`w-24 h-24 object-contain ${
+                badge.earned ? "border-white" : "border-gray-400 opacity-60"
+              }`}
+            />
+          ) : (
+            <div className="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center">
+              ❓
+            </div>
+          )}
           </div>
           <h3 className={`font-semibold mb-1 ${
             badge.earned ? 'text-primary-foreground' : 'text-foreground'
           }`}>
             {badge.name}
           </h3>
+
           <p className={`text-sm mb-2 ${
             badge.earned ? 'text-primary-foreground/80' : 'text-muted-foreground'
           }`}>

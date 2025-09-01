@@ -10,6 +10,7 @@ import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import {supabase} from "@/lib/supabaseClient";
+import { giveForumBadge } from "@/lib/badges";
 
 const EllaDice = () => {
   const { toast } = useToast();
@@ -25,8 +26,17 @@ const EllaDice = () => {
   const [newPostCategory, setNewPostCategory] = useState("General");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
+useEffect(() => {
+  const fetchUser = async () => {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    setUser(currentUser);
+  };
+
+  fetchUser();
+}, []);
+
  useEffect(() => {
-    fetchPosts();
+  fetchPosts();
 
    const channel = supabase.channel("realtime-foro")
     .on(
@@ -95,12 +105,21 @@ const EllaDice = () => {
     if (!error) {
       setNewPost("");
       setNewPostTitle("");
+
+      //insgnia
+       if (user?.id) {
+        console.log("Intentando asignar insignia al usuario:", user.id);
+      await giveForumBadge(user.id);
+    }
+
       toast({
         title: "¡Post publicado!",
         description: "Tu mensaje ha sido compartido de manera anónima con la comunidad.",
       });
       fetchPosts();
     }
+
+   
   };
 
   // Reportar mensaje
@@ -128,6 +147,7 @@ const EllaDice = () => {
     fetchPosts();
   };
 
+
     // Eliminar post o respuesta (solo propietario)
   const handleDelete = async (table, id) => {
     await supabase.from(table).delete().eq("id", id);
@@ -142,6 +162,8 @@ const EllaDice = () => {
     const matchesCategory =
       selectedCategory === "Todos" || post.category === selectedCategory;
     return matchesSearch && matchesCategory;
+
+  
   });
 
   return (

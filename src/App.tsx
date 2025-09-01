@@ -19,14 +19,16 @@ import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
 import VocesSilenciadas from "./pages/VocesSilenciadas";
-
-import QuizHistorico from "./pages/quizHistorico";
+import { useInitializeUser } from "./hooks/useInitializeUser";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="herstory-theme">
+const App = () => {
+  useInitializeUser();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="herstory-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -53,6 +55,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

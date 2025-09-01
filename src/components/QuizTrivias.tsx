@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Trophy, Users, BookOpen, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { giveThirdBadge, giveFourthBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
+
 
 type Question = {
   question: string;
@@ -364,13 +367,54 @@ const QuizTrivias = () => {
   const [score, setScore] = useState(0);
   const [showResult, setShowResult] = useState(false);
   const [answered, setAnswered] = useState(false);
+  const [user, setUser] = useState(null);
+  const [badgeAssigned, setBadgeAssigned] = useState(false);
 
-  const handleCategorySelect = (category: keyof typeof categories) => {
+  useEffect(() => {
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+  };
+  fetchUser();
+}, []);
+
+  const handleCategorySelect = async (category: keyof typeof categories) => {
     setSelectedCategory(category);
     setCurrentQuestion(0);
     setScore(0);
     setShowResult(false);
     setAnswered(false);
+
+
+     if (!badgeAssigned) {
+    setBadgeAssigned(true);
+
+    try {
+      // Aquí llamas a tu función de badges según la categoría
+      if (category === "igualdadGenero") {
+        await giveThirdBadge(user?.id); 
+         toast({
+        title: "¡Insignia asignada! 🎉",
+        description: `Has recibido tu insignia por seleccionar "${categories[category].name}"`,
+      });
+      } else if (category === "activismoSocial") {
+        await giveFourthBadge(user?.id);
+         toast({
+        title: "¡Insignia asignada! 🎉",
+        description: `Has recibido tu insignia por seleccionar "${categories[category].name}"`,
+      });
+      }
+    } catch (error) {
+      console.error("Error asignando insignia:", error);
+      toast({
+        title: "Error al asignar insignia",
+        description: "Intenta nuevamente más tarde.",
+        variant: "destructive",
+      });
+    }
+  }
+
+
   };
 
   const handleAnswer = (selectedAnswer: number) => {
@@ -451,6 +495,9 @@ const QuizTrivias = () => {
   if (showResult) {
     const totalQuestions = categories[selectedCategory].questions.length;
     const percentage = Math.round((score / totalQuestions) * 100);
+
+ 
+
 
     return (
       <Card className="w-full max-w-2xl mx-auto elegant-shadow">
