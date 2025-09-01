@@ -19,6 +19,9 @@ import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
 import VocesSilenciadas from "./pages/VocesSilenciadas";
+
+import QuizHistorico from "./pages/quizHistorico";
+
 const queryClient = new QueryClient();
 
 const App = () => (
