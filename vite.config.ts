@@ -13,6 +13,8 @@ export default defineConfig(({ mode }) => ({
         changeOrigin: true,
         secure: false,
       },
+
+      "/api": "http://localhost:3000",
     },
   },
   plugins: [

@@ -62,21 +62,19 @@ const HerStory = () => {
 {/* Bloque de introducción (antes de categorías) */}
       <section className="py-16 px-6 text-center space-y-6 bg-gradient-to-b from-primary/5 to-transparent">
         
-        <h1 className="text-5xl md:text-7xl font-bold leading-tight text-gray-900">
+        <h1 className="text-5xl md:text-7xl font-bold leading-tight text-white-900">
           El poder del
           <span className="block bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             mundo se decide
           </span>
-          <span className="block text-gray-900">aquí</span>
+          <span className="block text-white-900">aquí</span>
         </h1>
         
-        <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
+        <p className="text-xl text-gray-400 leading-relaxed max-w-3xl mx-auto">
           Descubre las historias de mujeres extraordinarias que han cambiado el curso de la historia 
           y siguen inspirando a las nuevas generaciones.
         </p>
       </section>
-
-
 
 
       {/* Category Sections */}

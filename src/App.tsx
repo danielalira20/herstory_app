@@ -19,14 +19,18 @@ import Perfil from "./pages/perfil";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
 import VocesSilenciadas from "./pages/VocesSilenciadas";
+import { useInitializeUser } from "./hooks/useInitializeUser";
 //import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import HerStoryBot from "./components/HerStoryBot"; 
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="herstory-theme">
+const App = () => {
+  useInitializeUser();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="herstory-theme">
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -53,6 +57,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;

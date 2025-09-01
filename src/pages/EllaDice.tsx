@@ -1,62 +1,170 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, Heart, Reply, Plus, Search, Users } from "lucide-react";
+import { MessageCircle, Heart, Reply, Plus, Search, Users, Trash} from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
+import {supabase} from "@/lib/supabaseClient";
+import { giveForumBadge } from "@/lib/badges";
 
 const EllaDice = () => {
   const { toast } = useToast();
   const [newPost, setNewPost] = useState("");
   const [newPostTitle, setNewPostTitle] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [forumPosts, setForumPosts] = useState([]);
+  const [user, setUser] = useState(null);
+  const [likedPosts, setLikedPosts] = useState<Set<number>>(new Set());
+  
 
-  const forumPosts = [
-    {
-      id: 1,
-      title: "Mi experiencia en el ámbito laboral",
-      content: "Quiero compartir mi historia sobre cómo superé la discriminación en mi trabajo...",
-      replies: 12,
-      likes: 28,
-      category: "Trabajo",
-      timeAgo: "2 horas"
-    },
-    {
-      id: 2,
-      title: "Recursos para mujeres emprendedoras",
-      content: "He recopilado una lista de organizaciones que apoyan a mujeres empresarias...",
-      replies: 8,
-      likes: 35,
-      category: "Emprendimiento",
-      timeAgo: "5 horas"
-    },
-    {
-      id: 3,
-      title: "Apoyo emocional tras una ruptura difícil",
-      content: "Busco consejos y apoyo de la comunidad. Pasé por una situación muy complicada...",
-      replies: 24,
-      likes: 45,
-      category: "Bienestar",
-      timeAgo: "1 día"
-    }
-  ];
+  const categories = ["Todos", "General","Trabajo", "Emprendimiento", "Bienestar", "Familia", "Educación"];
+  const [newPostCategory, setNewPostCategory] = useState("General");
+  const [selectedCategory, setSelectedCategory] = useState("Todos");
 
-  const categories = ["Todos", "Trabajo", "Emprendimiento", "Bienestar", "Familia", "Educación"];
-
-  const handleNewPost = (e) => {
-    e.preventDefault();
-    toast({
-      title: "¡Post publicado!",
-      description: "Tu mensaje ha sido compartido de manera anónima con la comunidad.",
-    });
-    setNewPost("");
-    setNewPostTitle("");
+useEffect(() => {
+  const fetchUser = async () => {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    setUser(currentUser);
   };
+
+  fetchUser();
+}, []);
+
+ useEffect(() => {
+  fetchPosts();
+
+   const channel = supabase.channel("realtime-foro")
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "foro" },
+      (payload) => {
+        setForumPosts(prev => [payload.new, ...prev]);
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "foro" },
+      (payload) => {
+        setForumPosts(prev => prev.map(p => p.id === payload.new.id ? payload.new : p));
+      }
+    )
+    .on(
+      "postgres_changes",
+      { event: "DELETE", schema: "public", table: "foro" },
+      (payload) => {
+        setForumPosts(prev => prev.filter(p => p.id !== payload.old.id));
+      }
+    )
+
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "respuestas" },
+      (payload) => {
+        // Cuando se agrega una respuesta, recargamos solo el post afectado
+        setForumPosts(prev =>
+          prev.map(p =>
+            p.id === payload.new.post_id
+              ? { ...p, respuestas: [...(p.respuestas || []), payload.new] }
+              : p
+          )
+        );
+      }
+    )
+    .subscribe();
+
+    return () => { supabase.removeChannel(channel);}; 
+  }, []);
+
+  const fetchPosts = async () => {
+    const { data, error } = await supabase
+      .from("foro")
+      .select("*, respuestas(*)")
+      .order("fecha", { ascending: false });
+    if (!error) setForumPosts(data);
+  };
+
+  // Publicar un nuevo post
+  const handleNewPost = async (e) => {
+    e.preventDefault();
+    if (!newPost.trim() || !newPostTitle.trim()) return;
+
+    const { error } = await supabase.from("foro").insert([{
+      title: newPostTitle,
+      mensaje: newPost,
+      category: newPostCategory,
+      usuario_id: user?.id || null,
+      anonimo: !user,
+      reportes: 0
+    }]);
+
+    if (!error) {
+      setNewPost("");
+      setNewPostTitle("");
+
+      //insgnia
+       if (user?.id) {
+        console.log("Intentando asignar insignia al usuario:", user.id);
+      await giveForumBadge(user.id);
+    }
+
+      toast({
+        title: "¡Post publicado!",
+        description: "Tu mensaje ha sido compartido de manera anónima con la comunidad.",
+      });
+      fetchPosts();
+    }
+
+   
+  };
+
+  // Reportar mensaje
+  const handleReport = async (post) => {
+    const nuevosReportes = post.reportes + 1;
+
+    if (nuevosReportes >= 5) {
+      await supabase.from("foro").delete().eq("id", post.id);
+
+        toast({
+      title: "Post eliminado",
+      description: "Este post ha superado el número máximo de reportes y ha sido eliminado.",
+      variant: "destructive",
+    });
+
+    } else {
+      await supabase.from("foro").update({ reportes: nuevosReportes }).eq("id", post.id);
+       toast({
+      title: "Reporte enviado",
+      description: `Has reportado este post. Total de reportes: ${nuevosReportes}`,
+      variant: "default",
+    });
+    }
+
+    fetchPosts();
+  };
+
+
+    // Eliminar post o respuesta (solo propietario)
+  const handleDelete = async (table, id) => {
+    await supabase.from(table).delete().eq("id", id);
+    fetchPosts();
+  };
+
+  // Filtrar posts por búsqueda y categoria 
+  const filteredPosts = forumPosts.filter(post => {
+    const matchesSearch =
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.mensaje.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "Todos" || post.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+
+  
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,7 +194,7 @@ const EllaDice = () => {
                 <Users className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">1,247</p>
+                <p className="text-2xl font-bold">{forumPosts.length}</p>
                 <p className="text-sm text-muted-foreground">Miembros activos</p>
               </div>
             </CardContent>
@@ -97,7 +205,7 @@ const EllaDice = () => {
                 <MessageCircle className="h-6 w-6 text-secondary" />
               </div>
               <div>
-                <p className="text-2xl font-bold">3,894</p>
+                <p className="text-2xl font-bold">{forumPosts.length}</p>
                 <p className="text-sm text-muted-foreground">Conversaciones</p>
               </div>
             </CardContent>
@@ -108,7 +216,7 @@ const EllaDice = () => {
                 <Heart className="h-6 w-6 text-accent" />
               </div>
               <div>
-                <p className="text-2xl font-bold">12,567</p>
+                <p className="text-2xl font-bold">{forumPosts.length}</p>
                 <p className="text-sm text-muted-foreground">Apoyos compartidos</p>
               </div>
             </CardContent>
@@ -141,6 +249,23 @@ const EllaDice = () => {
                     required
                     className="min-h-24"
                   />
+
+                   {/* Menú desplegable de categorías */}
+                  <select
+                    value={newPostCategory}
+                    onChange={(e) => setNewPostCategory(e.target.value)}
+                    className="w-full border rounded-md p-2 text-sm bg-white text-gray-800"
+                    required
+                  >
+                    {categories
+                      .filter((c) => c !== "Todos")
+                      .map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
+                      ))}
+                  </select>
+
                   <Button type="submit" className="w-full">
                     Publicar Anónimo
                   </Button>
@@ -161,6 +286,7 @@ const EllaDice = () => {
                       variant="ghost"
                       className="w-full justify-start"
                       size="sm"
+                      onClick={() => setSelectedCategory(category)}
                     >
                       {category}
                     </Button>
@@ -189,36 +315,147 @@ const EllaDice = () => {
 
             {/* Forum Posts */}
             <div className="space-y-4">
-              {forumPosts.map((post) => (
+              {filteredPosts.map((post) => (
                 <Card key={post.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <Avatar>
                           <AvatarFallback className="bg-primary/10 text-primary">
-                            A
+                             {post.anonimo ? "A" : "U"}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-semibold">Anónim@</p>
-                          <p className="text-sm text-muted-foreground">{post.timeAgo}</p>
+                          <p className="font-semibold">{post.anonimo ? "Anónim@" : "Usuario"}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(post.fecha).toLocaleString()}</p>
                         </div>
                       </div>
+
+                       <div className="flex items-center space-x-2">
+                        {user?.id === post.usuario_id && (
+                          <Button variant="destructive" size="sm" onClick={() => handleDelete("foro", post.id)}>
+                            <Trash className="h-4 w-4" />
+                          </Button>
+                        )}
+
                       <Badge variant="secondary">{post.category}</Badge>
                     </div>
+                     </div>
                     <CardTitle className="text-lg">{post.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground mb-4">{post.content}</p>
+                    <p className="text-muted-foreground mb-4">{post.mensaje}</p>
                     <div className="flex items-center space-x-4">
-                      <Button variant="ghost" size="sm" className="text-muted-foreground">
-                        <Heart className="h-4 w-4 mr-1" />
-                        {post.likes}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex items-center space-x-"
+                         onClick={async () => {
+                          if (likedPosts.has(post.id)) return; // ya dio like, no hacer nada
+
+                            const nuevosLikes = (post.likes || 0) + 1;
+
+                            await supabase.from("foro").update({ likes: nuevosLikes }).eq("id", post.id);
+
+                          // Actualizar estado local para reflejar el cambio de inmediato
+                          setForumPosts((prev) =>
+                            prev.map((p) => (p.id === post.id ? { ...p, likes: nuevosLikes } : p))
+                          );
+
+                          setLikedPosts((prev) => new Set(prev).add(post.id));
+                        }}
+
+                         
+                      >
+                       <Heart
+    className={`h-5 w-5 transition-colors duration-200 ${
+      likedPosts.has(post.id) ? "text-red-500" : "text-gray-400 hover:text-red-400"
+    }`}
+  />
+  <span className="font-medium">{post.likes || 0}</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="text-muted-foreground">
+
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground"
+                      >
                         <Reply className="h-4 w-4 mr-1" />
-                        {post.replies} respuestas
+                        {post.respuestas?.length || 0} respuestas
                       </Button>
+
+                       <Button
+                        onClick={() => handleReport(post)}
+                        className="w-fit"
+                      >
+                        🚨 Reportar ({post.reportes})
+                      </Button>
+                    </div>
+                      {/* Respuestas */}
+                    <div className="ml-6 space-y-2">
+                      {post.respuestas?.map((resp) => (
+                        <div key={resp.id} className="border-l pl-4 py-2">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="text-sm font-semibold">{resp.anonimo ? "Anónim@" : "Usuario"}</p>
+                              <p className="text-sm text-muted-foreground">{new Date(resp.fecha).toLocaleString()}</p>
+                              <p>{resp.mensaje}</p>
+                            </div>
+                            {user?.id === resp.usuario_id && (
+                              <Button variant="destructive" size="sm" onClick={() => handleDelete("respuestas", resp.id)}>
+                                <Trash className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+
+                     <form
+                          className="mt-2 flex flex-col space-y-2"
+                          onSubmit={async (e: React.FormEvent<HTMLFormElement>) => {
+                            e.preventDefault();
+
+                            // Tomar el valor del textarea usando FormData
+                            const form = e.currentTarget;
+                            const formData = new FormData(form);
+                            const mensaje = formData.get("mensaje")?.toString().trim();
+                            if (!mensaje) return;
+
+                            await supabase.from("respuestas").insert([{
+                              post_id: post.id,
+                              mensaje,
+                              usuario_id: user?.id || null,
+                              anonimo: !user,
+                            }]);
+
+                            form.reset(); // Ahora sí TypeScript sabe que es un HTMLFormElement
+                            fetchPosts();
+                          }}
+                        >
+                          <Textarea name="mensaje" placeholder="Escribe tu respuesta..." className="min-h-16" />
+                          <Button type="submit" size="sm" className="w-fit">Responder</Button>
+                        </form>
+
+                       {/* Botón de Eliminar si es del usuario */}
+                      {!post.anonimo && post.usuario_id === user?.id && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={async () => {
+                            await supabase.from("foro").delete().eq("id", post.id);
+                            fetchPosts();
+                            toast({
+                              title: "Post eliminado",
+                              description: "Tu mensaje ha sido eliminado correctamente.",
+                            });
+                          }}
+                        >
+                          Eliminar
+                        </Button>
+                      )}
+
+                      
+
                     </div>
                   </CardContent>
                 </Card>
