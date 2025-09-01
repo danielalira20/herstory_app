@@ -15,10 +15,13 @@ import Aprende from "./pages/Aprende";
 import Ayuda from './pages/Ayuda';
 import Perfil from "./pages/perfil";
 //import Chatbot from "./components/ui/chatbot";
-import ChatbotSimulado from "./components/ui/chatbot_simulado";
+//import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
 import VocesSilenciadas from "./pages/VocesSilenciadas";
+//import ChatbotSimulado from "./components/ui/chatbot_simulado";
+import HerStoryBot from "./components/HerStoryBot"; 
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -27,7 +30,6 @@ const App = () => (
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <ChatbotSimulado /> {/* Burbuja flotante */}
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -46,6 +48,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <HerStoryBot />
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
