@@ -216,7 +216,7 @@ useEffect(() => {
                     <div>
                       <h3 className="font-semibold mb-2">Logros Destacados</h3>
                       {logrosArray.length > 0 ? (
-                        <ul className="list-disc list-inside space-y-2 text-gray-700">
+                        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                           {logrosArray.map((logro, index) => (
                             <li key={index}>{logro}</li>
                           ))}
