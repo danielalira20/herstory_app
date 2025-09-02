@@ -24,6 +24,7 @@ import { useInitializeUser } from "./hooks/useInitializeUser";
 import HerStoryBot from "./components/HerStoryBot"; 
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
+import RastroNacional from "./pages/RastroNacional";
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => {
             <Route path="/voces-silenciadas" element={<VocesSilenciadas />} />
             <Route path="/awareness-guide" element={<AwarenessGuide />} />
             <Route path="/reportar" element={<Reportar />} />
+            <Route path="/rastro-nacional" element={<RastroNacional />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
