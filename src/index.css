@@ -122,18 +122,3 @@ All colors MUST be HSL.
     @apply font-playfair;
   }
 }
-
-:root {
-  --border: 220 14% 96%;       /* ejemplo HSL */
-  --input: 0 0% 100%;
-  --ring: 252 82% 60%;
-  --background: 0 0% 100%;
-  --foreground: 222 47% 11%;
-  
-  /* Opcionales si usas sidebar o card */
-  --sidebar-background: 250 20% 95%;
-  --sidebar-foreground: 222 47% 11%;
-  --sidebar-primary: 252 82% 60%;
-  --sidebar-primary-foreground: 255 255 255;
-  --sidebar-border: 220 14% 96%;
-}

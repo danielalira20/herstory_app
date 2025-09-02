@@ -10,7 +10,6 @@ import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import {supabase} from "@/lib/supabaseClient";
-import { giveForumBadge } from "@/lib/badges";
 
 const EllaDice = () => {
   const { toast } = useToast();
@@ -26,17 +25,8 @@ const EllaDice = () => {
   const [newPostCategory, setNewPostCategory] = useState("General");
   const [selectedCategory, setSelectedCategory] = useState("Todos");
 
-useEffect(() => {
-  const fetchUser = async () => {
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    setUser(currentUser);
-  };
-
-  fetchUser();
-}, []);
-
  useEffect(() => {
-  fetchPosts();
+    fetchPosts();
 
    const channel = supabase.channel("realtime-foro")
     .on(
@@ -105,21 +95,12 @@ useEffect(() => {
     if (!error) {
       setNewPost("");
       setNewPostTitle("");
-
-      //insgnia
-       if (user?.id) {
-        console.log("Intentando asignar insignia al usuario:", user.id);
-      await giveForumBadge(user.id);
-    }
-
       toast({
         title: "¡Post publicado!",
         description: "Tu mensaje ha sido compartido de manera anónima con la comunidad.",
       });
       fetchPosts();
     }
-
-   
   };
 
   // Reportar mensaje
@@ -147,7 +128,6 @@ useEffect(() => {
     fetchPosts();
   };
 
-
     // Eliminar post o respuesta (solo propietario)
   const handleDelete = async (table, id) => {
     await supabase.from(table).delete().eq("id", id);
@@ -162,8 +142,6 @@ useEffect(() => {
     const matchesCategory =
       selectedCategory === "Todos" || post.category === selectedCategory;
     return matchesSearch && matchesCategory;
-
-  
   });
 
   return (
@@ -178,7 +156,7 @@ useEffect(() => {
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
           <div className="text-center text-white">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Ella Dice</h1>
-            <p className="text-lg italic">Foro anónimo de nuestra comunidad</p>
+            <p className="text-lg italic">Foro de nuestra comunidad</p>
           </div>
         </div>
       </div>
@@ -186,7 +164,7 @@ useEffect(() => {
       <Navbar />
 
       <div className="container py-8">
-        {/* Stats */}
+        {/* Community Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="flex items-center space-x-4 p-6">
@@ -226,7 +204,7 @@ useEffect(() => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* Nuevo Post */}
+            {/* New Post */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -273,7 +251,7 @@ useEffect(() => {
               </CardContent>
             </Card>
 
-            {/* Categorías */}
+            {/* Categories */}
             <Card>
               <CardHeader>
                 <CardTitle>Categorías</CardTitle>
@@ -283,7 +261,7 @@ useEffect(() => {
                   {categories.map((category) => (
                     <Button
                       key={category}
-                      variant={activeCategory === category ? "default" : "ghost"}
+                      variant="ghost"
                       className="w-full justify-start"
                       size="sm"
                       onClick={() => setSelectedCategory(category)}
@@ -296,9 +274,9 @@ useEffect(() => {
             </Card>
           </div>
 
-          {/* Main */}
+          {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Buscar */}
+            {/* Search */}
             <Card>
               <CardContent className="p-4">
                 <div className="relative">
@@ -313,7 +291,7 @@ useEffect(() => {
               </CardContent>
             </Card>
 
-            {/* Posts */}
+            {/* Forum Posts */}
             <div className="space-y-4">
               {filteredPosts.map((post) => (
                 <Card key={post.id} className="hover:shadow-lg transition-shadow">
