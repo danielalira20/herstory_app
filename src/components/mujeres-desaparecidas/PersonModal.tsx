@@ -5,7 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Calendar, User, Phone, Mail } from "lucide-react";
+import { MapPin, Calendar, User, Phone, Mail, FileText } from "lucide-react";
 
 interface Person {
   id: string;
@@ -22,6 +22,7 @@ interface Person {
   peso?: string;
   ojos?: string;
   cabello?: string;
+  folio?: string;
 }
 
 interface PersonModalProps {
@@ -64,6 +65,14 @@ const PersonModal = ({ person, isOpen, onClose }: PersonModalProps) => {
             </div>
             
             <div className="space-y-3">
+              <div className="flex items-center gap-3">
+               <FileText className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="font-medium">Folio</p>
+                  <p className="text-muted-foreground">{person.folio}</p>
+                </div>
+              </div>
+
               <div className="flex items-center gap-3">
                 <MapPin className="h-5 w-5 text-primary" />
                 <div>

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,11 +24,13 @@ import FilterBar from "@/components/mujeres-desaparecidas/FilterBar";
 import PersonCard from "@/components/mujeres-desaparecidas/PersonCard";
 import PersonModal from "@/components/mujeres-desaparecidas/PersonModal";
 import PrivacyNotice from "@/components/mujeres-desaparecidas/PrivacyNotice";
+import { usePersons } from "@/hooks/usePersons";
 import { mockPersons, Person } from "@/data/mockData";
 import { Shield, Heart, Upload, AlertCircle } from "lucide-react";
-
+import CarruselMujeres from "@/components/mujeres-desaparecidas/carruselMujeres";
 const MujeresDesaparecidas = () => {
   const { toast } = useToast();
+  const { persons, error } = usePersons();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
 
@@ -39,6 +41,10 @@ const MujeresDesaparecidas = () => {
   // Filtros
   const [selectedEstado, setSelectedEstado] = useState("Todos los estados");
   const [searchTerm, setSearchTerm] = useState("");
+
+  //Busqueda
+  const normalizeString = (str: string) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
   // Formulario
   const [formData, setFormData] = useState({
@@ -99,19 +105,47 @@ const MujeresDesaparecidas = () => {
   };
 
   // Filtrar personas
-  const filteredPersons = mockPersons.filter((person) => {
+  const filteredPersons = persons.filter((person) => {
     const matchesEstado =
       selectedEstado === "Todos los estados" || person.estado === selectedEstado;
-    const matchesSearch = person.name
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const matchesSearch = normalizeString(person.name).includes(
+      normalizeString(searchTerm)
+    );
     return matchesEstado && matchesSearch;
   });
+
+  useEffect(() => {
+  setCurrentPage(0);
+}, [filteredPersons]);
 
   const handleViewDetails = (person: Person) => {
     setSelectedPerson(person);
     setIsModalOpen(true);
   };
+
+   //Carrusel 
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 10;
+
+  //calcular elementos carrusel
+  const totalPages = Math.ceil(filteredPersons.length / itemsPerPage);
+const currentItems = filteredPersons.slice(
+  currentPage * itemsPerPage,
+  currentPage * itemsPerPage + itemsPerPage
+);
+
+const handleNext = () => {
+  if (currentPage < totalPages - 1) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+const handlePrev = () => {
+  if (currentPage > 0) {
+    setCurrentPage(currentPage - 1);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,16 +172,7 @@ const MujeresDesaparecidas = () => {
           onSearchChange={setSearchTerm}
         />
 
-        {/* Listado de personas */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mb-8">
-          {filteredPersons.map((person) => (
-            <PersonCard
-              key={person.id}
-              person={person}
-              onViewDetails={handleViewDetails}
-            />
-          ))}
-        </div>
+    
         {filteredPersons.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
@@ -155,6 +180,17 @@ const MujeresDesaparecidas = () => {
             </p>
           </div>
         )}
+       
+               {/* Carrusel */}
+        {filteredPersons.length > 0 ? (
+          <CarruselMujeres persons={filteredPersons} onViewDetails={handleViewDetails} />
+        ) : (
+          <p className="text-center mt-4 text-muted-foreground">
+            No se encontraron resultados para los filtros seleccionados.
+          </p>
+        )}
+
+
 
         {/* Footer y privacidad */}
         <footer className="mt-12 pt-8 border-t border-border">
@@ -162,6 +198,9 @@ const MujeresDesaparecidas = () => {
             <PrivacyNotice />
           </div>
         </footer>
+
+
+
 
         {/* =================== Formulario =================== */}
         <div className="mt-12">
