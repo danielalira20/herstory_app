@@ -1,263 +1,247 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
+import { questions } from "../data/questions";
+import { useWomen } from "@/hooks/womenData";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/Navbar";
-import { useToast } from "@/hooks/use-toast";
-import headerImage from "@/assets/herstory-header.jpg";
-import Quiz from "../components/quiz";
-import QuizTrivias from "@/components/QuizTrivias"
-import banner from "@/assets/banner_trivias.png";
-import { supabase } from "@/lib/supabaseClient";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
-import { giveFifthBadge } from "@/lib/badges";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Brain, Sparkles, Users, Heart, Trophy } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-  const Aprende = () => {
-  const { toast } = useToast();
- const [showQuiz, setShowQuiz] = useState(false);
- const [user, setUser] = useState(null);
+interface AIResult {
+  name: string;
+  coincidencePercentage: number;
+  explanation: string;
+  //imagen_url: string;
+} 
 
- useEffect(() => {
-   const fetchUser = async () => {
-     const { data: { user: currentUser } } = await supabase.auth.getUser();
-     setUser(currentUser);
-   };
- 
-   fetchUser();
- }, []);
- 
+const Quiz = () => {
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState<string[]>([]);
+  const [finished, setFinished] = useState(false);
 
-const handleStartTrivia = async () => {
-   try {
-    // Asignar la quinta insignia
-    if (user?.id) {
-      await giveFifthBadge(user.id);
-      toast({
-        title: "¡Insignia asignada! 🎉",
-        description: "Has recibido tu insignia por comenzar la trivia",
-      });
+  const { women, loading, error } = useWomen();
+
+  const [aiResult, setAiResult] = useState<AIResult[]>([]);
+  const [loadingResult, setLoadingResult] = useState(false);
+
+  const handleAnswer = (option: string) => {
+    const newAnswers = [...answers];
+    newAnswers[current] = option;
+    setAnswers(newAnswers);
+
+    // Si no es la última pregunta, pasamos a la siguiente
+    if (current < questions.length - 1) {
+      setCurrent(current + 1);
+    } else {
+      setFinished(true);
     }
+  };
 
-    // Mostrar el quiz
-    setShowQuiz(true);
-  } catch (error) {
-    console.error("Error asignando la insignia:", error);
+  //Envio de respuesta a la IA
+   const userProfileText = answers
+    .map((ans, i) => `Pregunta: ${questions[i].question} Respuesta: ${ans}`)
+    .join("\n");
+  
+const womenData = women.map((w) => ({
+    id: w.id,
+    nombre_completo: w.nombre_completo,
+    biografia: w.biografia,
+    logros: w.logros,
+    ocupacion: w.ocupacion,
+    categoria: w.categoria?.nombre || "",
+    imagen_url: w.imagen_url || "/assets/default.png",
+  }));
+
+  const fetchAIResult = async () => {
+    setLoadingResult(true);
+    try {
+      const response = await fetch("http://localhost:3000/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userProfileText, womenData }),
+      });
+
+      const data = await response.json();
+
+      // La IA debe devolver un JSON parseable
+      const parsed: AIResult[] = data.result;
+      setAiResult(parsed);
+    } catch (err) {
+      console.error("Error al obtener resultado de IA:", err);
+    } finally {
+      setLoadingResult(false);
+    }
+  };
+
+    // Ejecutar IA cuando termine el quiz
+    //la linea se quita si marca error
+  useEffect(() => {
+    if (finished) fetchAIResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished]);
+
+    if (loading) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto elegant-shadow">
+        <CardContent className="flex items-center justify-center p-8">
+          <div className="text-center space-y-4">
+            <Brain className="h-12 w-12 text-primary mx-auto animate-pulse" />
+            <p className="text-muted-foreground">Cargando mujeres históricas...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
-};
- 
+
+  if (error) {
+    return (
+      <Card className="w-full max-w-2xl mx-auto elegant-shadow border-destructive">
+        <CardContent className="p-8 text-center">
+          <p className="text-destructive">Error: {error}</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
+
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-purple-50 to-purple-200 p-6 flex flex-col items-center overflow-hidden">
-      {/* Burbujas flotantes */}
-      <div className="absolute top-10 left-10 w-32 h-32 bg-purple-200 rounded-full opacity-40 animate-bounce-slow"></div>
-      <div className="absolute top-1/3 right-20 w-40 h-40 bg-purple-300 rounded-full opacity-30 animate-spin-slow"></div>
-      <div className="absolute bottom-10 left-1/4 w-24 h-24 bg-purple-200 rounded-full opacity-50 animate-pulse-slow"></div>
-      <div className="absolute top-1/2 left-1/2 w-20 h-20 bg-purple-100 rounded-full opacity-40 animate-bounce-slow"></div>
-      <div className="absolute bottom-1/4 right-1/3 w-28 h-28 bg-purple-300 rounded-full opacity-25 animate-pulse-slow"></div>
 
-  <div className="bg-gradient-to-r from-purple-400 via-purple-300 to-purple-500 p-6 rounded-2xl shadow-xl text-center mb-8">
-  <h1 className="text-5xl font-extrabold text-white mb-2">
-    Aprende Jugando
-  </h1>
-  <p className="text-white text-lg max-w-2xl mx-auto">
-    Explora nuestros juegos educativos: Trivias, Memorama y el Quiz “Qué mujer histórica eres”. 
-    Aprende de forma divertida y colorida, con contenido interesante y entretenido.
-  </p>
-</div>
-
-      {!activeGame && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 w-full max-w-6xl z-10 relative">
-          <div
-            className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-            onClick={() => setActiveGame("trivia")}
-          >
-            <img
-              src="/img/juegos/trivias.png"
-              alt="Trivias"
-              className="w-full h-64 object-cover"
-            />
-            <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
-              Trivias
-            </span>
-          </div>
-
-          <div
-            className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-            onClick={() => setActiveGame("memorama")}
-          >
-            <img
-              src="/img/juegos/memorama.png"
-              alt="Memorama"
-              className="w-full h-64 object-cover"
-            />
-            <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
-              Memorama
-            </span>
-          </div>
-
-          <div
-      className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-      onClick={() => setActiveGame("ordenarPalabras")}
-    >
-      <img
-        src="/img/juegos/ordenarpalabras.png"
-        alt="Ordenar Palabras"
-        className="w-full h-64 object-cover"
-      />
-      <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
-        Ordenar Palabras
-      </span>
-    </div>
-
-      <Navbar />
-
-
-      {/* Sección Informativa Principal */}
-      <section className="py-16 px-4 subtle-gradient">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center space-y-6 mb-12">
-            <div className="flex justify-center">
-              <div className="h-16 w-16 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-full flex items-center justify-center shadow-lg">
-  <Play className="h-8 w-8 text-white" />
-</div>
-
+     <div className="w-full max-w-2xl mx-auto space-y-3">
+      {!finished ? (
+        <Card className="elegant-shadow smooth-transition hover:glow-shadow">
+          <CardHeader>
+            <div className="flex items-center justify-between mb-4">
+              <Badge variant="secondary" className="text-sm font-semibold">
+                <Users className="h-3 w-3 mr-1" />
+                Quiz de Mujeres Históricas
+              </Badge>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="font-medium">
+                  {current + 1} / {questions.length}
+                </span>
+              </div>
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Aprende <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">Jugando</span>
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Sumérgete en una experiencia educativa única donde cada pregunta te acerca más al mundo 
-              fascinante de las mujeres que marcaron la historia. Nuestra trivia potenciada por IA 
-              adapta las preguntas a tu nivel, haciendo que cada sesión sea un nuevo desafío.
-            </p>
-          </div>
+            <Progress value={progress} className="w-full mb-4 h-2" />
+            <CardTitle className="text-xl font-bold text-center leading-relaxed">
+              {questions[current].question}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {questions[current].options.map((option, idx) => (
+              <Button
+                key={idx}
+                variant={answers[current] === option ? "hero" : "outline"}
+                className="w-full text-left justify-start h-auto p-4 text-wrap"
+                onClick={() => handleAnswer(option)}
+              >
+                <span className="mr-3 font-bold text-primary">
+                  {String.fromCharCode(65 + idx)}.
+                </span>
+                <span className="flex-1">{option}</span>
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-6">
 
-          {/* Card Principal de Llamada a la Acción */}
-         {/*
-          <div className="mb-16">
-            <Card className="elegant-shadow hover:glow-shadow smooth-transition border-0 accent-gradient">
-              <CardContent className="p-8 md:p-12 text-center">
-                <div className="space-y-6">
-                  <div className="flex justify-center">
-                    <div className="bg-white/20 p-4 rounded-full">
-                      <Users className="h-10 w-10 text-white" />
+          <Card className="elegant-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Heart className="h-5 w-5 text-primary" />
+                Tus Respuestas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {answers.map((ans, i) => (
+                  <div key={i} className="p-3 bg-secondary/10 rounded-lg">
+                    <div className="text-sm text-muted-foreground font-medium">
+                      Pregunta {i + 1}
                     </div>
+                    <div className="font-medium">{ans}</div>
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                    ¿Conoces a estas Mujeres Extraordinarias?
-                  </h3>
-                  <p className="text-white/90 text-lg max-w-2xl mx-auto mb-6">
-                    Desde científicas pioneras como Marie Curie hasta activistas como Rosa Parks, 
-                    cada pregunta te permitirá descubrir historias inspiradoras que quizás no conocías. 
-                    ¡Pon a prueba tus conocimientos y aprende algo nuevo en cada partida!
-                  </p>
-                  <Button 
-                    size="lg" 
-                    variant="secondary"
-                    onClick={() => setShowQuiz(true)}
-                    className="text-lg px-8 py-4 h-auto font-semibold"
-                  >
-                    <Play className="h-5 w-5 mr-2" />
-                    Comenzar Trivia
-                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+           {loadingResult && (
+            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="bg-card/95 backdrop-blur-md border rounded-2xl p-8 elegant-shadow animate-scale-in">
+                <div className="text-center space-y-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 mx-auto border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                  </div>
+                  <p className="text-lg font-medium text-foreground">Procesando tus respuestas</p>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-         */}
-
-         {/* Card Principal de Llamada a la Acción */}
-<div className="min-h-screen relative">
-      {!showQuiz ? (
-<div className="mb-16 relative rounded-xl overflow-hidde">
-  <div 
-    className="absolute inset-0 bg-cover bg-center rounded-xl" 
-    style={{ backgroundImage: `url(${banner})` }}
-  ></div>
-
-  <Card className="relative elegant-shadow hover:glow-shadow smooth-transition border-0 bg-transparent">
-    <CardContent className="p-8 md:p-12">
-      <div className="flex flex-col md:flex-row items-center md:items-start">
-        {/* Fondo de color a la izquierda */}
-        <div className="md:w-1/2  p-6 rounded-lg text-black space-y-6">
-          <div className="flex justify-center md:justify-start">
-            <div className="bg-black/20 p-4 rounded-full">
-              <Users className="h-10 w-10 text-white" />
+              </div>
             </div>
+          )} 
+
+          {!loadingResult && (
+              aiResult.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-2xl font-bold text-center hero-gradient bg-clip-text text-transparent">
+                  ✨ Tu Mujer Histórica Ideal
+                </h3>
+                {aiResult.map((res, index) => (
+                  <Card key={index} className="elegant-shadow hover:glow-shadow smooth-transition">
+                    <CardContent className="p-6">
+                      <div className="flex flex-col md:flex-row gap-6 items-center">
+                        <div className="flex-shrink-0">
+                        {/*
+                          <img
+                            src={res.imagen_url}
+                            alt={res.name}
+                            className="w-32 h-32 object-cover rounded-full elegant-shadow"
+                            onError={(e) => {
+                              e.currentTarget.src = '/assets/default.png';
+                            }}
+                          />
+                        */}</div>
+                        <div className="text-center md:text-left space-y-3 flex-1">
+                          <div className="flex items-center justify-center md:justify-start gap-3">
+                            <h3 className="text-2xl font-bold text-primary">
+                              {res.name}
+                            </h3>
+                            <Badge variant="secondary" className="font-bold text-sm px-2 py-1">
+                              {res.coincidencePercentage}% Match
+                            </Badge>
+                          </div>
+                          <p className="text-muted-foreground leading-relaxed">
+                            {res.explanation}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+
+          <div className="flex justify-center">
+            <Button
+                variant="hero"
+                size="lg"
+                onClick={() => window.location.reload()}
+                >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Regresar
+            </Button>
           </div>
-          <h3 className="text-2xl md:text-3xl font-bold">
-            ¿Que mujer historica eres?
-          </h3>
-          <p className="text-black/90 text-lg leading-relaxed">
-            Desde científicas pioneras como Marie Curie hasta activistas como Rosa Parks, 
-            cada pregunta te permitirá descubrir historias inspiradoras que quizás no conocías. 
-            ¡Pon a prueba tus conocimientos y aprende algo nuevo en cada partida!
-          </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            onClick={handleStartTrivia}
-            className="text-lg px-8 py-4 h-auto font-semibold"
-          >
-            <Play className="h-5 w-5 mr-2" />
-            Comenzar Trivia
-          </Button>
         </div>
-
-        {/* Espacio vacío o imagen al lado derecho */}
-        <div className="hidden md:block md:w-1/2"></div>
-      </div>
-    </CardContent>
-  </Card>
-</div> ): (
-
-<div className="">
-      <Quiz />
+      )}
     </div>
-)}
-</div>
-
-          <section className="pt-4 pb-12 px-4 subtle-gradient">
-              <QuizTrivias />
-            
-            </section>
-         
-          {/* Sección de Motivación */}
-          <div className="text-center space-y-6">
-            <h3 className="text-2xl md:text-3xl font-bold">
-              Cada Respuesta es un <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">Nuevo Descubrimiento</span>
-            </h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              No solo respondas preguntas, vive las experiencias de mujeres valientes que desafiaron 
-              las normas de su época. Cada trivia es una ventana al pasado que te inspirará para el futuro.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button variant="hero" size="lg" onClick={() => setShowQuiz(true)}>
-                <Sparkles className="h-5 w-5 mr-2" />
-                <a href="/voces-silenciadas"> 
-                Explorar Ahora
-                </a>
-              </Button>
-              <Button variant="outline" size="lg" >
-                 <a href="/herStory"> 
-                <BookOpen className="h-5 w-5 mr-2" />
-                Más Información
-                </a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    
-</div>
-
   );
 };
 
-
-export default Aprende;
-
+export default Quiz;
 
 
 
