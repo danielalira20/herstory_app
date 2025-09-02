@@ -22,6 +22,8 @@ import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
 //import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import HerStoryBot from "./components/HerStoryBot"; 
+import AwarenessGuide from "@/pages/AwarenessGuide";
+import Reportar from "./pages/Reportar";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +50,8 @@ const App = () => {
             <Route path="/mujer/:id" element={<WomanDetail />} />
             <Route path="/herstory" element={<HerStory />} />
             <Route path="/voces-silenciadas" element={<VocesSilenciadas />} />
+            <Route path="/awareness-guide" element={<AwarenessGuide />} />
+            <Route path="/reportar" element={<Reportar />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

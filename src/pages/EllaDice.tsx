@@ -178,7 +178,7 @@ useEffect(() => {
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
           <div className="text-center text-white">
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Ella Dice</h1>
-            <p className="text-lg italic">Foro de nuestra comunidad</p>
+            <p className="text-lg italic">Foro anónimo de nuestra comunidad</p>
           </div>
         </div>
       </div>
@@ -186,7 +186,7 @@ useEffect(() => {
       <Navbar />
 
       <div className="container py-8">
-        {/* Community Stats */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card>
             <CardContent className="flex items-center space-x-4 p-6">
@@ -226,7 +226,7 @@ useEffect(() => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            {/* New Post */}
+            {/* Nuevo Post */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -273,7 +273,7 @@ useEffect(() => {
               </CardContent>
             </Card>
 
-            {/* Categories */}
+            {/* Categorías */}
             <Card>
               <CardHeader>
                 <CardTitle>Categorías</CardTitle>
@@ -283,7 +283,7 @@ useEffect(() => {
                   {categories.map((category) => (
                     <Button
                       key={category}
-                      variant="ghost"
+                      variant={activeCategory === category ? "default" : "ghost"}
                       className="w-full justify-start"
                       size="sm"
                       onClick={() => setSelectedCategory(category)}
@@ -296,9 +296,9 @@ useEffect(() => {
             </Card>
           </div>
 
-          {/* Main Content */}
+          {/* Main */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Search */}
+            {/* Buscar */}
             <Card>
               <CardContent className="p-4">
                 <div className="relative">
@@ -313,7 +313,7 @@ useEffect(() => {
               </CardContent>
             </Card>
 
-            {/* Forum Posts */}
+            {/* Posts */}
             <div className="space-y-4">
               {filteredPosts.map((post) => (
                 <Card key={post.id} className="hover:shadow-lg transition-shadow">

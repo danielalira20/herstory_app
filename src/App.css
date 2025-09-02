@@ -40,3 +40,19 @@
 .read-the-docs {
   color: #888;
 }
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+@keyframes floatBubble {
+    0% { transform: translateY(0px) translateX(0px); opacity: 0.6; }
+    50% { transform: translateY(-30px) translateX(10px); opacity: 0.8; }
+    100% { transform: translateY(0px) translateX(0px); opacity: 0.6; }
+  }
+
+  

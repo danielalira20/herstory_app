@@ -1,20 +1,96 @@
+import { useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, Shield, Users, Mic, BookOpen, MessageCircle, Gamepad2, ArrowRight, Send } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Heart, Shield, Users, Mic, BookOpen, MessageCircle, Gamepad2, Send, Sparkles, Star, Crown } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
+
+interface FloatingQuote {
+  id: number;
+  text: string;
+  x: number;
+  y: number;
+  icon: React.ReactNode;
+}
+
+const motivationalQuotes = [
+  "¡Eres increíble! ✨",
+  "Tu fuerza inspira 💪",
+  "Cambia el mundo 🌍",
+  "Eres imparable 🚀",
+  "Tu voz importa 📢",
+  "Brillas con luz propia ⭐",
+  "Eres únic@ y valios@ 💎",
+  "Tu poder es infinito 🔥",
+  "Tu pasión transforma 💜",
+  "Eres historia viviente 📚",
+  "Sigue adelante, eres fuerte 💪",
+  "Cada día creces más 🌟",
+  "Eres luz en el mundo ✨",
+  "Tu creatividad no tiene límites 🎨",
+  "Confía en tu intuición 💖",
+  "Sigue adelante, estás creciendo 🌱",
+  "Tu creatividad cambia vidas 🎨",
+  "Eres fuerza, eres corazón ❤️",
+  "Hoy es perfecto para brillar ✨",
+  "Tú decides tu camino 🛤️",
+  "Eres arte en movimiento 🎶",
+  "Cada reto te hace más fuerte 💪",
+  "Tu sonrisa ilumina el mundo 😊",
+  "Eres valiente y resiliente 🦁",
+];
+
+const icons = [
+  <Sparkles className="w-4 h-4" />,
+  <Heart className="w-4 h-4" />,
+  <Star className="w-4 h-4" />,
+  <Crown className="w-4 h-4" />,
+];
 
 const Home = () => {
   const { toast } = useToast();
   const [suggestion, setSuggestion] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+
+  // Estados para frases motivacionales
+  const [floatingQuotes, setFloatingQuotes] = useState<FloatingQuote[]>([]);
+  const [quoteId, setQuoteId] = useState(0);
+
+const getRandomSidePosition = () => {
+  const side = Math.random() < 0.5 ? -1 : 1; // izquierda o derecha
+  const minDistance = 100;  // mínima distancia desde el botón
+  const maxDistance = 400;  // máxima distancia desde el botón
+  const x = side * (Math.random() * (maxDistance - minDistance) + minDistance);
+  const y = (Math.random() - 0.5) * 600; // altura aleatoria, puede estar arriba o abajo
+  return { x, y };
+};
+
+  const createFloatingQuote = useCallback(() => {
+    const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+    const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+    const position = getRandomSidePosition();
+
+    const newQuote: FloatingQuote = {
+      id: quoteId,
+      text: randomQuote,
+      x: position.x,
+      y: position.y,
+      icon: randomIcon,
+    };
+
+    setFloatingQuotes((prev) => [...prev, newQuote]);
+    setQuoteId((prev) => prev + 1);
+
+    setTimeout(() => {
+      setFloatingQuotes((prev) => prev.filter((q) => q.id !== newQuote.id));
+    }, 5000);
+  }, [quoteId]);
 
   const handleSuggestionSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +105,9 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with Image */}
+      {/* Header */}
       <div className="relative w-full h-64 overflow-hidden">
-        <img 
-          src={headerImage} 
-          alt="HerStory Header" 
-          className="w-full h-full object-cover"
-        />
+        <img src={headerImage} alt="HerStory Header" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
           <div className="text-center text-white">
             <h1 className="text-4xl md:text-6xl font-bold mb-2">HerStory</h1>
@@ -43,84 +115,92 @@ const Home = () => {
           </div>
         </div>
       </div>
-      
+
       <Navbar />
-      
-      {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 bg-gradient-subtle overflow-hidden">
-        <div className="container relative z-10">
-          <div className="text-center max-w-4xl mx-auto">
-            <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-              Plataforma para el empoderamiento femenino
-            </Badge>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6">
-              <span className="bg-gradient-hero bg-clip-text text-transparent">
-                Voz Activada
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed">
-              Un espacio seguro donde las voces femeninas se escuchan, se apoyan y se empoderan.
-              Juntas construimos un futuro más justo e igualitario.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/login">
-                <Button variant="hero" size="lg" className="group">
-                  Únete a la comunidad
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-              <Link to="/voces-silenciadas">
-                <Button variant="outline" size="lg">
-                  Conoce las historias
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
 
-        {/* Floating Elements */}
-        <div className="absolute top-20 left-10 animate-float">
-          <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
-            <Heart className="w-8 h-8 text-primary" />
-          </div>
-        </div>
-        <div className="absolute bottom-20 right-10 animate-float" style={{ animationDelay: '2s' }}>
-          <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center">
-            <Users className="w-6 h-6 text-secondary" />
-          </div>
-        </div>
-      </section>
-
-{/* Sabías que Section */}
-<section className="py-16 bg-background">
-  <div className="container">
-    <div className="text-center mb-12">
-      <h2 className="text-3xl md:text-4xl font-bold mb-6">
-        ¿<span className="bg-gradient-hero bg-clip-text text-transparent">Sabías que</span>...?
-      </h2>
-      <Card className="max-w-4xl mx-auto bg-gradient-subtle border-primary/20">
-        <CardContent className="p-8">
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            Solo el <strong className="text-primary">7%</strong> de las estatuas públicas en el mundo representan mujeres, 
-            y menos del <strong className="text-primary">3%</strong> de los libros de historia tradicionales 
-            dedican capítulos completos a figuras femeninas que no sean reinas o esposas de líderes.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
+{/* Hero Section */}
+<section className="relative py-32 lg:py-40 bg-gradient-subtle overflow-hidden">
+  <div className="container relative z-10 text-center max-w-4xl mx-auto">
     
-    <div className="text-center">
-      <Button size="lg" className="mb-8">
-        <BookOpen className="mr-2 h-5 w-5" />
-        Explorar Galería de Mujeres Históricas
-      </Button>
-      <p className="text-sm text-muted-foreground">
-        Descubre las historias extraordinarias que el tiempo intentó borrar
-      </p>
-    </div>
-  </div>
-</section>
+    {/* Badge */}
+    <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
+      Plataforma para el empoderamiento femenino
+    </Badge>
 
+    {/* Texto principal */}
+    <h5 className="text-lg md:text-xl lg:text-2xl font-bold mb-4">
+      <span className="bg-gradient-hero bg-clip-text text-transparent">
+        Un espacio seguro donde las voces femeninas se escuchan, se apoyan y se empoderan.
+        Juntas construimos un futuro más justo e igualitario.
+      </span>
+    </h5>
+
+    {/* Subtítulo */}
+    <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto mt-2 mb-8">
+      Descubre historias, recursos y herramientas para empoderar tu voz y conectar con otras mujeres.
+    </p>
+
+    {/* Botón Corazón con frases flotantes */}
+    <div className="relative flex justify-center mt-12">
+      <Button
+        onClick={createFloatingQuote}
+        className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 to-purple-300 text-white flex items-center justify-center text-2xl shadow-lg hover:scale-105 transition-transform z-20"
+      >
+        <Heart className="w-8 h-8" />
+      </Button>
+
+      {/* Frases flotantes */}
+      <div className="absolute inset-0 pointer-events-none">
+        {floatingQuotes.map((quote) => (
+          <div
+            key={quote.id}
+            className="absolute flex items-center bg-white/95 backdrop-blur-sm rounded-full px-4 py-2 shadow-lg border border-purple-300 transition-opacity"
+            style={{
+              left: `calc(50% + ${quote.x}px)`,
+              top: `calc(50% + ${quote.y}px)`,
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <span className="text-purple-600 mr-2">{quote.icon}</span>
+            <span className="text-purple-600 font-medium text-sm">{quote.text}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Botón de enlace */}
+    <Link to="/voces-silenciadas">
+      <Button variant="outline" size="lg" className="mt-10 z-20">
+        Conoce las historias
+      </Button>
+    </Link>
+  </div>
+
+  {/* 🌟 Burbujas flotantes en toda la sección */}
+  {Array.from({ length: 25 }).map((_, i) => {
+    const size = Math.floor(Math.random() * 20) + 10; // tamaño entre 10px y 30px
+    const left = Math.random() * 100; // porcentaje horizontal
+    const top = Math.random() * 100; // porcentaje vertical
+    const delay = Math.random() * 5; // retraso en segundos
+    const duration = Math.random() * 10 + 5; // duración entre 5s y 15s
+    const colorClasses = ["bg-purple-200/40", "bg-purple-300/30", "bg-purple-400/20", "bg-purple-500/10"];
+    const color = colorClasses[Math.floor(Math.random() * colorClasses.length)];
+    
+    return (
+      <div
+        key={i}
+        className={`absolute rounded-full ${color}`}
+        style={{
+          width: `${size}px`,
+          height: `${size}px`,
+          left: `${left}%`,
+          top: `${top}%`,
+          animation: `floatBubble ${duration}s ease-in-out ${delay}s infinite alternate`,
+        }}
+      />
+    );
+  })}
+</section>
 
       {/* Features Section */}
       <section className="py-20 bg-background">
@@ -356,15 +436,13 @@ const Home = () => {
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-3">Legal</h3>
+              <h3 className="font-semibold mb-3">Redes</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/privacidad" className="hover:text-primary transition-colors">Privacidad</Link></li>
-                <li><Link to="/terminos" className="hover:text-primary transition-colors">Términos</Link></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Instagram</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Facebook</a></li>
+                <li><a href="#" className="hover:text-primary transition-colors">Twitter</a></li>
               </ul>
             </div>
-          </div>
-          <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-            <p>&copy; 2024 HerStory. Todos los derechos reservados.</p>
           </div>
         </div>
       </footer>
@@ -373,3 +451,6 @@ const Home = () => {
 };
 
 export default Home;
+
+
+
