@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 
 const VocesSilenciadas = () => {
   return (
+    
     <div className="min-h-screen bg-gradient-subtle">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-hero text-primary-foreground">
@@ -46,9 +47,7 @@ const VocesSilenciadas = () => {
           </div>
         </div>
       </section>
-
-      <Navbar />
-
+        <Navbar />
       {/* ODS5 Information */}
       <section className="py-16 bg-card/30 backdrop-blur-sm border-y border-border/50">
         <div className="container mx-auto px-4">
@@ -113,6 +112,7 @@ const VocesSilenciadas = () => {
         </div>
       </section>
     </div>
+    
   );
 };
 
