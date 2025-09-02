@@ -25,20 +25,46 @@ const Contacto = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "¡Mensaje enviado!",
-      description: "Te contactaremos pronto. Gracias por escribirnos.",
-    });
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      category: "",
-      message: ""
-    });
+
+    try {
+      const response = await fetch("https://formspree.io/f/mwpnrkjr", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "¡Mensaje enviado!",
+          description: "Te contactaremos pronto. Gracias por escribirnos.",
+        });
+
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          category: "",
+          message: ""
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Hubo un problema al enviar tu mensaje. Intenta nuevamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo enviar el mensaje. Verifica tu conexión.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -138,6 +164,7 @@ const Contacto = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+              
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">

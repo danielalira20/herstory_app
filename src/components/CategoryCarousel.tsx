@@ -78,13 +78,15 @@ const CategoryCarousel = ({ categoryId }: CategoryCarouselProps) => {
         >
           {women.map((woman) => (
             <div key={woman.id} className="w-1/4 flex-shrink-0 px-2">
-              <WomanCard
-                id={woman.id}
-                imageUrl={woman.imagen_url}
-                nombreConocido={woman.nombre_conocido}
-                citas={woman.citas}
+              <div className="h-full flex">
+               <WomanCard
+                  id={woman.id}
+                  imageUrl={woman.imagen_url}
+                  nombreConocido={woman.nombre_conocido}
+                  citas={woman.citas}
               />
             </div>
+          </div>
           ))}
         </div>
       </div>

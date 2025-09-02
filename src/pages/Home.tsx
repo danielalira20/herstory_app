@@ -92,15 +92,41 @@ const getRandomSidePosition = () => {
     }, 5000);
   }, [quoteId]);
 
-  const handleSuggestionSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "¡Mensaje enviado!",
-      description: "Gracias por tu sugerencia. Te contactaremos pronto.",
-    });
-    setSuggestion("");
-    setName("");
-    setEmail("");
+    try {
+      const response = await fetch("https://formspree.io/f/xblazjeq", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          suggestion,
+        }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "¡Mensaje enviado!",
+          description: "Gracias por tu sugerencia. Te contactaremos pronto.",
+        });
+        setSuggestion("");
+        setName("");
+        setEmail("");
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo enviar el mensaje. Intenta nuevamente.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Hubo un problema de conexión. Intenta más tarde.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -380,7 +406,7 @@ const getRandomSidePosition = () => {
           {/* Suggestion Form */}
           <div className="mb-12 max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold text-center mb-6">Envíanos tus sugerencias</h3>
-            <form onSubmit={handleSuggestionSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   placeholder="Tu nombre"
