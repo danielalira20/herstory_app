@@ -2,7 +2,7 @@ export interface Guide {
   id: string;
   title: string;
   description: string;
-  category: "Violencia de Género" | "Derechos Laborales" | "Salud Sexual" | "Recursos Legales" | "Empoderamiento";
+  category: "Derechos Humanos" | "Derechos Laborales" | "Salud Sexual" | "Recursos Legales" | "Violencia"| "Empoderamiento";
   downloadUrl?: string;
   isNew?: boolean;
 }
@@ -10,18 +10,18 @@ export interface Guide {
 export const guides: Guide[] = [
   {
     id: "1",
-    title: "Guía de Primeros Auxilios Psicológicos",
+    title: "Guía de Capacitación en Derechos Humanos de las Mujeres",
     description: "Aprende a reconocer las señales de violencia psicológica y cómo actuar. Incluye técnicas de autoayuda y recursos de emergencia.",
-    category: "Violencia de Género",
-    downloadUrl: "#",
-    isNew: true
+    category: "Derechos Humanos",
+    downloadUrl: "https://catedraunescodh.unam.mx/catedra/BibliotecaV2/Documentos/Trata/Libros/PaquetePedagogicoguia.pdf",
+    isNew: false
   },
   {
     id: "2",
-    title: "Conoce tus Derechos Laborales",
-    description: "Todo lo que necesitas saber sobre discriminación laboral, acoso en el trabajo y cómo defender tus derechos como mujer trabajadora.",
-    category: "Derechos Laborales",
-    downloadUrl: "#"
+    title: "Género, Derechos Humanos y No Violencia",
+    description: "esta guía proporciona herramientas para comprender y aplicar la perspectiva de género en diversos contextos.",
+    category: "Violencia",
+    downloadUrl: "http://cedoc.inmujeres.gob.mx/ftpg/Sinaloa/SIN_M960_2015.pdf"
   },
   {
     id: "3",
@@ -49,7 +49,7 @@ export const guides: Guide[] = [
     id: "6",
     title: "Plan de Seguridad Personal",
     description: "Cómo crear un plan de seguridad personalizado para situaciones de riesgo. Incluye plantillas y contactos de emergencia.",
-    category: "Violencia de Género",
+    category: "Violencia",
     downloadUrl: "#"
   },
   {
