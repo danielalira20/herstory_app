@@ -27,7 +27,8 @@ import PrivacyNotice from "@/components/mujeres-desaparecidas/PrivacyNotice";
 import { usePersons } from "@/hooks/usePersons";
 import { mockPersons, Person } from "@/data/mockData";
 import { Shield, Heart, Upload, AlertCircle } from "lucide-react";
-import CarruselMujeres from "@/components/mujeres-desaparecidas/carruselMujeres";
+import CarruselMujeres from "@/components/mujeres-desaparecidas/CarruselMujeres";
+
 const MujeresDesaparecidas = () => {
   const { toast } = useToast();
   const { persons, error } = usePersons();
