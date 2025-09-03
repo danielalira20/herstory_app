@@ -77,7 +77,6 @@
     "@eslint/js": "^9.32.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
     "@types/node": "^22.18.0",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
@@ -97,5 +96,8 @@
   },
   "ts-node": {
     "esm": true
-  }
+  },
+  "trustedDependencies": [
+    "@swc/core"
+  ]
 }

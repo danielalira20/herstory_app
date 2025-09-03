@@ -13,18 +13,15 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
 
   const Aprende = () => {
   const { toast } = useToast();
- const [showQuiz, setShowQuiz] = useState(false);
-
-
- 
+  const [showQuiz, setShowQuiz] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="relative w-full h-48 overflow-hidden">
-        <img 
-          src={headerImage} 
-          alt="HerStory Header" 
+        <img
+          src={headerImage}
+          alt="HerStory Header"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
