@@ -8,7 +8,7 @@ interface Person {
   age: number;
   estado: string;
   fechaDesaparicion: string;
-  foto: string;
+  foto?: string;
   caracteristicas: string;
 }
 
@@ -18,12 +18,20 @@ interface PersonCardProps {
 }
 
 const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
+ const formattedDate = person.fechaDesaparicion
+    ? new Date(person.fechaDesaparicion).toLocaleDateString("es-MX", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Fecha desconocida";
+  
   return (
     <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden">
       <CardContent className="p-0">
         <div className="aspect-square overflow-hidden">
           <img 
-            src={person.foto} 
+            src={person.foto || "/assests/default.png"}
             alt={`Foto de ${person.name}`}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
           />
@@ -39,7 +47,7 @@ const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
-              <span>{person.fechaDesaparicion}</span>
+              <span>{formattedDate}</span>
             </div>
             <p className="text-xs mt-2 line-clamp-2">
               {person.caracteristicas}
