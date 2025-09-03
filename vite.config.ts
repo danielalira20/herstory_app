@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "localhost", // 👈 más seguro que "::"
+    host: "localhost", 
     port: 8080,
     proxy: {
       "/chat": {

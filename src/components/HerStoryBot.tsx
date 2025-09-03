@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import herstoryLogoBot from '@/assets/chatbot_icon-removebg-preview.png';
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -534,7 +535,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     }, 500);
   }
 
-  async function callGPT(userMessage: string) {
+  async function callGemini(userMessage: string) {
     setTyping(true);
     try {
       // Usa una ruta relativa para que el proxy de Vite funcione
@@ -554,7 +555,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       return botAnswer;
     } catch (err) {
       console.error(err);
-      reply("Ups, algo salió mal con GPT. 😅");
+      reply("Ups, algo salió mal con Gemini. 😅");
       return null;
     } finally { setTyping(false); }
   }
@@ -586,7 +587,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       return;
     }
     // fallback GPT
-    const botAnswer = await callGPT(text);
+    const botAnswer = await callGemini(text);
     if (!botAnswer) {
     reply(sample(DATA_CONTENT.inspiration[lang]));
 }
@@ -595,11 +596,21 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
 
   return (
   <>
-    <div className="fixed bottom-4 right-4 z-[999]">
-      <button onClick={() => setOpen(o => !o)} 
-      className="rounded-full p-3 bg-purple-600 text-white shadow-lg">
-        {<MessageSquare />}
-      </button>
+     <div className="fixed bottom-4 right-4 z-[1000]">
+      <motion.button
+        onClick={() => setOpen((o) => !o)}
+        whileHover={{ scale: 1.1 }}
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+        className="rounded-full p-1 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 
+                   ring-4 ring-white/60 overflow-hidden"
+      >
+        <img
+          src="herstoryLogoBot" 
+          alt="HerStory Bot"
+          className="w-14 h-14 rounded-full object-cover"
+        />
+      </motion.button>
     </div>
 
     <AnimatePresence>
@@ -607,52 +618,62 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
         <motion.div initial={{ opacity: 0, y: 50 }} 
         animate={{ opacity: 1, y: 0 }} 
         exit={{ opacity: 0, y: 50 }} 
-        className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] bg-white shadow-2xl rounded-lg flex flex-col overflow-hidden">
+        className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
+             bg-gradient-to-br from-pink-50 to-purple-50 
+             shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-purple-200">
         {/* Header */}       
-          <div className="flex justify-between items-center p-3 border-b border-gray-200">
+          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
           <div>
               <h2 className="text-lg font-bold">{UI[lang].title}</h2>
-              <p className="text-xs text-gray-500">{UI[lang].subtitle}</p>
+              <p className="text-xs opacity-80">{UI[lang].subtitle}</p>
           </div>
 
           <div className="flex items-center space-x-2">
               <select
               value={lang}
               onChange={(e) => setLang(e.target.value as LangCode)}
-              className="border border-gray-300 rounded px-2 py-1 text-sm"
+              className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
               >
-              {LANGS.map(l => (
-                  <option key={l.code} value={l.code}>{l.label}</option>
+              {LANGS.map((l) => (
+          <option key={l.code} value={l.code} className="text-gray-800">
+                  {l.label}
+                </option>
               ))}
-              </select>
-              <Languages size={16} className="text-gray-500" />
+            </select>
+            <Languages size={18} className="opacity-80" />
 
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-800">
+              <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-white/20 transition">
               <X />
               </button>
           </div>
           </div>
           
           {/* Mensajes */}
-          <div className="flex-1 p-3 overflow-y-auto space-y-2">
+         <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 backdrop-blur-sm">
             {messages.map(m => (
-              <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-                <div className={`px-3 py-2 rounded-lg ${m.from === "bot" ? "bg-gray-100 text-gray-900" : "bg-purple-600 text-white"}`}>
+              <div key={m.id} 
+              className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+                <div 
+                className={`px-4 py-2 rounded-2xl max-w-[75%] shadow 
+                 ${
+                  m.from === "bot" 
+                  ? "bg-purple-100 text-gray-800"
+                : "bg-purple-600 text-white"}`}>
                   {m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text}
                 </div>
               </div>
             ))}
             {typing && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 rounded-lg bg-gray-100 text-gray-500 italic">{UI[lang].typing}</div>
+                <div className="px-4 py-2 rounded-2xl bg-purple-100 text-gray-500 italic">{UI[lang].typing}</div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
           
-          <div className="mb-2">
-          <div className="text-xs font-medium text-gray-500 mb-1">{UI[lang].quickActions}</div>
-          <div className="flex flex-wrap gap-1">
+          <div className="mb-2 px-3">
+          <div className="text-xs font-semibold text-gray-600 mb-1">{UI[lang].quickActions}</div>
+          <div className="flex flex-wrap gap-2">
               {[
               { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
               { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
@@ -664,23 +685,25 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
               { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
               { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
               ].map(chip => (
-              <button key={chip.key} onClick={chip.action} className="rounded-full bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300">
+              <button key={chip.key} onClick={chip.action} 
+              className="rounded-full bg-purple-100 hover:bg-purple-200 
+                     text-purple-700 px-3 py-1 text-xs transition shadow-sm">
                   {chip.label}
               </button>
               ))}
           </div>
           </div>
           
-          <div className="p-3 border-t border-gray-200 flex space-x-2">
+          <div className="p-3 border-t border-purple-200 bg-white/80 flex space-x-2">
             <input
               type="text"
-              className="flex-1 border border-gray-300 rounded px-2 py-1"
+              className="flex-1 border border-purple-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
               placeholder={UI[lang].inputPlaceholder}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
             />
-            <button onClick={() => handleSend()} className="bg-purple-600 text-white p-2 rounded">
+            <button onClick={() => handleSend()} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition">
               <Send />
             </button>
           </div>

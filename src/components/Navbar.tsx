@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -155,6 +156,7 @@ const Navbar = () => {
 
         {/* Right Side - Login Button */}
         <div className="ml-auto flex items-center space-x-4">
+          <ThemeToggle />
           <Link to="/login">
             <Button variant="hero" size="sm" className="hidden md:inline-flex">
               <User className="mr-2 h-4 w-4" />
