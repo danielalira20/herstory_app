@@ -15,7 +15,7 @@ const mediaData = [
     type: 'podcast' as const,
     duration: '61 min',
     author: 'No hay negros en el Tibet',
-    thumbnail: '/placeholder.svg',
+    thumbnail: 'https://i.scdn.co/image/ab6765630000ba8a561b1904027b795074d29a82',
     topics: ['Identidad Racial', 'Activismo Social', 'Visibilidad en medios'],
     participants: ['Adriana Boho', 'Asaari Bibang'],
     url: 'https://open.spotify.com/embed/show/1z6lMMjBfcnJUapUZcDLko?utm_source=generator'
@@ -27,7 +27,7 @@ const mediaData = [
     type: 'video' as const,
     duration: '16 min',
     author: 'Agenda El Cambio',
-    thumbnail: '/placeholder.svg',
+    thumbnail: '	https://i.ytimg.com/vi/K34FclHLjtU/hqdefault.jpg?s…AFwAcABBg==&rs=AOn4CLAYl0K9eMBrnvI2Xkjpx2mcSLbqXg',
     topics: ['Igualdad de género', 'Equidad', 'Agenda 2030'],
     participants: ['Mara Medina'],
     url: 'https://www.youtube.com/embed/K34FclHLjtU?si=DsbDQvN6ZbUrgo4d'
@@ -39,7 +39,7 @@ const mediaData = [
     type: 'podcast' as const,
     duration: ' min',
     author: 'El Podcast de Cristina Mitre',
-    thumbnail: '/placeholder.svg',
+    thumbnail: 'https://i.scdn.co/image/ab6765630000ba8a47fd78452dcd10f7ece9a976',
     topics: ['Ciencia', 'Empoderamiento', 'Bienestar'],
     participants: ['Cristina Mitre', 'Teresa Arnandis'],
     url: 'https://open.spotify.com/embed/episode/7y25NsSswLIk7NkudZ1OU4?utm_source=generator'
@@ -49,9 +49,9 @@ const mediaData = [
   title: 'Cómo educar en la igualdad de género',
   description: 'La socióloga Marina Subirats reflexiona sobre cómo transformar la educación para promover la igualdad de género desde la infancia. Parte del ciclo Aprendemos Juntos 2030 de BBVA.',
   type: 'video' as const,
-  duration: '16 min',
+  duration: '6 min',
   author: 'Aprendemos Juntos 2030',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.ytimg.com/vi/gl6c1kLrJnU/hqdefault.jpg?s…BACGAY4AUAB&rs=AOn4CLAg65HZNN-MHKa2M0YtlFVGyzAdrA',
   topics: ['Igualdad de género', 'Educación', 'Infancia'],
   participants: ['Marina Subirats'],
   url: 'https://www.youtube.com/embed/gl6c1kLrJnU?si=yedU_l0IXLNBn_Ls" title="YouTube video player'
@@ -63,7 +63,7 @@ const mediaData = [
     type: 'podcast' as const,
     duration: '129 min',
     author: 'Relatos Forenses Podcast',
-    thumbnail: '/placeholder.svg',
+    thumbnail: 'https://i.scdn.co/image/ab67656300005f1f561595e2f02d8f627f30833f',
     topics: [ 'Violencia Estructural', 'Feminicidio'],
     url: 'https://open.spotify.com/embed/episode/6oJw0amuKqcv20rUTqzvOn/video?utm_source=generator'
   },
@@ -74,7 +74,7 @@ const mediaData = [
   type: 'video' as const,
   duration: '15 min',
   author: 'Aprendemos Juntos 2030',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.ytimg.com/vi/iyCHxB7wdeQ/hqdefault.jpg?s…BACGAY4AUAB&rs=AOn4CLD4BGinjM8HWmLjysDfFiGQ70QlYA',
   topics: ['Desigualdad de género', 'Sociedad', 'Educación'],
   url: 'https://www.youtube.com/embed/iyCHxB7wdeQ'
 },
@@ -85,7 +85,7 @@ const mediaData = [
   type: 'video' as const,
   duration: '1 min',            // No se especifica la duración exacta en la descripción
   author: 'Fundadoras Podcast',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.ytimg.com/vi/bDKT437PCxE/hqdefault.jpg?s…HIgUSgvMA8=&rs=AOn4CLCJnGZeGsxiNpUdiQ2wbPrvXA0fjA',
   topics: ['STEM', 'Igualdad de género', 'Mujeres en ciencia'],
   participants: ['Susana Arrechea'],
   url: 'https://www.youtube.com/embed/bDKT437PCxE'
@@ -97,7 +97,7 @@ const mediaData = [
   type: 'podcast' as const,
   duration: '≈15 min',
   author: 'El Universal',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.scdn.co/image/ab67656300005f1f09f160a1e163545f5c84fc63',
   topics: ['Violencia sexual', 'Noticias'],
   participants: ['Tavo Stone', 'Cinthia García', 'Karen Vázquez', 'Darío Soto'],
   url: 'https://open.spotify.com/embed/episode/0qMh9GBqZD93UUElNnHfSu?utm_source=generator'
@@ -109,7 +109,7 @@ const mediaData = [
   type: 'podcast' as const,
   duration: '29 min',
   author: 'Somos Aliadas',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.scdn.co/image/ab6765630000ba8a52ec8c7a8fd89252c0cb9693',
   topics: ['Igualdad de género', 'Derechos laborales', 'Trabajadoras del hogar'],
   participants: ['Paola Rojas', 'Marcelina Bautista'],
   url: 'https://open.spotify.com/embed/episode/4RY36BFpgbeXzhIwcciIWr/video?utm_source=generator'
@@ -121,7 +121,7 @@ const mediaData = [
   type: 'video' as const,
   duration: '1 min', 
   author: 'Fundadoras Podcast',
-  thumbnail: '/placeholder.svg',
+  thumbnail: '	https://i.ytimg.com/vi/LNIH9e6GsmM/oardefault.jpg?…hgGOAFAAQ==&rs=AOn4CLBG8sJik-rjgnCc6QoozGaKG4p37A',
   topics: ['Emprendimiento femenino', 'Apoyo empresarial', 'Igualdad de género'],
   url: 'https://www.youtube.com/embed/LNIH9e6GsmM?si=i-_8Vwlj9X-Iwe26'
 },
@@ -132,7 +132,7 @@ const mediaData = [
   type: 'podcast' as const,
   duration: '31 min',
   author: 'Mamás en Pausa',
-  thumbnail: '/placeholder.svg',
+  thumbnail: '	https://i.scdn.co/image/ab67656300005f1f9d6cef2eb3fa31f7d80b58ed',
   topics: ['Maternidad', 'Poder femenino', 'Desarrollo personal'],
   participants: ['Jimena Férez', 'Ana Lore'],
   url: 'https://open.spotify.com/embed/episode/55Zjbjp5iBGqZUVpCGPPa0/video?utm_source=generator'
@@ -144,7 +144,7 @@ const mediaData = [
   type: 'video' as const,
   duration: '5 min', 
   author: 'Mr. De La Riva',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.ytimg.com/vi/Id0KeN49jHY/hq720.jpg?sqp=-…BACGAY4AUAB&rs=AOn4CLBhvYkn3VGj0v5dCQpxEuyrnAYFhA',
   participants: ['Alberto De La Riva', 'Melannie Chavez', 'Alex Ochoa'],
   topics: ['Violencia de género', 'Conciencia social', 'Igualdad de género'],
   url: 'https://www.youtube.com/embed/Id0KeN49jHY?si=gUSKFPf5lJsPQ7yE'
@@ -156,7 +156,7 @@ const mediaData = [
   type: 'video' as const,
   duration: '21 min',
   author: 'Aprendemos Juntos 2030',
-  thumbnail: '/placeholder.svg',
+  thumbnail: '	https://i.ytimg.com/vi/BLOesA3i3sU/hq720.jpg?sqp=-…BACGAY4AUAB&rs=AOn4CLChruA3IkC8p0VydJFr4zMkbaT9ew',
   topics: ['Igualdad de género', 'Educación', 'Referentes femeninos', 'Empoderamiento'],
   participants: ['Marina Subirats', 'Joven de 17 años'],
   url: 'https://www.youtube.com/embed/BLOesA3i3sU?si=IUeqoLWXsFsxKFGs'
@@ -168,7 +168,7 @@ const mediaData = [
   type: 'podcast' as const,
   duration: '30 min',
   author: 'Igualdad de Genero',
-  thumbnail: '/placeholder.svg',
+  thumbnail: 'https://i.scdn.co/image/ab67656300005f1f80c4e549eb7353c4dfe11505',
   topics: ['Acoso callejero', 'Derechos humanos', 'Protección de la niñez'],
   participants: ['Sofia Pineda', 'Nora Urbina'],
   url: 'https://open.spotify.com/embed/episode/1jA7i8PEfnmpTggiih4Zz0?utm_source=generator'
@@ -180,7 +180,7 @@ const mediaData = [
   type: 'podcast' as const,
   duration: '58 min',
   author: 'PatriaHorcado',
-  thumbnail: '/placeholder.svg',
+  thumbnail: '	https://i.scdn.co/image/ab67656300005f1fbdfcde7d02e7ec6aa4a0e89f',
   topics: ['Mujeres en medicina', 'Historia de mujeres', 'Igualdad de género'],
   participants: ['Carme Valls', 'Clara Zetkin (histórica)'],
   url: 'https://open.spotify.com/embed/episode/4jGIoQMyHq6naDlpzXOSUG?utm_source=generator'

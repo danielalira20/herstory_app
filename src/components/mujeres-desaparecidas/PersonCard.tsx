@@ -18,17 +18,18 @@ interface PersonCardProps {
 }
 
 const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
- const formattedDate = person.fechaDesaparicion
+  const formattedDate = person.fechaDesaparicion
     ? new Date(person.fechaDesaparicion).toLocaleDateString("es-MX", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
     : "Fecha desconocida";
-  
+
   return (
-    <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden">
-      <CardContent className="p-0">
+    <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
+      {/* Contenido principal */}
+      <CardContent className="p-0 flex-grow">
         <div className="aspect-square overflow-hidden">
           <img 
             src={person.foto || "/assests/default.png"}
@@ -55,7 +56,9 @@ const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
+
+      {/* Botón fijo abajo */}
+      <CardFooter className="p-4 pt-0 mt-auto">
         <Button 
           onClick={() => onViewDetails(person)}
           variant="outline"
