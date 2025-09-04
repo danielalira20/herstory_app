@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Headphones, Video, Play, X } from 'lucide-react';
+import { Search, Filter, Headphones, Video, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface MediaFiltersProps {
@@ -18,7 +18,7 @@ const mediaTypes = [
   { id: 'all', label: 'Todo', icon: Filter },
   { id: 'podcast', label: 'Podcasts', icon: Headphones },
   { id: 'video', label: 'Videos', icon: Video },
-  { id: 'audio', label: 'Audios', icon: Play },
+  // ELIMINADO: { id: 'audio', label: 'Audios', icon: Play },
 ];
 
 export function MediaFilters({
