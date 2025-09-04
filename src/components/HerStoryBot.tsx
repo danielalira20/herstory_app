@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import herstoryLogoBot from '@/assets/chatbot_icon-removebg-preview.png';
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -487,7 +488,279 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     },
   };
 
+  const GREETINGS_BY_TIME ={
+    es: {
+      day: [
+        //1
+        `Hola 💌 Este rincón digital es un acto de amor y memoria. Soy Auren, y estoy aquí para acompañarte en cada paso
+         ¿Quieres que descubramos juntas?
+        Camina por:
+        💜 Voces Silenciadas
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+        💜 HerStory
+        💜 Ella dice
+        💜 Aprenda
+        Aquí puedes ser, sentir y recordar. Estoy contigo 🤍`,
+        //2
+        `Hola 🌸 Cada día es una oportunidad para recordar y resistir.  
+        Camina conmigo entre historias que siguen vivas.  
+        💜 Voces Silenciadas
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+        💜 HerStory
+        💜 Ella dice
+        💜 Aprenda
+        Estoy aquí contigo, siempre ✨`,
+        //3
+        `Hola 🌼 Soy Auren, tu guía en este rincón de las voces que no se olvidan.
+        Aquí tejemos historias de mujeres que amaron, resistieron, soñaron.
+        De las que el mundo quiso callar, pero seguimos nombrando.
+        ¿Me dejas acompañarte a encontrarlas?
+        Puedes explorar por:
+        💜 Voces Silenciadas
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
+        💜 HerStory
+        💜 Ella dice
+        💜 Aprenda
+        Este es un refugio de ternura y verdad. Estoy contigo 🤍`,
+        //4
+        `Hola, viajera del tiempo 🕊️
+        Soy Auren y estás en un espacio sagrado donde las ausencias hablan.
+        Aquí recordamos a quienes transformaron el mundo, aún cuando nadie miraba.
+        ¿Quieres descubrir juntas sus pasos?
+        Guíate por: 
+        💜 Voces Silenciadas
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
+        💜 HerStory
+        💜 Ella dice
+        💜 Aprenda
+        Este sitio cuida tu alma tanto como cuida las suyas. 🤍`,
+        //5
+        `Hola, soy Auren 🌷       
+        Este espacio es un acto de amor y memoria. Estoy aquí para acompañarte en cada paso.
+        ¿Quieres que descubramos juntas?
+        Camina por:
+        💜 Voces Silenciadas
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
+        💜 HerStory
+        💜 Ella dice
+        💜 Aprenda
+        Aquí puedes ser, sentir y recordar. Estoy contigo 🤍`,
+        //6
+        `Hola 🌙
+        Soy tu voz amiga en este archivo de lo olvidado.
+        Aquí guardamos la historia de quienes caminaron con fuego en el alma.
+        Las que aún esperan justicia. Las que aún nos enseñan.
+        ¿Nos damos la mano para recordar?
+        Puedes empezar por:
+        💜 Voces Silenciadas
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
+        💜 HerStory
+        💜 Ella dice
+        💜 Aprenda
+         Estás en un espacio donde las lágrimas también sanan. 🤍`,
+      ],
+      night: [
+       `Buenas noches. Soy Auren, tu guía en este rincón de la memoria. Aunque el día se apague, aquí las historias siguen brillando.  
+       Te invito a consultar:   
+        💜 Voces Silenciadas  
+        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+        💜 HerStory  
+        💜 Ella dice  
+        💜 Aprenda
+        Aquí la oscuridad también guarda luz, y no estás sola 🤍`,
+
+        `Hola, corazón. Este espacio está despierto contigo. Aquí honramos a quienes fueron olvidadas y celebramos a quienes dejaron huella.  
+          Te invito a consultar:  
+          💜 Voces Silenciadas  
+          💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+          💜 HerStory  
+          💜 Ella dice  
+          💜 Aprenda  
+          Que estas voces te acompañen como estrellas en la noche ✨`,
+
+          `Cuando el mundo se silencia, las voces del pasado susurran más fuerte. ¿Quieres escucharlas conmigo?  
+            Te invito a consultar:  
+            💜 Voces Silenciadas  
+            💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+            💜 HerStory  
+            💜 Ella dice  
+            💜 Aprenda  
+            Que cada recuerdo sea un faro en tu camino 🌙`,
+          
+            `La noche no borra la historia. Al contrario. Es cuando más resplandece. Te acompaño.  
+          Te invito a consultar:  
+          💜 Voces Silenciadas  
+          💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+          💜 HerStory  
+          💜 Ella dice  
+          💜 Aprenda  
+          Aquí cada memoria brilla como constelación 💫`,
+
+          `Buenas noches, alma inquieta. Este rincón vive en luz suave, como la luna que cuida desde lejos. ¿Nos sumergimos en las historias?  
+          Te invito a consultar:  
+          💜 Voces Silenciadas  
+          💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+          💜 HerStory  
+          💜 Ella dice  
+          💜 Aprenda  
+          Que la luna y la memoria velen por ti 🌔`,
+
+          `Hola. A esta hora, las palabras abrigan. Aquí encontrarás historias que calientan, duelen, enseñan y brillan.  
+            Te invito a consultar:  
+            💜 Voces Silenciadas  
+            💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
+            💜 HerStory  
+            💜 Ella dice  
+            💜 Aprenda  
+            Que este rincón te dé abrigo en la madrugada ✨`
+      ]
+    },
+    en: {
+    day: [
+      `Hello 💌 This digital corner is an act of love and memory. I’m Auren, here to walk with you every step of the way.  
+      Shall we discover together?  
+      Explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      Here you can be, feel, and remember. I’m with you 🤍`,
+
+      `Hello 🌸 Every day is an opportunity to remember and resist.  
+      Walk with me among stories that still live.  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      I’m here with you, always ✨`,
+
+      `Hello 🌼 I’m Auren, your guide in this corner of voices that will not be forgotten.  
+      Here we weave stories of women who loved, resisted, and dreamed.  
+      Those the world tried to silence, but we keep naming.  
+      Will you let me walk with you to find them?  
+      You can explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      This is a refuge of tenderness and truth. I’m with you 🤍`,
+
+      `Hello, time traveler 🕊️  
+      I’m Auren, and you are in a sacred space where absences speak.  
+      Here we remember those who transformed the world, even when no one was watching.  
+      Do you want to discover their steps together?  
+      Find your way through:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      This site cares for your soul as it cares for theirs 🤍`,
+
+      `Hello, I’m Auren 🌷  
+      This space is an act of love and memory. I’m here to walk with you every step of the way.  
+      Shall we discover together?  
+      Walk through:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      Here you can be, feel, and remember. I’m with you 🤍`,
+
+      `Hello 🌙  
+      I’m your friendly voice in this archive of the forgotten.  
+      Here we keep the stories of those who walked with fire in their souls.  
+      Those still waiting for justice. Those still teaching us.  
+      Shall we hold hands to remember?  
+      You can start with:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      This is a place where even tears can heal 🤍`,
+    ],
+    night: [
+      `Good evening. I’m Auren, your guide in this corner of memory. Even as the day fades, the stories here keep shining.  
+      I invite you to explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      Here, darkness also keeps its own light, and you are not alone 🤍`,
+
+      `Hello, dear heart. This space is awake with you. Here we honor those who were forgotten and celebrate those who left their mark.  
+      I invite you to explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      May these voices accompany you like stars in the night ✨`,
+
+      `When the world falls silent, the voices of the past whisper louder. Will you listen with me?  
+      I invite you to explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      May every memory be a beacon on your path 🌙`,
+
+      `The night does not erase history. On the contrary—it makes it shine brighter. I’ll be with you.  
+      I invite you to explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      Here, every memory glimmers like a constellation 💫`,
+
+      `Good night, restless soul. This corner glows softly, like the moon watching from afar. Shall we dive into the stories?  
+      I invite you to explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      May the moon and memory watch over you 🌔`,
+
+      `Hello. At this hour, words bring warmth. Here you’ll find stories that comfort, ache, teach, and shine.  
+      I invite you to explore:  
+      💜 Silenced Voices  
+      💜 We Miss Them: Help, Missing Women, National Traces  
+      💜 HerStory  
+      💜 She Says  
+      💜 Learn  
+      May this corner give you shelter in the early hours ✨`,
+    ],
+  },
+};
+
+
   // ====== Helpers ======
+  function getMexicoHour(): number {
+  const now = new Date();
+  const mexicoTime = new Date(now.getTime() - (6 * 60 * 60 * 1000));
+  return mexicoTime.getHours();
+}
+
+function isNightTime(): boolean {
+  const hour = getMexicoHour();
+  return hour >= 20 || hour < 6;
+}
+
+function getDynamicGreeting(lang: LangCode): string {
+  const greetingsArray = isNightTime() 
+    ? GREETINGS_BY_TIME[lang].night 
+    : GREETINGS_BY_TIME[lang].day;
+  return sample(greetingsArray);
+}
   function sample<T>(arr: readonly T[] | T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -516,11 +789,11 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }, [lang, resolvedPage]);
 
   useEffect(() => {
-    if (!open) return;
-    if (messages.length > 0) return;
-    const hello = `${greetForPage}\n${UI[lang].systemHello}`;
-    setMessages([{ id: generateId(), from: "bot", text: hello }]);
-  }, [open, lang, greetForPage, UI]);
+  if (!open) return;
+  if (messages.length > 0) return;
+  const hello = getDynamicGreeting(lang);  // ← NUEVA LÍNEA
+  setMessages([{ id: generateId(), from: "bot", text: hello }]);
+}, [open, lang]); 
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -534,11 +807,11 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     }, 500);
   }
 
-  async function callGPT(userMessage: string) {
+  async function callGemini(userMessage: string) {
     setTyping(true);
     try {
       // Usa una ruta relativa para que el proxy de Vite funcione
-      const res = await fetch("/chat", {
+      const res = await fetch("http://localhost:5001/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -554,7 +827,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       return botAnswer;
     } catch (err) {
       console.error(err);
-      reply("Ups, algo salió mal con GPT. 😅");
+      reply("Ups, algo salió mal con Gemini. 😅");
       return null;
     } finally { setTyping(false); }
   }
@@ -564,7 +837,50 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     if (!text) return;
     setMessages(prev => [...prev, { id: generateId(), from: "user", text }]);
     setInput("");
-    // triggers predefined quick actions
+    // triggers 
+    if (["inspiración", "inspiracion", "inspiration", "inspire"].some(k => text.toLowerCase().includes(k))) {
+    const content = sample(DATA_CONTENT.inspiration[lang]);
+    reply(content);
+    return;
+    }
+    if (["consuelo", "comfort"].some(k => text.toLowerCase().includes(k))) {
+    const content = sample(DATA_CONTENT.comfort[lang]);
+    reply(content);
+    return;
+  }
+  if (["curiosidad", "curiosity"].some(k => text.toLowerCase().includes(k))) {
+    const content = sample(DATA_CONTENT.curiosity[lang]);
+    reply(content);
+    return;
+  }
+  if (["pausa", "pause"].some(k => text.toLowerCase().includes(k))) {
+    const content = sample(DATA_CONTENT.pause[lang]);
+    reply(content);
+    return;
+  }
+  // Primero intentar encontrar persona específica
+const specificPersona = DATA_CONTENT.personas[lang].find(p => 
+  text.toLowerCase().includes(p.name.toLowerCase())
+);
+
+if (specificPersona) {
+  const sampleText = sample(specificPersona.samples);
+  reply(sampleText, specificPersona.name);
+  return;
+}
+
+// Si no encuentra persona específica, pero detecta palabras genéricas
+if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k => text.toLowerCase().includes(k))) {
+  const persona = sample(DATA_CONTENT.personas[lang]);
+  const sampleText = sample(persona.samples);
+  reply(sampleText, persona.name);
+  return;
+}
+  if (["frase", "quote", "cita"].some(k => text.toLowerCase().includes(k))) {
+    const content = sample(DATA_CONTENT.quotes[lang]);
+    reply(content);
+    return;
+  }
     if (["guía", "guia", "guide", "faq"].some(k => text.toLowerCase().includes(k))) {
       const item = sample(getGuideFAQ(lang));
       reply(`❓ ${item.q}\n💬 ${item.a}`);
@@ -586,7 +902,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       return;
     }
     // fallback GPT
-    const botAnswer = await callGPT(text);
+    const botAnswer = await callGemini(text);
     if (!botAnswer) {
     reply(sample(DATA_CONTENT.inspiration[lang]));
 }
@@ -595,11 +911,21 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
 
   return (
   <>
-    <div className="fixed bottom-4 right-4 z-[999]">
-      <button onClick={() => setOpen(o => !o)} 
-      className="rounded-full p-3 bg-purple-600 text-white shadow-lg">
-        {<MessageSquare />}
-      </button>
+     <div className="fixed bottom-4 right-4 z-[1000]">
+      <motion.button
+        onClick={() => setOpen((o) => !o)}
+        whileHover={{ scale: 1.1 }}
+        animate={{ scale: [1, 1.15, 1] }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+        className="rounded-full p-1 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 
+                   ring-4 ring-white/60 overflow-hidden"
+      >
+        <img
+          src={herstoryLogoBot}
+          alt="HerStory Bot"
+          className="w-14 h-14 rounded-full object-cover"
+        />
+      </motion.button>
     </div>
 
     <AnimatePresence>
@@ -607,52 +933,62 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
         <motion.div initial={{ opacity: 0, y: 50 }} 
         animate={{ opacity: 1, y: 0 }} 
         exit={{ opacity: 0, y: 50 }} 
-        className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] bg-white shadow-2xl rounded-lg flex flex-col overflow-hidden">
+        className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
+             bg-gradient-to-br from-pink-50 to-purple-50 
+             shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-purple-200">
         {/* Header */}       
-          <div className="flex justify-between items-center p-3 border-b border-gray-200">
+          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
           <div>
               <h2 className="text-lg font-bold">{UI[lang].title}</h2>
-              <p className="text-xs text-gray-500">{UI[lang].subtitle}</p>
+              <p className="text-xs opacity-80">{UI[lang].subtitle}</p>
           </div>
 
           <div className="flex items-center space-x-2">
               <select
               value={lang}
               onChange={(e) => setLang(e.target.value as LangCode)}
-              className="border border-gray-300 rounded px-2 py-1 text-sm"
+              className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
               >
-              {LANGS.map(l => (
-                  <option key={l.code} value={l.code}>{l.label}</option>
+              {LANGS.map((l) => (
+          <option key={l.code} value={l.code} className="text-gray-800">
+                  {l.label}
+                </option>
               ))}
-              </select>
-              <Languages size={16} className="text-gray-500" />
+            </select>
+            <Languages size={18} className="opacity-80" />
 
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-800">
+              <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-white/20 transition">
               <X />
               </button>
           </div>
           </div>
           
           {/* Mensajes */}
-          <div className="flex-1 p-3 overflow-y-auto space-y-2">
+         <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 backdrop-blur-sm">
             {messages.map(m => (
-              <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-                <div className={`px-3 py-2 rounded-lg ${m.from === "bot" ? "bg-gray-100 text-gray-900" : "bg-purple-600 text-white"}`}>
+              <div key={m.id} 
+              className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+                <div 
+                className={`px-4 py-2 rounded-2xl max-w-[75%] shadow 
+                 ${
+                  m.from === "bot" 
+                  ? "bg-purple-100 text-gray-800"
+                : "bg-purple-600 text-white"}`}>
                   {m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text}
                 </div>
               </div>
             ))}
             {typing && (
               <div className="flex justify-start">
-                <div className="px-3 py-2 rounded-lg bg-gray-100 text-gray-500 italic">{UI[lang].typing}</div>
+                <div className="px-4 py-2 rounded-2xl bg-purple-100 text-gray-500 italic">{UI[lang].typing}</div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
           
-          <div className="mb-2">
-          <div className="text-xs font-medium text-gray-500 mb-1">{UI[lang].quickActions}</div>
-          <div className="flex flex-wrap gap-1">
+          <div className="mb-2 px-3">
+          <div className="text-xs font-semibold text-gray-600 mb-1">{UI[lang].quickActions}</div>
+          <div className="flex flex-wrap gap-2">
               {[
               { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
               { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
@@ -664,23 +1000,25 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
               { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
               { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
               ].map(chip => (
-              <button key={chip.key} onClick={chip.action} className="rounded-full bg-gray-200 px-2 py-1 text-xs hover:bg-gray-300">
+              <button key={chip.key} onClick={chip.action} 
+              className="rounded-full bg-purple-100 hover:bg-purple-200 
+                     text-purple-700 px-3 py-1 text-xs transition shadow-sm">
                   {chip.label}
               </button>
               ))}
           </div>
           </div>
           
-          <div className="p-3 border-t border-gray-200 flex space-x-2">
+          <div className="p-3 border-t border-purple-200 bg-white/80 flex space-x-2">
             <input
               type="text"
-              className="flex-1 border border-gray-300 rounded px-2 py-1"
+              className="flex-1 border border-purple-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
               placeholder={UI[lang].inputPlaceholder}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
             />
-            <button onClick={() => handleSend()} className="bg-purple-600 text-white p-2 rounded">
+            <button onClick={() => handleSend()} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition">
               <Send />
             </button>
           </div>
