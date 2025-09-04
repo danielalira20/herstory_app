@@ -48,6 +48,7 @@ const MujeresDesaparecidas = () => {
   str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
   // Formulario
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     nombrePersona: "",
     edad: "",
@@ -181,6 +182,7 @@ const handlePrev = () => {
             </p>
           </div>
         )}
+        
        
                {/* Carrusel */}
         {filteredPersons.length > 0 ? (
@@ -191,6 +193,7 @@ const handlePrev = () => {
           </p>
         )}
 
+         
 
 
         {/* Footer y privacidad */}
@@ -199,9 +202,6 @@ const handlePrev = () => {
             <PrivacyNotice />
           </div>
         </footer>
-
-
-
 
         {/* =================== Formulario =================== */}
         <div className="mt-12">
@@ -223,7 +223,16 @@ const handlePrev = () => {
             </CardContent>
           </Card>
 
+          {/* Botón para abrir formulario */}
+        <div className="flex justify-center my-8">
+          <Button size="lg" onClick={() => setShowForm(!showForm)}>
+            {showForm ? "Cerrar formulario" : "Reportar"}
+          </Button>
+        </div>
+
           {/* Formulario de reporte */}
+          {showForm && (
+          <div className="mt-12">
           <Card className="max-w-4xl mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -530,6 +539,8 @@ const handlePrev = () => {
               </form>
             </CardContent>
           </Card>
+          </div>
+        )}
 
              {/* Contact info */}
         <div className="mt-8 text-center text-sm text-muted-foreground">
