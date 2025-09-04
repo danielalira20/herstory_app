@@ -13,10 +13,13 @@ const PrivacyNotice = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-          <Shield className="h-4 w-4 mr-2" />
-          Aviso de Privacidad
-        </Button>
+      <Button
+  size="sm"
+  className="bg-purple-600 hover:bg-purple-700 text-white"
+>
+  <Shield className="h-4 w-4 mr-2" />
+  Aviso de Privacidad
+</Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[80vh]">
         <DialogHeader>

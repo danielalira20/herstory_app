@@ -10,6 +10,7 @@ import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import {supabase} from "@/lib/supabaseClient";
+import PrivacyNotice from "@/components/mujeres-desaparecidas/PrivacyNotice";
 
 const EllaDice = () => {
   const { toast } = useToast();
@@ -290,6 +291,11 @@ const EllaDice = () => {
                 </div>
               </CardContent>
             </Card>
+
+          <div className="flex justify-center items-center">
+  <PrivacyNotice />
+</div>
+
 
             {/* Forum Posts */}
             <div className="space-y-4">
