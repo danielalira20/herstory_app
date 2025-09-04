@@ -29,7 +29,7 @@ app.post("/api/quiz", async (req, res) => {
     //  imagen_url: w.imagen_url || "/assets/default.png"
     }));
 
-     const apiKey = process.env.GEMINI_API_KEY;
+     const apiKey = process.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "API Key no configurada." });
     }

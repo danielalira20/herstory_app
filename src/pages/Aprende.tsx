@@ -6,11 +6,11 @@ import headerImage from "@/assets/herstory-header.jpg";
 import Quiz from "../components/quiz";
 import QuizTrivias from "@/components/QuizTrivias"
 import banner from "@/assets/banner_trivias.png";
-
+import Trivias from "@/components/aprende/Trivias";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
-
-
+import Memorama from "@/components/aprende/Memorama";
+import OrdenarPalabras from "@/components/aprende/OrdenarPalabras";
   const Aprende = () => {
   const { toast } = useToast();
  const [showQuiz, setShowQuiz] = useState(false);
@@ -145,8 +145,8 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
 
           <section className="pt-4 pb-12 px-4 subtle-gradient">
               <QuizTrivias />
-            
             </section>
+
          
           {/* Sección de Motivación */}
           <div className="text-center space-y-6">
