@@ -111,6 +111,17 @@ const getRandomSidePosition = () => {
     }, 5000);
   }, [quoteId]);
 
+    const handleSuggestionSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+      title: "¡Mensaje enviado!",
+      description: "Gracias por tu sugerencia. Te contactaremos pronto.",
+    });
+    setSuggestion("");
+    setName("");
+    setEmail("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -638,6 +649,7 @@ const getRandomSidePosition = () => {
                 <p className="text-muted-foreground mb-8">
                   Tu voz es importante para nosotras. Comparte tus ideas y ayúdanos a mejorar esta plataforma.
                 </p>
+                {/*si no es es el otro handleSubmit */}
                 <form onSubmit={handleSuggestionSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <Input

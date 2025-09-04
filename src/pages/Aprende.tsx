@@ -199,7 +199,7 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
       </Button>
 
       {/* Renderizar el juego seleccionado */}
-      {activeGame === "memorama" && <Memorama />}
+      {activeGame === "memorama" && <Memorama onClose={() => setActiveGame(null)} />}
       {activeGame === "ordenarPalabras" && <OrdenarPalabras />}
     </div>
   )}
