@@ -12,7 +12,7 @@ interface AIResult {
   name: string;
   coincidencePercentage: number;
   explanation: string;
-  //imagen_url: string;
+  imagen_url?: string;
 } 
 
 const Quiz = () => {
@@ -20,7 +20,7 @@ const Quiz = () => {
   const [answers, setAnswers] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
 
-  const { women, loading, error } = useWomen();
+//  const { women, loading, error } = useWomen();
 
   const [aiResult, setAiResult] = useState<AIResult[]>([]);
   const [loadingResult, setLoadingResult] = useState(false);
@@ -42,7 +42,7 @@ const Quiz = () => {
    const userProfileText = answers
     .map((ans, i) => `Pregunta: ${questions[i].question} Respuesta: ${ans}`)
     .join("\n");
-  
+{/*  
 const womenData = women.map((w) => ({
     id: w.id,
     nombre_completo: w.nombre_completo,
@@ -52,57 +52,71 @@ const womenData = women.map((w) => ({
     categoria: w.categoria?.nombre || "",
     imagen_url: w.imagen_url || "/assets/default.png",
   }));
+*/}
+const fetchAIResult = async () => {
+  setLoadingResult(true);
+  try {
+    // 1️⃣ Pedimos las 3 mujeres más parecidas con búsqueda vectorial
+    const searchResponse = await fetch("http://localhost:3001/search-women", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userProfileText }),
+    });
 
-  const fetchAIResult = async () => {
-    setLoadingResult(true);
-    try {
-      const response = await fetch("http://localhost:3000/api/quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userProfileText, womenData }),
-      });
-
-      const data = await response.json();
-
-      // La IA debe devolver un JSON parseable
-      const parsed: AIResult[] = data.result;
-      setAiResult(parsed);
-    } catch (err) {
-      console.error("Error al obtener resultado de IA:", err);
-    } finally {
-      setLoadingResult(false);
+    if (!searchResponse.ok) {
+      throw new Error("Error al buscar mujeres similares");
     }
-  };
 
-    // Ejecutar IA cuando termine el quiz
-    //la linea se quita si marca error
+    const { results } = await searchResponse.json(); // <-- resultados vectoriales
+
+    // 2️⃣ Mandamos SOLO esas 3 mujeres a la IA para generar explicación
+    const aiResponse = await fetch("http://localhost:3000/api/quiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userProfileText, womenData: results }),
+    });
+
+    if (!aiResponse.ok) {
+      throw new Error("Error al generar resultado de IA");
+    }
+
+    const aiData = await aiResponse.json();
+
+    // Guardamos en el estado los resultados finales
+
+    ///////--------------------------------CAMBIOSSSS---------------------------------------
+    //const parsed: AIResult[] = aiData.result;
+    //setAiResult(parsed);
+
+
+    const parsed: AIResult[] = aiData.result.map(item => {
+  // Buscar la mujer original en la lista que enviaste
+  const match = results.find(
+    w => w.nombre_completo.toLowerCase() === item.name.toLowerCase()
+  );
+
+  return {
+    ...item,
+    imagen_url: match?.imagen_url || "/assets/default.png", // fallback por si no hay imagen
+  };
+});
+
+setAiResult(parsed);
+
+
+  } catch (err) {
+    console.error("Error al obtener resultado de IA:", err);
+  } finally {
+    setLoadingResult(false);
+  }
+};
+
+// Ejecutar IA cuando termine el quiz
+//la linea se quita si marca error
   useEffect(() => {
     if (finished) fetchAIResult();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
-
-    if (loading) {
-    return (
-      <Card className="w-full max-w-2xl mx-auto elegant-shadow">
-        <CardContent className="flex items-center justify-center p-8">
-          <div className="text-center space-y-4">
-            <Brain className="h-12 w-12 text-primary mx-auto animate-pulse" />
-            <p className="text-muted-foreground">Cargando mujeres históricas...</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="w-full max-w-2xl mx-auto elegant-shadow border-destructive">
-        <CardContent className="p-8 text-center">
-          <p className="text-destructive">Error: {error}</p>
-        </CardContent>
-      </Card>
-    );
-  }
 
 const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
 
@@ -177,7 +191,7 @@ const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
                   <div className="relative">
                     <div className="w-16 h-16 mx-auto border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                   </div>
-                  <p className="text-lg font-medium text-foreground">Procesando tus respuestas</p>
+                  <p className="text-lg font-medium text-foreground">Cocinando tu perfil...</p>
                 </div>
               </div>
             </div>
@@ -194,22 +208,22 @@ const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
                     <CardContent className="p-6">
                       <div className="flex flex-col md:flex-row gap-6 items-center">
                         <div className="flex-shrink-0">
-                        {/*
+                        
                           <img
                             src={res.imagen_url}
                             alt={res.name}
-                            className="w-32 h-32 object-cover rounded-full elegant-shadow"
+                            className="w-32 h-43 object-cover rounded-lg elegant-shadow"
                             onError={(e) => {
                               e.currentTarget.src = '/assets/default.png';
                             }}
                           />
-                        */}</div>
+                        </div>
                         <div className="text-center md:text-left space-y-3 flex-1">
                           <div className="flex items-center justify-center md:justify-start gap-3">
                             <h3 className="text-2xl font-bold text-primary">
                               {res.name}
                             </h3>
-                            <Badge variant="secondary" className="font-bold text-sm px-2 py-1">
+                            <Badge variant="secondary" className="font-bold text-sm px-2 py-0.5 text-center inline-block">
                               {res.coincidencePercentage}% Match
                             </Badge>
                           </div>
