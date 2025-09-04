@@ -21,6 +21,7 @@ const categories = {
     name: "Igualdad de Género",
     icon: <Users className="h-5 w-5" />,
     color: "bg-pink-500",
+    image: "/img/categorias/igualdadGenero.png", 
     questions: [
       { 
         question: "¿Qué es la igualdad de género?", 
@@ -89,6 +90,7 @@ const categories = {
     name: "Historia de Mujeres",
     icon: <BookOpen className="h-5 w-5" />,
     color: "bg-purple-500",
+    image: "/img/categorias/historiaMujeres.png",
     questions: [
       { 
         question: "Primera mujer en recibir Nobel de la Paz", 
@@ -158,6 +160,7 @@ const categories = {
     name: "Derechos Humanos",
     icon: <BookOpen className="h-5 w-5" />,
     color: "bg-purple-500",
+    image: "/img/categorias/derechosHumanos.png",
     questions: [
   { 
     question: "Declaración Universal de Derechos Humanos se firmó en", 
@@ -225,6 +228,7 @@ activismoSocial: {
     name: "Activismo Social",
     icon: <BookOpen className="h-5 w-5" />,
     color: "bg-purple-500",
+    image: "/img/categorias/activismoSocial.png",
     questions:
     [
   { 
@@ -294,6 +298,7 @@ arteYCultura:{
      name: "Arte y cultura",
     icon: <BookOpen className="h-5 w-5" />,
     color: "bg-purple-500",
+    image: "/img/categorias/arteYCultura.png",
     questions:
     [
   { 
@@ -455,40 +460,36 @@ const QuizTrivias = () => {
   };
 
 
- if (!selectedCategory) {
-    return (
-      <div className="w-full max-w-4xl mx-auto space-y-6">
-        <div className="text-center space-y-4">
-          <div className="flex justify-center">
-            <Brain className="h-12 w-12 text-primary" />
-          </div>
-          <h2 className="text-3xl font-bold">Elige una Categoría</h2>
-          <p className="text-muted-foreground">Selecciona un tema para comenzar tu quiz</p>
+if (!selectedCategory) {
+  return (
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <div className="text-center space-y-4">
+        <div className="flex justify-center">
+          <Brain className="h-12 w-12 text-primary" />
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {Object.entries(categories).map(([key, category]) => (
-            <Card
-              key={key}
-              className="cursor-pointer hover:scale-105 smooth-transition soft-shadow hover:elegant-shadow"
-              onClick={() => handleCategorySelect(key as keyof typeof categories)}
-            >
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className={`p-3 rounded-full ${category.color} text-white`}>{category.icon}</div>
-                  <div>
-                    <CardTitle className="text-lg">{category.name}</CardTitle>
-                    <CardDescription>{category.questions.length} preguntas</CardDescription>
-                  </div>
-                </div>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
+        <h2 className="text-3xl font-bold">Elige una Categoría</h2>
+        <p className="text-muted-foreground">Selecciona un tema para comenzar tu quiz</p>
       </div>
-    );
-  }
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {Object.entries(categories).map(([key, category]) => (
+          <button
+            key={key}
+            onClick={() => handleCategorySelect(key as keyof typeof categories)}
+            className="p-0 border-none bg-transparent rounded-2xl shadow-lg cursor-pointer"
+          >
+            {/* Imagen completa sin recortes */}
+            <img
+              src={category.image}
+              alt={category.name}
+              className="block w-auto h-auto rounded-2xl"
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
   const currentQ = categories[selectedCategory].questions[currentQuestion];
   const progress = ((currentQuestion + 1) / categories[selectedCategory].questions.length) * 100;
 
