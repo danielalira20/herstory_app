@@ -21,7 +21,7 @@ import HerStory from "./pages/HerStory";
 import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
 //import ChatbotSimulado from "./components/ui/chatbot_simulado";
-import HerStoryBot from "./components/HerStoryBot"; 
+import HerStoryBot from "./components/HerStoryBot";
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
 import RastroNacional from "./pages/RastroNacional";

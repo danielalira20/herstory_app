@@ -4,27 +4,25 @@ import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import Quiz from "../components/quiz";
-import QuizTrivias from "@/components/QuizTrivias"
+import QuizTrivias from "@/components/QuizTrivias";
+import Memorama from "@/components/Memorama";
 import banner from "@/assets/banner_trivias.png";
-import Trivias from "@/components/aprende/Trivias";
+import OrdenarPalabras from "@/components/OrdenarPalabras";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
-import Memorama from "@/components/aprende/Memorama";
-import OrdenarPalabras from "@/components/aprende/OrdenarPalabras";
+
   const Aprende = () => {
   const { toast } = useToast();
- const [showQuiz, setShowQuiz] = useState(false);
-
-
- 
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [activeGame, setActiveGame] = useState<"memorama" | "ordenarPalabras" | null>(null);
 
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="relative w-full h-48 overflow-hidden">
-        <img 
-          src={headerImage} 
-          alt="HerStory Header" 
+        <img
+          src={headerImage}
+          alt="HerStory Header"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -145,8 +143,67 @@ import OrdenarPalabras from "@/components/aprende/OrdenarPalabras";
 
           <section className="pt-4 pb-12 px-4 subtle-gradient">
               <QuizTrivias />
+            
             </section>
 
+<section className="pt-4 pb-12 px-4 subtle-gradient">
+  {!activeGame ? (
+    <>
+      {/* Encabezado con icono */}
+      <div className="text-center mb-10 flex flex-col items-center">
+        <Brain className="h-12 w-12 text-primary mb-2" />
+        <h2 className="text-3xl font-bold">Elige un Juego</h2>
+        <p className="text-muted-foreground">Selecciona el que quieras jugar</p>
+      </div>
+
+      {/* Grid de botones */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
+        {/* Memorama */}
+        <div
+          className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
+          onClick={() => setActiveGame("memorama")}
+        >
+          <img
+            src="/img/juegos/memorama.png"
+            alt="Memorama"
+            className="w-full h-64 object-cover"
+          />
+          <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
+            Memorama
+          </span>
+        </div>
+
+        {/* Ordenar Palabras */}
+        <div
+          className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
+          onClick={() => setActiveGame("ordenarPalabras")}
+        >
+          <img
+            src="/img/juegos/ordenarpalabras.png"
+            alt="Ordenar Palabras"
+            className="w-full h-64 object-cover"
+          />
+          <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
+            Ordenar Palabras
+          </span>
+        </div>
+      </div>
+    </>
+  ) : (
+    <div className="w-full max-w-6xl mx-auto mt-8">
+      <Button
+        onClick={() => setActiveGame(null)}
+        className="mb-6 px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition"
+      >
+        Volver al menú
+      </Button>
+
+      {/* Renderizar el juego seleccionado */}
+      {activeGame === "memorama" && <Memorama />}
+      {activeGame === "ordenarPalabras" && <OrdenarPalabras />}
+    </div>
+  )}
+</section>
          
           {/* Sección de Motivación */}
           <div className="text-center space-y-6">
