@@ -156,7 +156,7 @@ const Nosotras = () => {
 
         {/* Team */}
         <div>
-          <h2 className="text-3xl font-bold text-center mb-8">Voy a hacer un cartel de puras viejas chingonas...</h2>
+          <h2 className="text-3xl font-bold text-center mb-8">El equipo detrás del cambio...</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {teamMembers.map((member, index) => (
               <Card key={index} className="hover:shadow-lg transition-shadow">
