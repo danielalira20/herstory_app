@@ -36,7 +36,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   // ====== UI estático ======
   const UI = {
     es: {
-      title: "HerStory Bot",
+      title: "Auren Bot ✨",
       subtitle: "Museo de mujeres olvidadas",
       inputPlaceholder: "Escribe aquí…",
       quickActions: "Atajos",
@@ -138,6 +138,49 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     };
     personas: Record<LangCode, PersonaItem[]>;
   }
+
+  const BOOK_TEMPLATES_ES = [
+  (b: any) => `📖 Te recomiendo ${b.title} de ${b.author}.`,
+  (b: any) => `📖 ¿Has leído ${b.title}? Es de ${b.author}.`,
+  (b: any) => `📖 ${b.title} (${b.author}) es una lectura imperdible.`,
+  (b: any) => `📖 Una joya que puedes explorar: ${b.title} — ${b.author}.`,
+  (b: any) => `📖 Si buscas inspiración, prueba con ${b.title} de ${b.author}.`
+];
+const FILM_TEMPLATES_ES = [
+  (f: any) => `🎬 Te sugiero ver ${f.title} dirigida por ${f.author}.`,
+  (f: any) => `🎬 ${f.title} (${f.author}) es una película que no olvidarás.`,
+  (f: any) => `🎬 ¿Ya viste ${f.title} de ${f.author}?`,
+  (f: any) => `🎬 Una gran recomendación de cine: ${f.title} — ${f.author}.`,
+  (f: any) => `🎬 Para reflexionar, mira ${f.title} de ${f.author}.`
+];
+const EXHIBIT_TEMPLATES_ES = [
+  (e: any) => `🖼️ Te invito a descubrir ${e.title} (${e.author}).`,
+  (e: any) => `🖼️ ${e.title} es una expo fascinante organizada por ${e.author}.`,
+  (e: any) => `🖼️ Puedes visitar ${e.title}, creada por ${e.author}.`,
+  (e: any) => `🖼️ Una muestra imperdible: ${e.title} — ${e.author}.`
+];
+
+const BOOK_TEMPLATES_EN = [
+  (b: any) => `📖 I recommend ${b.title} by ${b.author}.`,
+  (b: any) => `📖 Have you read ${b.title}? It’s by ${b.author}.`,
+  (b: any) => `📖 ${b.title} (${b.author}) is a must-read.`,
+  (b: any) => `📖 A gem worth exploring: ${b.title} — ${b.author}.`,
+  (b: any) => `📖 If you’re looking for inspiration, try ${b.title} by ${b.author}.`
+];
+const FILM_TEMPLATES_EN = [
+  (f: any) => `🎬 I suggest watching ${f.title}, directed by ${f.author}.`,
+  (f: any) => `🎬 ${f.title} (${f.author}) is an unforgettable film.`,
+  (f: any) => `🎬 Have you seen ${f.title} by ${f.author}?`,
+  (f: any) => `🎬 A great film to watch: ${f.title} — ${f.author}.`,
+  (f: any) => `🎬 For reflection, check out ${f.title} by ${f.author}.`
+];
+const EXHIBIT_TEMPLATES_EN = [
+  (e: any) => `🖼️ Discover ${e.title} (${e.author}).`,
+  (e: any) => `🖼️ ${e.title} is a fascinating exhibit by ${e.author}.`,
+  (e: any) => `🖼️ You can visit ${e.title}, presented by ${e.author}.`,
+  (e: any) => `🖼️ A must-see exhibit: ${e.title} — ${e.author}.`,
+  (e: any) => `🖼️ Experience ${e.title} brought to life by ${e.author}.`
+];
 
   // ====== Contenido (ejemplo completo) ======
   const DATA_CONTENT: DataContent = {
@@ -769,6 +812,23 @@ function getDynamicGreeting(lang: LangCode): string {
     return DATA_CONTENT.recommendations[type][lang] ?? [];
   }
 
+  function formatRecommendation(item: any, type: "books" | "films" | "exhibits", lang: LangCode): string {
+  let templates;
+
+  if (lang === "es") {
+    if (type === "books") templates = BOOK_TEMPLATES_ES;
+    if (type === "films") templates = FILM_TEMPLATES_ES;
+    if (type === "exhibits") templates = EXHIBIT_TEMPLATES_ES;
+  } else {
+    if (type === "books") templates = BOOK_TEMPLATES_EN;
+    if (type === "films") templates = FILM_TEMPLATES_EN;
+    if (type === "exhibits") templates = EXHIBIT_TEMPLATES_EN;
+  }
+
+  const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+  return randomTemplate(item);
+}
+
   function getGuideFAQ(lang: LangCode) {
     return DATA_CONTENT.guideFAQ[lang] ?? [];
   }
@@ -816,7 +876,7 @@ function getDynamicGreeting(lang: LangCode): string {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, language: lang}),
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -858,6 +918,24 @@ function getDynamicGreeting(lang: LangCode): string {
     reply(content);
     return;
   }
+
+if (["quien es", "who is", "qué sabes de", "what do you know about", "cuéntame de", "tell me about"].some(k => text.toLowerCase().includes(k))) {
+  // Buscar si mencionan alguna persona específica
+  const mentionedPersona = DATA_CONTENT.personas[lang].find(p => 
+    text.toLowerCase().includes(p.name.toLowerCase())
+  );
+  
+  if (mentionedPersona) {
+    // Aquí mandar a Gemini para que dé información biográfica
+    const biotAnswer = await callGemini(text);
+    if (biotAnswer) return;
+    
+    // Fallback si Gemini no responde
+    reply(`${mentionedPersona.name} - ${mentionedPersona.style}. ${sample(mentionedPersona.samples)}`, mentionedPersona.name);
+    return;
+  }
+}
+
   // Primero intentar encontrar persona específica
 const specificPersona = DATA_CONTENT.personas[lang].find(p => 
   text.toLowerCase().includes(p.name.toLowerCase())
@@ -888,17 +966,17 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
     }
     if (["libro", "book"].some(k => text.toLowerCase().includes(k))) {
       const rec = sample(getRecommendation("books", lang));
-      reply(`📖 ${rec.title} — ${rec.author}`);
+      reply(formatRecommendation(rec, "books", lang)); 
       return;
     }
     if (["película", "film", "movie"].some(k => text.toLowerCase().includes(k))) {
       const rec = sample(getRecommendation("films", lang));
-      reply(`🎬 ${rec.title} — ${rec.author}`);
+      reply(formatRecommendation(rec, "films", lang)); 
       return;
     }
     if (["exposición", "exhibit", "expo"].some(k => text.toLowerCase().includes(k))) {
       const rec = sample(getRecommendation("exhibits", lang));
-      reply(`🖼️ ${rec.title} — ${rec.author}`);
+      reply(formatRecommendation(rec, "exhibits", lang)); 
       return;
     }
     // fallback GPT
@@ -911,7 +989,7 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
 
   return (
   <>
-     <div className="fixed bottom-4 right-4 z-[1000]">
+    <div className="fixed bottom-4 right-4 z-[1000]">
       <motion.button
         onClick={() => setOpen((o) => !o)}
         whileHover={{ scale: 1.1 }}
@@ -930,89 +1008,102 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
 
     <AnimatePresence>
       {open && (
-        <motion.div initial={{ opacity: 0, y: 50 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        exit={{ opacity: 0, y: 50 }} 
-        className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
-             bg-gradient-to-br from-pink-50 to-purple-50 
-             shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-purple-200">
-        {/* Header */}       
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          exit={{ opacity: 0, y: 50 }} 
+          className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
+ bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-purple-900
+ shadow-2xl rounded-2xl flex flex-col overflow-hidden 
+ border border-purple-200 dark:border-purple-700"
+        >
+          {/* Header */}       
           <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
-          <div>
+            <div>
               <h2 className="text-lg font-bold">{UI[lang].title}</h2>
               <p className="text-xs opacity-80">{UI[lang].subtitle}</p>
-          </div>
+            </div>
 
-          <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
               <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as LangCode)}
-              className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
+                value={lang}
+                onChange={(e) => setLang(e.target.value as LangCode)}
+                className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
               >
-              {LANGS.map((l) => (
-          <option key={l.code} value={l.code} className="text-gray-800">
-                  {l.label}
-                </option>
-              ))}
-            </select>
-            <Languages size={18} className="opacity-80" />
+                {LANGS.map((l) => (
+                  <option key={l.code} value={l.code} className="text-gray-800">
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+              <Languages size={18} className="opacity-80" />
 
               <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-white/20 transition">
-              <X />
+                <X />
               </button>
-          </div>
+            </div>
           </div>
           
           {/* Mensajes */}
-         <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 backdrop-blur-sm">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 
+              bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
             {messages.map(m => (
               <div key={m.id} 
-              className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+                   className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
                 <div 
-                className={`px-4 py-2 rounded-2xl max-w-[75%] shadow 
-                 ${
-                  m.from === "bot" 
-                  ? "bg-purple-100 text-gray-800"
-                : "bg-purple-600 text-white"}`}>
-                  {m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text}
-                </div>
+                  className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line
+                             ${m.from === "bot" 
+                               ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                               : "bg-purple-600 dark:bg-purple-500 text-white"}`}
+                  dangerouslySetInnerHTML={{
+                    __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
+                  }}
+                />
               </div>
             ))}
+            
             {typing && (
               <div className="flex justify-start">
-                <div className="px-4 py-2 rounded-2xl bg-purple-100 text-gray-500 italic">{UI[lang].typing}</div>
+                <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 
+                   text-gray-500 dark:text-gray-300 italic">
+                  {UI[lang].typing}
+                </div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
           
           <div className="mb-2 px-3">
-          <div className="text-xs font-semibold text-gray-600 mb-1">{UI[lang].quickActions}</div>
-          <div className="flex flex-wrap gap-2">
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
+            <div className="flex flex-wrap gap-2">
               {[
-              { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
-              { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
-              { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
-              { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
-              { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
-              { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
-              { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
-              { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
-              { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
+                { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
+                { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
+                { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
+                { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
+                { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
+                { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
+                { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
+                { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
+                { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
               ].map(chip => (
-              <button key={chip.key} onClick={chip.action} 
-              className="rounded-full bg-purple-100 hover:bg-purple-200 
-                     text-purple-700 px-3 py-1 text-xs transition shadow-sm">
+                <button key={chip.key} onClick={chip.action} 
+                  className="rounded-full bg-purple-100 dark:bg-gray-700 
+                    hover:bg-purple-200 dark:hover:bg-gray-600
+                    text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm">
                   {chip.label}
-              </button>
+                </button>
               ))}
-          </div>
+            </div>
           </div>
           
-          <div className="p-3 border-t border-purple-200 bg-white/80 flex space-x-2">
+          <div className="p-3 border-t border-purple-200 dark:border-gray-600 
+                bg-white/80 dark:bg-gray-800/80 flex space-x-2">
             <input
               type="text"
-              className="flex-1 border border-purple-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+              className="flex-1 border border-purple-300 dark:border-gray-600 
+                  bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                  rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
               placeholder={UI[lang].inputPlaceholder}
               value={input}
               onChange={e => setInput(e.target.value)}
@@ -1026,5 +1117,5 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
       )}
     </AnimatePresence>
   </>
-);
+)
 }
