@@ -876,7 +876,7 @@ function getDynamicGreeting(lang: LangCode): string {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ message: userMessage, language: lang}),
       });
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
@@ -1013,8 +1013,9 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
           animate={{ opacity: 1, y: 0 }} 
           exit={{ opacity: 0, y: 50 }} 
           className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
-               bg-gradient-to-br from-pink-50 to-purple-50 
-               shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-purple-200"
+ bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-purple-900
+ shadow-2xl rounded-2xl flex flex-col overflow-hidden 
+ border border-purple-200 dark:border-purple-700"
         >
           {/* Header */}       
           <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
@@ -1044,15 +1045,16 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
           </div>
           
           {/* Mensajes */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 backdrop-blur-sm">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 
+              bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
             {messages.map(m => (
               <div key={m.id} 
                    className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
                 <div 
                   className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line
                              ${m.from === "bot" 
-                               ? "bg-purple-100 text-gray-800"
-                               : "bg-purple-600 text-white"}`}
+                               ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                               : "bg-purple-600 dark:bg-purple-500 text-white"}`}
                   dangerouslySetInnerHTML={{
                     __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
                   }}
@@ -1062,7 +1064,8 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
             
             {typing && (
               <div className="flex justify-start">
-                <div className="px-4 py-2 rounded-2xl bg-purple-100 text-gray-500 italic">
+                <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 
+                   text-gray-500 dark:text-gray-300 italic">
                   {UI[lang].typing}
                 </div>
               </div>
@@ -1071,7 +1074,7 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
           </div>
           
           <div className="mb-2 px-3">
-            <div className="text-xs font-semibold text-gray-600 mb-1">{UI[lang].quickActions}</div>
+            <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
             <div className="flex flex-wrap gap-2">
               {[
                 { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
@@ -1085,18 +1088,22 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
                 { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
               ].map(chip => (
                 <button key={chip.key} onClick={chip.action} 
-                  className="rounded-full bg-purple-100 hover:bg-purple-200 
-                           text-purple-700 px-3 py-1 text-xs transition shadow-sm">
+                  className="rounded-full bg-purple-100 dark:bg-gray-700 
+                    hover:bg-purple-200 dark:hover:bg-gray-600
+                    text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm">
                   {chip.label}
                 </button>
               ))}
             </div>
           </div>
           
-          <div className="p-3 border-t border-purple-200 bg-white/80 flex space-x-2">
+          <div className="p-3 border-t border-purple-200 dark:border-gray-600 
+                bg-white/80 dark:bg-gray-800/80 flex space-x-2">
             <input
               type="text"
-              className="flex-1 border border-purple-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+              className="flex-1 border border-purple-300 dark:border-gray-600 
+                  bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                  rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
               placeholder={UI[lang].inputPlaceholder}
               value={input}
               onChange={e => setInput(e.target.value)}
