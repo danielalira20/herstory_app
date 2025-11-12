@@ -103,7 +103,7 @@ app.post("/chat", async (req, res) => {
     console.log(`📝 Procesando (${language}):`, message);
 
     // UNA SOLA llamada a la API, modelo más económico
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     
     // Seleccionar el prompt según el idioma
     const selectedPrompt = prompts[language] || prompts.es; // Fallback a español si el idioma no existe
