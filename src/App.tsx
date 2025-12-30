@@ -14,13 +14,10 @@ import NotFound from "./pages/NotFound";
 import Aprende from "./pages/Aprende";
 import Ayuda from './pages/Ayuda';
 import Perfil from "./pages/perfil";
-//import Chatbot from "./components/ui/chatbot";
-//import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
 import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
-//import ChatbotSimulado from "./components/ui/chatbot_simulado";
 import HerStoryBot from "./components/HerStoryBot";
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
@@ -28,6 +25,7 @@ import RastroNacional from "./pages/RastroNacional";
 import Landing from "./pages/Landing";
 import Search from "./pages/Search"; 
 import Learn from "./pages/Learn";   
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -36,38 +34,46 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="herstory-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/search" element={<Search />} />     
-            <Route path="/learn" element={<Learn />} />  
-            <Route path="/" element={<Home />} />
-            <Route path="/nueva-landing" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/perfil" element={<Perfil />}/>
-            <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
-            <Route path="/ella-dice" element={<EllaDice />} />
-            <Route path="/contacto" element={<Contacto />} />
-            <Route path="/nosotras" element={<Nosotras />} />
-            <Route path="/ayuda" element={<Ayuda />} />
-            <Route path="/aprende" element={<Aprende />} />
-            <Route path="/mujer/:id" element={<WomanDetail />} />
-            <Route path="/herstory" element={<HerStory />} />
-            <Route path="/voces-silenciadas" element={<VocesSilenciadas />} />
-            <Route path="/awareness-guide" element={<AwarenessGuide />} />
-            <Route path="/reportar" element={<Reportar />} />
-            <Route path="/rastro-nacional" element={<RastroNacional />} />
-
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <HerStoryBot />
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              {/* Landing y hubs principales */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/learn" element={<Learn />} />
+              
+              {/* Autenticación y perfil */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/perfil" element={<Perfil />} />
+              
+              {/* Páginas de Search (morado) */}
+              <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
+              <Route path="/rastro-nacional" element={<RastroNacional />} />
+              <Route path="/voces-silenciadas" element={<VocesSilenciadas />} />
+              <Route path="/reportar" element={<Reportar />} />
+              
+              {/* Páginas de Learn (rosa) */}
+              <Route path="/herstory" element={<HerStory />} />
+              <Route path="/mujer/:id" element={<WomanDetail />} />
+              <Route path="/aprende" element={<Aprende />} />
+              <Route path="/ella-dice" element={<EllaDice />} />
+              <Route path="/awareness-guide" element={<AwarenessGuide />} />
+              
+              {/* Páginas universales */}
+              <Route path="/nosotras" element={<Nosotras />} />
+              <Route path="/contacto" element={<Contacto />} />
+              <Route path="/ayuda" element={<Ayuda />} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <HerStoryBot />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
