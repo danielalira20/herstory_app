@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, AlertCircle, Heart, Shield } from "lucide-react";
-import Navbar from "@/components/Navbar";
+import NavbarSearch from "@/components/NavbarSearch";
 
 const Reportar = () => {
   const { toast } = useToast();
@@ -73,8 +73,8 @@ const Reportar = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <div className="min-h-screen bg-background pt-16">
+      <NavbarSearch />
 
       <div className="container py-8">
         {/* Header */}

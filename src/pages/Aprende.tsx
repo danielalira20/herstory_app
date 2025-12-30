@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/Navbar";
+import NavbarLearn from "@/components/NavbarLearn";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import Quiz from "../components/quiz";
@@ -33,7 +33,7 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
         </div>
       </div>
 
-      <Navbar />
+      <NavbarLearn />
 
 
       {/* Sección Informativa Principal */}
