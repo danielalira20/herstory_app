@@ -1,6 +1,6 @@
-  import HeroBanner from "@/components/HeroBanner";
+import HeroBanner from "@/components/HeroBanner";
 import CategorySection from "@/components/CategorySection";
-import Navbar from "@/components/Navbar";
+import NavbarLearn from "@/components/NavbarLearn";
 const HerStory = () => {
 
 
@@ -57,7 +57,7 @@ const HerStory = () => {
         {/* Hero Banner */}
         <HeroBanner />
 
-<Navbar />
+<NavbarLearn />
 
 {/* Bloque de introducción (antes de categorías) */}
       <section className="py-16 px-6 text-center space-y-6 bg-gradient-to-b from-primary/5 to-transparent">

@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import Navbar from "@/components/Navbar";
+import NavbarSearch from "@/components/NavbarSearch";
 import FilterBar from "@/components/mujeres-desaparecidas/FilterBar";
 import PersonCard from "@/components/mujeres-desaparecidas/PersonCard";
 import PersonModal from "@/components/mujeres-desaparecidas/PersonModal";
@@ -150,8 +150,9 @@ const handlePrev = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
+    <>
+      <NavbarSearch />
+      <div className="min-h-screen bg-background pt-16">
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -566,6 +567,7 @@ const handlePrev = () => {
         onClose={() => setIsModalOpen(false)}
       />
     </div>
+    </> 
   );
 };
 

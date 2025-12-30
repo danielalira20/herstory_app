@@ -8,7 +8,7 @@ import { Search, X } from "lucide-react";
 import { mockPersons } from "@/data/mockData";
 import { supabase } from "@/lib/supabaseClient";
 import { usePersons, Person } from "@/hooks/usePersons";
-import Navbar from "@/components/Navbar";
+import NavbarSearch from "@/components/NavbarSearch";
 
 const RastroNacional = () => {
   const [selectedState, setSelectedState] = useState<string | null>(null);
@@ -52,8 +52,8 @@ const [people, setPeople] = useState<Person[]>([]);
   };
 
   return (
-      <div className="min-h-screen bg-gradient-subtle">
-        <Navbar />
+      <div className="min-h-screen bg-gradient-subtle pt-16">
+        <NavbarSearch />
         {/* Hero Section */}
         <section className="py-16 px-4">
           <div className="max-w-6xl mx-auto text-center">
