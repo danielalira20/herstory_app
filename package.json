@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://github.com/daaaf18/voz-activada-plantillas",
-  
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,7 +14,7 @@
     "start:ts": "ts-node server.ts",
     "start": "npm run start:ts",
     "predeploy": "npm run build",
-  "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -59,7 +58,7 @@
     "dotenv": "^17.2.1",
     "embla-carousel-react": "^8.6.0",
     "express": "^5.1.0",
-    "framer-motion": "^12.23.12",
+    "framer-motion": "^12.23.26",
     "gemini-ai": "^2.2.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",

@@ -25,7 +25,9 @@ import HerStoryBot from "./components/HerStoryBot";
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
 import RastroNacional from "./pages/RastroNacional";
-
+import Landing from "./pages/Landing";
+import Search from "./pages/Search"; 
+import Learn from "./pages/Learn";   
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -39,7 +41,10 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/search" element={<Search />} />     
+            <Route path="/learn" element={<Learn />} />  
             <Route path="/" element={<Home />} />
+            <Route path="/nueva-landing" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/perfil" element={<Perfil />}/>
             <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
