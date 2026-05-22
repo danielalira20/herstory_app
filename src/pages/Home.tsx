@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, Shield, Users, Mic, BookOpen, MessageCircle, Gamepad2, Send, Sparkles, Star, Crown } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import headerImage from "@/assets/herstory-header.jpg";
+import NavbarWrapper from "@/components/NavbarWrapper";
 import dataVisualizationImage from "@/assets/data-visualization.jpg";
 import communitySupportImage from "@/assets/community-support.jpg";
 
@@ -172,7 +172,7 @@ const getRandomSidePosition = () => {
         </div>
       </div>
 
-      <Navbar />
+      <NavbarWrapper />
 
 {/* Hero Section */}
 <section className="relative py-32 lg:py-40 bg-gradient-subtle overflow-hidden">
@@ -397,7 +397,7 @@ const getRandomSidePosition = () => {
           <XAxis dataKey="region" fontSize={12} tick={{ fill: '#6b7280' }} />
           <YAxis fontSize={12} tick={{ fill: '#6b7280' }} />
           <Tooltip
-            formatter={(value: number, name: string, props: any) => [
+            formatter={(value: number, name: string, props: { payload: { info: string } }) => [
               `${value}%`,
               props.payload.info,
             ]}
@@ -740,6 +740,3 @@ const getRandomSidePosition = () => {
 };
 
 export default Home;
-
-
-

@@ -1,7 +1,7 @@
 import { MediaSection } from '@/components/MediaSection';
 import heroImage from '@/assets/women-empowerment-hero.jpg';
 import { Users, Target, Globe, Heart } from 'lucide-react';
-import Navbar from '@/components/Navbar';
+import NavbarWrapper from '@/components/NavbarWrapper';
 
 const VocesSilenciadas = () => {
   return (
@@ -47,7 +47,7 @@ const VocesSilenciadas = () => {
           </div>
         </div>
       </section>
-        <Navbar />
+        <NavbarWrapper />
       {/* ODS5 Information */}
       <section className="py-16 bg-card/30 backdrop-blur-sm border-y border-border/50">
         <div className="container mx-auto px-4">

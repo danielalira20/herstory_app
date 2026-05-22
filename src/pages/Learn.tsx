@@ -34,12 +34,7 @@ const Learn = () => {
   return (
     <>
       <NavbarLearn />
-      <div 
-        className="min-h-screen relative overflow-hidden pt-16" 
-        style={{
-          background: 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 35%, #f9a8d4 70%, #fbcfe8 100%)'
-        }}
-      >
+      <div className="min-h-screen relative overflow-hidden pt-16 bg-gradient-to-br from-pink-100 via-pink-50 to-pink-100 dark:bg-none dark:bg-background">
         {/* Noise overlay */}
         <div 
           className="absolute inset-0 opacity-[0.015] pointer-events-none"
@@ -61,16 +56,16 @@ const Learn = () => {
               }}
             >
               <span className="w-2 h-2 bg-pink-500 rounded-full animate-pulse"></span>
-              <span className="text-sm font-medium tracking-wide" style={{ color: '#831843' }}>
-                ✨ INSPIRADOR
+              <span className="text-sm font-medium tracking-wide text-pink-900 dark:text-pink-200">
+                INSPIRADOR
               </span>
             </div>
             
-            <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6 opacity-0 animate-fade-in-up animation-delay-200" style={{ color: '#831843' }}>
+            <h1 className="font-serif text-5xl md:text-7xl font-bold mb-6 opacity-0 animate-fade-in-up animation-delay-200 text-pink-900 dark:text-pink-100">
               HerStory Learn
             </h1>
             
-            <p className="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed opacity-0 animate-fade-in-up animation-delay-400" style={{ color: '#9f1239' }}>
+            <p className="text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed opacity-0 animate-fade-in-up animation-delay-400 text-pink-800 dark:text-pink-200">
               Descubre las historias que la historia olvidó
             </p>
           </div>
@@ -95,7 +90,7 @@ const Learn = () => {
           
           {/* Footer CTA */}
           <div className="text-center mt-20 opacity-0 animate-fade-in-up" style={{ animationDelay: '1000ms' }}>
-            <p className="text-base mb-6" style={{ color: '#9f1239' }}>
+            <p className="text-base mb-6 text-pink-800 dark:text-pink-200">
               Para estudiantes, docentes y cualquiera que quiera aprender con el corazón
             </p>
             <Link to="/nosotras">
@@ -105,7 +100,7 @@ const Learn = () => {
                   background: 'rgba(251, 207, 232, 0.4)',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(244, 114, 182, 0.4)',
-                  color: '#831843',
+                  color: 'var(--tw-text-pink-900, #831843)',
                   boxShadow: '0 4px 20px rgba(244, 114, 182, 0.2)'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 30px rgba(244, 114, 182, 0.35)'}

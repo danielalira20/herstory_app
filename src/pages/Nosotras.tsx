@@ -2,9 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Heart, Target, Eye, Users, Mail, Linkedin } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import headerImage from "@/assets/herstory-header.jpg";
+import NavbarWrapper from '@/components/NavbarWrapper';
 
 const Nosotras = () => {
   const teamMembers = [
@@ -55,7 +55,7 @@ const Nosotras = () => {
         </div>
       </div>
 
-      <Navbar />
+      <NavbarWrapper />
 
       <div className="container py-12">
         {/* Mission and Vision */}
