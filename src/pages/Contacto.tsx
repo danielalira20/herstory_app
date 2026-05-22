@@ -6,9 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
+import NavbarWrapper from '@/components/NavbarWrapper';
 
 const Contacto = () => {
   const { toast } = useToast();
@@ -84,7 +84,7 @@ const Contacto = () => {
         </div>
       </div>
 
-      <Navbar />
+      <NavbarWrapper />
 
       <div className="container py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">

@@ -35,9 +35,7 @@ const Search = () => {
   return (
     <>
       <NavbarSearch />
-      <div className="min-h-screen pt-16" style={{
-        background: 'linear-gradient(135deg, #e9d5ff 0%, #f3e8ff 35%, #faf5ff 70%, #f5e8ff 100%)',
-      }}>
+      <div className="min-h-screen pt-16 bg-gradient-to-br from-purple-100 via-purple-50 to-purple-50 dark:bg-none dark:bg-background">
         {/* Hero Section */}
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
           {/* Noise overlay - solo para este componente */}
@@ -144,12 +142,7 @@ const Search = () => {
         </section>
 
         {/* Features Section */}
-        <section 
-          className="relative py-24"
-          style={{
-            background: 'linear-gradient(180deg, #faf5ff 0%, #f3e8ff 100%)'
-          }}
-        >
+        <section className="relative py-24 bg-gradient-to-b from-purple-50 to-purple-100 dark:bg-none dark:bg-background">
           {/* Noise overlay */}
           <div 
             className="absolute inset-0 opacity-[0.02] pointer-events-none"

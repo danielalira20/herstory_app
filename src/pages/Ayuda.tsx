@@ -42,37 +42,25 @@ const Index = () => {
         />
       </div>
 
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-center gap-8">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2"
-            >
-              <Heart className="h-4 w-4" />
-              Inicio
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection('organizaciones')}
-              className="flex items-center gap-2"
-            >
-              <Users className="h-4 w-4" />
-              Organizaciones
-            </Button>
-            <Button
-              variant="ghost"
-              onClick={() => scrollToSection('guias')}
-              className="flex items-center gap-2"
-            >
-              <BookOpen className="h-4 w-4" />
-              Guías
-            </Button>
-          </div>
-        </div>
-      </nav>
+      {/* Navigation — estilo igual que NavbarSearch */}
+<nav className="sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-purple-50/60 bg-purple-100/95 dark:bg-background/95 border-purple-200/60 dark:border-purple-900/40">
+  <div className="container mx-auto px-4 py-3">
+    <div className="flex items-center justify-center gap-2">
+      <Button variant="ghost" onClick={() => navigate('/search')}
+        className="flex items-center gap-2 text-purple-800 hover:text-purple-800 dark:hover:text-purple-800 hover:bg-purple-200/50 dark:hover:bg-purple-800/50">
+        <Heart className="h-4 w-4" /> Regresar
+      </Button>
+      <Button variant="ghost" onClick={() => scrollToSection('organizaciones')}
+        className="flex items-center gap-2 text-purple-800 hover:text-purple-800 dark:hover:text-purple-800 hover:bg-purple-200/50 dark:hover:bg-purple-800/50">
+        <Users className="h-4 w-4" /> Organizaciones
+      </Button>
+      <Button variant="ghost" onClick={() => scrollToSection('guias')}
+        className="flex items-center gap-2 text-purple-800 hover:text-purple-800 dark:hover:text-purple-800 hover:bg-purple-200/50 dark:hover:bg-purple-800/50">
+        <BookOpen className="h-4 w-4" /> Guías
+      </Button>
+    </div>
+  </div>
+</nav>
 
       {/* Organizations Section */}
       <section id="organizaciones" className="py-20">

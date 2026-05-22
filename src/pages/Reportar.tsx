@@ -8,7 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, AlertCircle, Heart, Shield } from "lucide-react";
-import NavbarSearch from "@/components/NavbarSearch";
+import NavbarWrapper from "@/components/NavbarWrapper";
+import headerImage from "@/assets/herstory-header.jpg";
 
 const Reportar = () => {
   const { toast } = useToast();
@@ -73,8 +74,17 @@ const Reportar = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background pt-16">
-      <NavbarSearch />
+    <div className="min-h-screen bg-background">
+      <div className="relative w-full h-48 overflow-hidden">
+        <img src={headerImage} alt="HerStory Header" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Reportar Desaparición</h1>
+            <p className="text-lg italic">Tu voz puede hacer la diferencia</p>
+          </div>
+        </div>
+      </div>
+      <NavbarWrapper />
 
       <div className="container py-8">
         {/* Header */}
@@ -366,5 +376,3 @@ const Reportar = () => {
 };
 
 export default Reportar;
-
-

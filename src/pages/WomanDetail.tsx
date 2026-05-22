@@ -4,12 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Award, Book } from "lucide-react";
 import { supabaseMuseo } from "@/lib/supabaseMuseo";
+import NavbarWrapper from '@/components/NavbarWrapper';
 
 interface WomanData {
   id: number;
   imagen_url: string;
   nombre_completo: string;
-  siglo: string  | null;
+  siglo: string | null;
   año_nacimiento: number;
   año_fallecimiento: number;
   ocupacion: string;
@@ -31,7 +32,6 @@ interface WomanQuery {
   siglo: { id: number; numero: string } | null;
 }
 
-
 interface Origin {
   id: number;
   nombre: string;
@@ -43,6 +43,7 @@ interface Link {
   descripcion: string;
   mujer_id: number;
 }
+
 interface LinkQuery {
   id: number;
   url: string;
@@ -58,66 +59,65 @@ const WomanDetail = () => {
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  const loadWomanData = async () => {
-    if (!id) return;
+  useEffect(() => {
+    const loadWomanData = async () => {
+      if (!id) return;
 
-    try {
-      setLoading(true);
+      try {
+        setLoading(true);
 
-       const { data: womanData, error: womanError } = await supabaseMuseo
-        .from("mujeres")
-        .select(`
-          id,
-          nombre_completo,
-          biografia,
-          año_nacimiento,
-          año_fallecimiento,
-          imagen_url,
-          ocupacion,
-          logros,
-          origen:origen (id, nombre),
-          siglo:siglos (id, numero)
-        `)
-        .eq("id", id)
-        .single<WomanQuery>();
+        const { data: womanData, error: womanError } = await supabaseMuseo
+          .from("mujeres")
+          .select(`
+            id,
+            nombre_completo,
+            biografia,
+            año_nacimiento,
+            año_fallecimiento,
+            imagen_url,
+            ocupacion,
+            logros,
+            origen:origen (id, nombre),
+            siglo:siglos (id, numero)
+          `)
+          .eq("id", id)
+          .single<WomanQuery>();
 
-      if (womanError) throw womanError;
+        if (womanError) throw womanError;
 
-      const { data: linksData, error: linksError } = await supabaseMuseo
-        .from("links")
-        .select("id, url, descripcion")
-        .eq("mujer_id", id)
-        .order("id", { ascending: true })
-        .returns<LinkQuery[]>();
+        const { data: linksData, error: linksError } = await supabaseMuseo
+          .from("links")
+          .select("id, url, descripcion")
+          .eq("mujer_id", id)
+          .order("id", { ascending: true })
+          .returns<LinkQuery[]>();
 
-      if (linksError) throw linksError;
+        if (linksError) throw linksError;
 
-       setWoman({
-        id: womanData.id,
-        imagen_url: womanData.imagen_url,
-        nombre_completo: womanData.nombre_completo,
-        siglo: womanData.siglo?.numero || "Desconocido",
-        año_nacimiento: womanData.año_nacimiento,
-        año_fallecimiento: womanData.año_fallecimiento,
-        ocupacion: womanData.ocupacion,
-        logros: womanData.logros,
-        biografia: womanData.biografia,
-        origen_id: womanData.origen?.id || null,
-      });
+        setWoman({
+          id: womanData.id,
+          imagen_url: womanData.imagen_url,
+          nombre_completo: womanData.nombre_completo,
+          siglo: womanData.siglo?.numero || "Desconocido",
+          año_nacimiento: womanData.año_nacimiento,
+          año_fallecimiento: womanData.año_fallecimiento,
+          ocupacion: womanData.ocupacion,
+          logros: womanData.logros,
+          biografia: womanData.biografia,
+          origen_id: womanData.origen?.id || null,
+        });
 
-      setOrigin(womanData.origen || null);
-      setLinks(linksData || []);
-    } catch (error) {
-      console.error("Error cargando datos de la mujer:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+        setOrigin(womanData.origen || null);
+        setLinks(linksData || []);
+      } catch (error) {
+        console.error("Error cargando datos de la mujer:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  loadWomanData();
-}, [id]);
-
+    loadWomanData();
+  }, [id]);
 
   if (loading) {
     return (
@@ -139,12 +139,15 @@ useEffect(() => {
   }
 
   const logrosArray = woman.logros
-  ? woman.logros.split("\n").map((logro) => logro.trim())
-  : [];
+    ? woman.logros.split("\n").map((logro) => logro.trim())
+    : [];
 
   return (
-    
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+
+      {/* Navbar */}
+      <NavbarWrapper />
+
       {/* Header */}
       <div className="bg-gradient-to-r from-primary to-secondary text-primary-foreground py-6">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
@@ -161,9 +164,9 @@ useEffect(() => {
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
         <div className="grid lg:grid-cols-3 gap-12">
+
           {/* Main content */}
           <div className="lg:col-span-2 space-y-8">
-            {/* Hero section */}
             <div className="grid md:grid-cols-2 gap-8">
               <div className="relative">
                 <img
@@ -172,7 +175,7 @@ useEffect(() => {
                   className="w-full aspect-[3/4] object-cover rounded-2xl shadow-[var(--shadow-elegant)]"
                 />
               </div>
-              
+
               <div className="space-y-6">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-4 cinematic-text">
@@ -210,7 +213,7 @@ useEffect(() => {
                       <p className="text-muted-foreground">{woman.ocupacion}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start">
                     <Award className="mr-3 h-5 w-5 text-primary mt-1" />
                     <div>
@@ -224,7 +227,7 @@ useEffect(() => {
                       ) : (
                         <p className="text-gray-500">No hay logros registrados.</p>
                       )}
-                     </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -241,14 +244,14 @@ useEffect(() => {
             </Card>
           </div>
 
-          {/* Sidebar - Educational resources */}
+          {/* Sidebar */}
           <div className="lg:col-span-1">
             <Card className="sticky top-8">
               <CardContent className="p-6">
                 <h3 className="text-xl font-bold mb-6 cinematic-text">
                   Recursos Educativos
                 </h3>
-                
+
                 <div className="space-y-4">
                   {links.map((link) => (
                     <a
@@ -271,7 +274,7 @@ useEffect(() => {
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-border">
-                  <Button 
+                  <Button
                     onClick={() => navigate('/herstory')}
                     className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
                   >
@@ -281,6 +284,7 @@ useEffect(() => {
               </CardContent>
             </Card>
           </div>
+
         </div>
       </div>
     </div>
