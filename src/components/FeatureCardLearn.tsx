@@ -13,8 +13,7 @@ const FeatureCardLearn = ({ Icon, title, description, delay = 0 }: FeatureCardLe
       className="group cursor-pointer transition-all duration-500 ease-out hover:scale-105 opacity-0 animate-fade-in-up relative p-8 rounded-2xl"
       style={{ 
         animationDelay: `${delay}s`,
-        background: 'rgba(255, 255, 255, 0.5)',
-        backdropFilter: 'blur(20px)',
+        background: 'rgba(255, 255, 255, 0.75)',
         border: '1px solid rgba(251, 207, 232, 0.6)',
         boxShadow: '0 4px 20px rgba(244, 114, 182, 0.15)'
       }}
