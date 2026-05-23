@@ -9,7 +9,7 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, User, BookOpen, Gamepad2, Mic, LogOut, Search } from "lucide-react";
+import { Menu, User, BookOpen, Gamepad2, LogOut, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabaseClient";
@@ -39,12 +39,6 @@ const NavbarLearn = () => {
       icon: Gamepad2,
       description: "Juegos y trivia educativos"
     },
-    {
-      label: "Ella Dice",
-      href: "/ella-dice",
-      icon: Mic,
-      description: "Podcast de historias inspiradoras"
-    }
   ];
 
   const universalItems = [
