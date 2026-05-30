@@ -11,7 +11,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, User, Search, Mic, LogOut, Sparkles } from "lucide-react";
+import { Menu, User, Search, LogOut, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabaseClient";
@@ -41,12 +41,12 @@ const NavbarSearch = () => {
         { label: "Reportar Caso", href: "/reportar", description: "Ayuda a difundir información" }
       ]
     },
-    {
+   /* {
       label: "Voces Silenciadas",
       href: "/voces-silenciadas",
       icon: Mic,
       description: "Testimonios de familias"
-    }
+    }*/
   ];
 
   const universalItems = [

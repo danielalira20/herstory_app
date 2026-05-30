@@ -11,7 +11,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, User, Heart, Mic, Search, BookOpen, Users, Gamepad2, Phone, LogOut} from "lucide-react";
+import { Menu, User, Heart, Search, BookOpen, Users, Gamepad2, Phone, LogOut} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {useAuth} from "@/hooks/useAuth"; 
 import {supabase} from "@/lib/supabaseClient"; 
@@ -37,12 +37,12 @@ const Navbar = () => {
       icon: Heart,
       description: "Página principal"
     },
-    { 
+    /*{ 
       label: "Voces Silenciadas", 
       href: "/voces-silenciadas", 
       icon: Mic,
       description: "Podcasts y contenido multimedia"
-    },
+    },*/
     {
       label: "Nos Faltan Ellas",
       href: "/nos-faltan-ellas",

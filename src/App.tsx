@@ -16,7 +16,7 @@ import Ayuda from './pages/Ayuda';
 import Perfil from "./pages/perfil";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
-import VocesSilenciadas from "./pages/VocesSilenciadas";
+//import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
 import HerStoryBot from "./components/HerStoryBot";
 import AwarenessGuide from "@/pages/AwarenessGuide";
@@ -53,7 +53,7 @@ const App = () => {
               {/* Páginas de Search (morado) */}
               <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
               <Route path="/rastro-nacional" element={<RastroNacional />} />
-              <Route path="/voces-silenciadas" element={<VocesSilenciadas />} />
+             
               <Route path="/reportar" element={<Reportar />} />
               
               {/* Páginas de Learn (rosa) */}
