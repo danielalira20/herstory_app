@@ -19,7 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import NavbarSearch from "@/components/NavbarSearch";
+import NavbarWrapper from "@/components/NavbarWrapper";
+import headerImage from "@/assets/herstory-header.jpg";
 import FilterBar from "@/components/mujeres-desaparecidas/FilterBar";
 import PersonCard from "@/components/mujeres-desaparecidas/PersonCard";
 import PersonModal from "@/components/mujeres-desaparecidas/PersonModal";
@@ -151,8 +152,17 @@ const handlePrev = () => {
 
   return (
     <>
-      <NavbarSearch />
-      <div className="min-h-screen bg-background pt-16">
+      <div className="relative w-full h-48 overflow-hidden">
+        <img src={headerImage} alt="HerStory Header" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Mujeres Desaparecidas</h1>
+            <p className="text-lg italic">Ayúdanos a encontrarlas</p>
+          </div>
+        </div>
+      </div>
+      <NavbarWrapper />
+      <div className="min-h-screen bg-background">
 
       <main className="container mx-auto px-4 py-8">
         {/* Header */}
@@ -572,8 +582,3 @@ const handlePrev = () => {
 };
 
 export default MujeresDesaparecidas;
-
-
-
-
-

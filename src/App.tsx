@@ -24,7 +24,8 @@ import Reportar from "./pages/Reportar";
 import RastroNacional from "./pages/RastroNacional";
 import Landing from "./pages/Landing";
 import Search from "./pages/Search"; 
-import Learn from "./pages/Learn";   
+import Learn from "./pages/Learn"; 
+import { SectionProvider } from "./context/SectionContext";  
 
 const queryClient = new QueryClient();
 
@@ -38,7 +39,8 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
+            <SectionProvider> 
+             <Routes>
               {/* Landing y hubs principales */}
               <Route path="/" element={<Landing />} />
               <Route path="/search" element={<Search />} />
@@ -70,6 +72,7 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <HerStoryBot />
+            </SectionProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ThemeProvider>

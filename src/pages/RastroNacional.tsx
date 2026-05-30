@@ -8,7 +8,8 @@ import { Search, X } from "lucide-react";
 import { mockPersons } from "@/data/mockData";
 import { supabase } from "@/lib/supabaseClient";
 import { usePersons, Person } from "@/hooks/usePersons";
-import NavbarSearch from "@/components/NavbarSearch";
+import NavbarWrapper from "@/components/NavbarWrapper";
+import headerImage from "@/assets/herstory-header.jpg";
 
 const RastroNacional = () => {
   const [selectedState, setSelectedState] = useState<string | null>(null);
@@ -52,8 +53,18 @@ const [people, setPeople] = useState<Person[]>([]);
   };
 
   return (
-      <div className="min-h-screen bg-gradient-subtle pt-16">
-        <NavbarSearch />
+      <>
+        <div className="relative w-full h-48 overflow-hidden">
+        <img src={headerImage} alt="HerStory Header" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Mapa Nacional</h1>
+            <p className="text-lg italic">Rastro de quienes nos faltan</p>
+          </div>
+        </div>
+      </div>
+      <NavbarWrapper />
+      <div className="min-h-screen bg-gradient-subtle">
         {/* Hero Section */}
         <section className="py-16 px-4">
           <div className="max-w-6xl mx-auto text-center">
@@ -159,6 +170,7 @@ const [people, setPeople] = useState<Person[]>([]);
         onClose={() => setIsModalOpen(false)}
       />
     </div>
+  </>
   );
 };
 

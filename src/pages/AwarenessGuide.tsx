@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import solidarityHero from "@/assets/solidarity-hero.jpg";
+import NavbarWrapper from '@/components/NavbarWrapper';
 
 type Guide = {
   title: string;
@@ -112,6 +113,10 @@ const AwarenessGuide = () => {
 
   return (
     <div className="min-h-screen bg-background">
+
+      {/* Navbar */}
+      <NavbarWrapper />
+
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div
@@ -128,12 +133,6 @@ const AwarenessGuide = () => {
             <p className="text-xl mb-8 opacity-90">
               Recursos, información y herramientas para prevenir y enfrentar la violencia contra las mujeres.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="emergency" size="lg" className="gap-2" onClick={() => navigate("/")}>
-                <Phone className="h-5 w-5" />
-                Regresar a Inicio
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -144,7 +143,6 @@ const AwarenessGuide = () => {
           <h2 className="text-3xl font-bold text-center mb-12">
             Guías de Ayuda por Situación
           </h2>
-
           <div className="grid md:grid-cols-2 gap-8">
             {guides.map((guide, index) => (
               <Card key={index} className={`transition-all hover:shadow-lg ${guide.urgent ? 'border-emergency/30' : 'border-primary/30'}`}>
@@ -190,7 +188,7 @@ const AwarenessGuide = () => {
         </div>
       </section>
 
-      {/* Modal Mejorado */}
+      {/* Modal */}
       <Dialog open={!!selectedGuide} onOpenChange={(open) => !open && setSelectedGuide(null)}>
         <DialogContent className="sm:max-w-3xl w-full bg-background rounded-2xl shadow-xl p-8 mx-4">
           <DialogClose asChild>
@@ -198,7 +196,6 @@ const AwarenessGuide = () => {
               <X className="h-5 w-5" />
             </Button>
           </DialogClose>
-
           {selectedGuide && (
             <div className="flex flex-col items-center text-center">
               <div className={`p-4 rounded-full mb-4 ${selectedGuide.urgent ? 'bg-emergency/20' : 'bg-primary/20'}`}>
@@ -290,10 +287,9 @@ const AwarenessGuide = () => {
           </div>
         </div>
       </section>
+
     </div>
   );
 };
 
 export default AwarenessGuide;
-
-

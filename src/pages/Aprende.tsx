@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import NavbarLearn from "@/components/NavbarLearn";
+import NavbarWrapper from '@/components/NavbarWrapper';
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import Quiz from "../components/quiz";
@@ -33,7 +33,7 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
         </div>
       </div>
 
-      <NavbarLearn />
+      <NavbarWrapper />
 
 
       {/* Sección Informativa Principal */}
@@ -55,40 +55,6 @@ import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
               adapta las preguntas a tu nivel, haciendo que cada sesión sea un nuevo desafío.
             </p>
           </div>
-
-          {/* Card Principal de Llamada a la Acción */}
-         {/*
-          <div className="mb-16">
-            <Card className="elegant-shadow hover:glow-shadow smooth-transition border-0 accent-gradient">
-              <CardContent className="p-8 md:p-12 text-center">
-                <div className="space-y-6">
-                  <div className="flex justify-center">
-                    <div className="bg-white/20 p-4 rounded-full">
-                      <Users className="h-10 w-10 text-white" />
-                    </div>
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-                    ¿Conoces a estas Mujeres Extraordinarias?
-                  </h3>
-                  <p className="text-white/90 text-lg max-w-2xl mx-auto mb-6">
-                    Desde científicas pioneras como Marie Curie hasta activistas como Rosa Parks, 
-                    cada pregunta te permitirá descubrir historias inspiradoras que quizás no conocías. 
-                    ¡Pon a prueba tus conocimientos y aprende algo nuevo en cada partida!
-                  </p>
-                  <Button 
-                    size="lg" 
-                    variant="secondary"
-                    onClick={() => setShowQuiz(true)}
-                    className="text-lg px-8 py-4 h-auto font-semibold"
-                  >
-                    <Play className="h-5 w-5 mr-2" />
-                    Comenzar Trivia
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-         */}
 
          {/* Card Principal de Llamada a la Acción */}
 <div className="min-h-screen relative">

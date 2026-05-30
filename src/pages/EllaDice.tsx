@@ -6,11 +6,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Heart, Reply, Plus, Search, Users, Trash} from "lucide-react";
-import Navbar from "@/components/Navbar";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
 import {supabase} from "@/lib/supabaseClient";
 import PrivacyNotice from "@/components/mujeres-desaparecidas/PrivacyNotice";
+import NavbarWrapper from "@/components/NavbarWrapper";
 
 const EllaDice = () => {
   const { toast } = useToast();
@@ -162,7 +162,7 @@ const EllaDice = () => {
         </div>
       </div>
 
-      <Navbar />
+      <NavbarWrapper />
 
       <div className="container py-8">
         {/* Community Stats */}

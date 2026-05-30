@@ -39,6 +39,7 @@ const NavbarLearn = () => {
       icon: Gamepad2,
       description: "Juegos y trivia educativos"
     },
+    
   ];
 
   const universalItems = [
@@ -47,12 +48,12 @@ const NavbarLearn = () => {
   ];
 
   return (
-    <header 
-      className="sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60"
-      style={{
-        background: 'rgba(252, 231, 243, 0.95)',
-        borderBottom: '1px solid rgba(244, 114, 182, 0.2)'
-      }}
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-background/60",
+        "bg-pink-100/95 dark:bg-background/95",
+        "border-pink-200/60 dark:border-pink-900/40"
+      )}
     >
       <div className="container flex h-16 items-center">
         {/* Logo */}
@@ -61,7 +62,7 @@ const NavbarLearn = () => {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg">
               <img src="/img/logo/logo_story.png" alt="HerStory Logo" className="h-8 w-8" />
             </div>
-            <span className="hidden font-bold sm:inline-block" style={{ color: '#831843' }}>
+            <span className="hidden font-bold sm:inline-block text-pink-900 dark:text-pink-200">
               HerStory
             </span>
           </Link>
@@ -76,10 +77,11 @@ const NavbarLearn = () => {
                   <Link
                     to={item.href}
                     className={cn(
-                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-pink-200/30",
-                      isActive(item.href) && "bg-pink-200/50"
+                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors",
+                      "text-pink-900 dark:text-pink-200",
+                      "hover:bg-pink-200/50 dark:hover:bg-pink-800/50",
+                      isActive(item.href) && "bg-pink-200/50 dark:bg-pink-800/50"
                     )}
-                    style={{ color: '#831843' }}
                   >
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.label}
@@ -113,10 +115,11 @@ const NavbarLearn = () => {
                   <Link
                     to={item.href}
                     className={cn(
-                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-pink-200/30",
-                      isActive(item.href) && "bg-pink-200/50"
+                      "group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors",
+                      "text-pink-900 dark:text-pink-200",
+                      "hover:bg-pink-200/50 dark:hover:bg-pink-800/50",
+                      isActive(item.href) && "bg-pink-200/50 dark:bg-pink-800/50"
                     )}
-                    style={{ color: '#831843' }}
                   >
                     {item.label}
                   </Link>
@@ -135,14 +138,16 @@ const NavbarLearn = () => {
               {user ? (
                 <>
                   <Link to="/perfil">
-                    <Button variant="outline" size="sm" className="hidden md:inline-flex">
+                    <Button variant="outline" size="sm"
+                      className="hidden md:inline-flex text-pink-900 dark:text-pink-200 border-pink-400 dark:border-pink-600 hover:bg-pink-200/50 dark:hover:bg-pink-800/50">
                       <User className="mr-2 h-4 w-4" />
                       Mi Perfil
                     </Button>
                   </Link>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button variant="outline" size="icon" onClick={handleLogout} className="hidden md:inline-flex">
+                      <Button variant="outline" size="icon" onClick={handleLogout}
+                        className="hidden md:inline-flex text-pink-900 dark:text-pink-200 border-pink-400 dark:border-pink-600 hover:bg-pink-200/50 dark:hover:bg-pink-800/50">
                         <LogOut className="h-5 w-5" />
                       </Button>
                     </TooltipTrigger>
@@ -153,7 +158,8 @@ const NavbarLearn = () => {
                 </>
               ) : (
                 <Link to="/login">
-                  <Button variant="outline" size="sm" className="hidden md:inline-flex">
+                  <Button variant="outline" size="sm"
+                    className="hidden md:inline-flex text-pink-900 dark:text-pink-200 border-pink-400 dark:border-pink-600 hover:bg-pink-200/50 dark:hover:bg-pink-800/50">
                     <User className="mr-2 h-4 w-4" />
                     Iniciar Sesión
                   </Button>
@@ -165,26 +171,31 @@ const NavbarLearn = () => {
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="lg:hidden">
+              <Button variant="ghost" size="icon" className="lg:hidden text-pink-900 dark:text-pink-200">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <SheetContent side="right" className="w-[300px] sm:w-[400px] bg-pink-50 dark:bg-pink-950 border-pink-200 dark:border-pink-800">
               <nav className="flex flex-col space-y-4">
                 {navItems.map((item) => (
                   <Link
                     key={item.label}
                     to={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-pink-100/50"
+                    className={cn(
+                      "flex items-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      "text-pink-900 dark:text-pink-200",
+                      "hover:bg-pink-200/50 dark:hover:bg-pink-800/50",
+                      isActive(item.href) && "bg-pink-200/50 dark:bg-pink-800/50"
+                    )}
                   >
-                    <item.icon className="h-4 w-4" />
+                    <item.icon className="h-4 w-4 shrink-0" />
                     <span>{item.label}</span>
                   </Link>
                 ))}
 
                 <Link to="/search" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full" style={{ background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)' }}>
+                  <Button className="w-full" style={{ background: 'linear-gradient(135deg, #a855f7 0%, #9333ea 100%)', color: 'white' }}>
                     <Search className="mr-2 h-4 w-4" />
                     Ir a Búsqueda
                   </Button>
@@ -195,29 +206,34 @@ const NavbarLearn = () => {
                     key={item.href}
                     to={item.href}
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium hover:bg-pink-100/50"
+                    className={cn(
+                      "flex items-center space-x-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                      "text-pink-900 dark:text-pink-200",
+                      "hover:bg-pink-200/50 dark:hover:bg-pink-800/50",
+                      isActive(item.href) && "bg-pink-200/50 dark:bg-pink-800/50"
+                    )}
                   >
                     <span>{item.label}</span>
                   </Link>
                 ))}
 
-                <div className="pt-4">
+                <div className="pt-4 border-t border-pink-200 dark:border-pink-800">
                   {!loading && (
                     user ? (
                       <div className="flex flex-col space-y-3">
                         <Link to="/perfil" onClick={() => setIsOpen(false)}>
-                          <Button variant="outline" className="w-full">
+                          <Button variant="outline" className="w-full text-pink-900 dark:text-pink-200 border-pink-400 dark:border-pink-600">
                             <User className="mr-2 h-4 w-4" />
                             Mi Perfil
                           </Button>
                         </Link>
-                        <Button variant="outline" className="w-full" onClick={() => { handleLogout(); setIsOpen(false); }}>
+                        <Button variant="outline" className="w-full text-pink-900 dark:text-pink-200 border-pink-400 dark:border-pink-600" onClick={() => { handleLogout(); setIsOpen(false); }}>
                           Cerrar Sesión
                         </Button>
                       </div>
                     ) : (
                       <Link to="/login" onClick={() => setIsOpen(false)}>
-                        <Button variant="outline" className="w-full">
+                        <Button variant="outline" className="w-full text-pink-900 dark:text-pink-200 border-pink-400 dark:border-pink-600">
                           <User className="mr-2 h-4 w-4" />
                           Iniciar Sesión
                         </Button>

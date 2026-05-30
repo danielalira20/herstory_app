@@ -839,6 +839,7 @@ function getDynamicGreeting(lang: LangCode): string {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
+  const [geminiHistory, setGeminiHistory] = useState<Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>>([]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   const resolvedPage = pageKey ?? location.pathname;
@@ -867,30 +868,56 @@ function getDynamicGreeting(lang: LangCode): string {
     }, 500);
   }
 
-  async function callGemini(userMessage: string) {
-    setTyping(true);
-    try {
-      // Usa una ruta relativa para que el proxy de Vite funcione
-      const res = await fetch("http://localhost:5001/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ message: userMessage, language: lang}),
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP error! status: ${res.status}`);
-      }
-      const data = await res.json();
-      const botAnswer = data.text || "No tengo respuesta en este momento.";
-      setMessages(prev => [...prev, { id: generateId(), from: "bot", text: botAnswer }]);
-      return botAnswer;
-    } catch (err) {
-      console.error(err);
-      reply("Ups, algo salió mal con Gemini. 😅");
-      return null;
-    } finally { setTyping(false); }
+async function callGemini(userMessage: string) {
+  setTyping(true);
+
+  // Construir historial actualizado con el nuevo mensaje
+  const updatedHistory = [
+    ...geminiHistory,
+    { role: "user" as const, parts: [{ text: userMessage }] },
+  ];
+
+  try {
+    const res = await fetch("http://localhost:5001/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: updatedHistory,
+        language: lang,
+      }),
+    });
+
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+    const data = await res.json();
+    const botAnswer = data.respuesta || "No tengo respuesta en este momento.";
+
+    // Guardar el intercambio completo en el historial
+    setGeminiHistory([
+      ...updatedHistory,
+      { role: "model" as const, parts: [{ text: botAnswer }] },
+    ]);
+
+    // Si Auren detectó emergencia, log para cuando implementemos el botón de pánico
+    if (data.modo === 3) {
+      console.log("🚨 Modo emergencia detectado:", data.señales);
+      // Semana 3: aquí activamos el botón de pánico
+    }
+
+    setMessages(prev => [
+      ...prev,
+      { id: generateId(), from: "bot", text: botAnswer },
+    ]);
+
+    return botAnswer;
+  } catch (err) {
+    console.error(err);
+    reply("Ups, algo salió mal. 😅");
+    return null;
+  } finally {
+    setTyping(false);
   }
+}
 
   async function handleSend(custom?: string) {
     const text = custom ?? input.trim();
@@ -1038,7 +1065,7 @@ if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k
               </select>
               <Languages size={18} className="opacity-80" />
 
-              <button onClick={() => setOpen(false)} className="p-1 rounded-full hover:bg-white/20 transition">
+              <button onClick={() => { setOpen(false); setGeminiHistory([]); }} className="p-1 rounded-full hover:bg-white/20 transition">
                 <X />
               </button>
             </div>
