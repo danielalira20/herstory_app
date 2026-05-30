@@ -28,6 +28,12 @@ const features = [
     description: "Recursos para educadores y activistas. Materiales didácticos y guías de acción para el cambio.",
     link: '/awareness-guide',
   },
+  {
+  Icon: BookOpen,
+  title: "Guías de Apoyo",
+  description: "Recursos descargables sobre derechos, salud, seguridad y empoderamiento. Encuentra la guía que necesitas.",
+  link: '/guias',
+},
 ];
 
 const Learn = () => {

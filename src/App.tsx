@@ -25,7 +25,8 @@ import RastroNacional from "./pages/RastroNacional";
 import Landing from "./pages/Landing";
 import Search from "./pages/Search"; 
 import Learn from "./pages/Learn"; 
-import { SectionProvider } from "./context/SectionContext";  
+import { SectionProvider } from "./context/SectionContext"; 
+import Guias from "./pages/Guias";
 
 const queryClient = new QueryClient();
 
@@ -62,6 +63,7 @@ const App = () => {
               <Route path="/aprende" element={<Aprende />} />
               <Route path="/ella-dice" element={<EllaDice />} />
               <Route path="/awareness-guide" element={<AwarenessGuide />} />
+              <Route path="/guias" element={<Guias />} />
               
               {/* Páginas universales */}
               <Route path="/nosotras" element={<Nosotras />} />
