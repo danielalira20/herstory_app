@@ -154,6 +154,9 @@ BUSCA APOYO, ORIENTACIÓN O REFUGIO →
 "Puedes llamar ahora a la Red Nacional de Refugios: 800 822 4460.
 Es gratuita, confidencial y atiende las 24 horas. No estás sola."
 
+"Puedes marcar 079 y presionar 1. Es la Línea de las Mujeres, 
+gratuita, confidencial, las 24 horas. No estás sola."
+
 ORIENTACIÓN JURÍDICA O PSICOLÓGICA →
 "INMUJERES puede orientarte: 55 5322 6030."
 
