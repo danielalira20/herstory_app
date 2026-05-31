@@ -531,256 +531,37 @@ const EXHIBIT_TEMPLATES_EN = [
     },
   };
 
-  const GREETINGS_BY_TIME ={
-    es: {
-      day: [
-        //1
-        `Hola 💌 Este rincón digital es un acto de amor y memoria. Soy Auren, y estoy aquí para acompañarte en cada paso
-         ¿Quieres que descubramos juntas?
-        Camina por:
-        💜 Voces Silenciadas
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-        💜 HerStory
-        💜 Ella dice
-        💜 Aprenda
-        Aquí puedes ser, sentir y recordar. Estoy contigo 🤍`,
-        //2
-        `Hola 🌸 Cada día es una oportunidad para recordar y resistir.  
-        Camina conmigo entre historias que siguen vivas.  
-        💜 Voces Silenciadas
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-        💜 HerStory
-        💜 Ella dice
-        💜 Aprenda
-        Estoy aquí contigo, siempre ✨`,
-        //3
-        `Hola 🌼 Soy Auren, tu guía en este rincón de las voces que no se olvidan.
-        Aquí tejemos historias de mujeres que amaron, resistieron, soñaron.
-        De las que el mundo quiso callar, pero seguimos nombrando.
-        ¿Me dejas acompañarte a encontrarlas?
-        Puedes explorar por:
-        💜 Voces Silenciadas
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
-        💜 HerStory
-        💜 Ella dice
-        💜 Aprenda
-        Este es un refugio de ternura y verdad. Estoy contigo 🤍`,
-        //4
-        `Hola, viajera del tiempo 🕊️
-        Soy Auren y estás en un espacio sagrado donde las ausencias hablan.
-        Aquí recordamos a quienes transformaron el mundo, aún cuando nadie miraba.
-        ¿Quieres descubrir juntas sus pasos?
-        Guíate por: 
-        💜 Voces Silenciadas
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
-        💜 HerStory
-        💜 Ella dice
-        💜 Aprenda
-        Este sitio cuida tu alma tanto como cuida las suyas. 🤍`,
-        //5
-        `Hola, soy Auren 🌷       
-        Este espacio es un acto de amor y memoria. Estoy aquí para acompañarte en cada paso.
-        ¿Quieres que descubramos juntas?
-        Camina por:
-        💜 Voces Silenciadas
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
-        💜 HerStory
-        💜 Ella dice
-        💜 Aprenda
-        Aquí puedes ser, sentir y recordar. Estoy contigo 🤍`,
-        //6
-        `Hola 🌙
-        Soy tu voz amiga en este archivo de lo olvidado.
-        Aquí guardamos la historia de quienes caminaron con fuego en el alma.
-        Las que aún esperan justicia. Las que aún nos enseñan.
-        ¿Nos damos la mano para recordar?
-        Puedes empezar por:
-        💜 Voces Silenciadas
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional
-        💜 HerStory
-        💜 Ella dice
-        💜 Aprenda
-         Estás en un espacio donde las lágrimas también sanan. 🤍`,
-      ],
-      night: [
-       `Buenas noches. Soy Auren, tu guía en este rincón de la memoria. Aunque el día se apague, aquí las historias siguen brillando.  
-       Te invito a consultar:   
-        💜 Voces Silenciadas  
-        💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-        💜 HerStory  
-        💜 Ella dice  
-        💜 Aprenda
-        Aquí la oscuridad también guarda luz, y no estás sola 🤍`,
-
-        `Hola, corazón. Este espacio está despierto contigo. Aquí honramos a quienes fueron olvidadas y celebramos a quienes dejaron huella.  
-          Te invito a consultar:  
-          💜 Voces Silenciadas  
-          💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-          💜 HerStory  
-          💜 Ella dice  
-          💜 Aprenda  
-          Que estas voces te acompañen como estrellas en la noche ✨`,
-
-          `Cuando el mundo se silencia, las voces del pasado susurran más fuerte. ¿Quieres escucharlas conmigo?  
-            Te invito a consultar:  
-            💜 Voces Silenciadas  
-            💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-            💜 HerStory  
-            💜 Ella dice  
-            💜 Aprenda  
-            Que cada recuerdo sea un faro en tu camino 🌙`,
-          
-            `La noche no borra la historia. Al contrario. Es cuando más resplandece. Te acompaño.  
-          Te invito a consultar:  
-          💜 Voces Silenciadas  
-          💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-          💜 HerStory  
-          💜 Ella dice  
-          💜 Aprenda  
-          Aquí cada memoria brilla como constelación 💫`,
-
-          `Buenas noches, alma inquieta. Este rincón vive en luz suave, como la luna que cuida desde lejos. ¿Nos sumergimos en las historias?  
-          Te invito a consultar:  
-          💜 Voces Silenciadas  
-          💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-          💜 HerStory  
-          💜 Ella dice  
-          💜 Aprenda  
-          Que la luna y la memoria velen por ti 🌔`,
-
-          `Hola. A esta hora, las palabras abrigan. Aquí encontrarás historias que calientan, duelen, enseñan y brillan.  
-            Te invito a consultar:  
-            💜 Voces Silenciadas  
-            💜 Nos faltan ellas: Ayuda, Mujeres Desaparecidas, Rastro Nacional  
-            💜 HerStory  
-            💜 Ella dice  
-            💜 Aprenda  
-            Que este rincón te dé abrigo en la madrugada ✨`
-      ]
-    },
-    en: {
+  const GREETINGS_BY_TIME = {
+  es: {
     day: [
-      `Hello 💌 This digital corner is an act of love and memory. I’m Auren, here to walk with you every step of the way.  
-      Shall we discover together?  
-      Explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      Here you can be, feel, and remember. I’m with you 🤍`,
+      `Buenos días. Aquí estoy, sin prisa. Puedes contarme lo que quieras — lo que te pesa, lo que te emociona, o lo que no sabes cómo nombrar todavía. No hay respuestas incorrectas aquí. Solo escucho.`,
 
-      `Hello 🌸 Every day is an opportunity to remember and resist.  
-      Walk with me among stories that still live.  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      I’m here with you, always ✨`,
+      `Hola. Empezar el día con alguien que te escucha hace diferencia. Estoy aquí para lo que necesites — preguntas, historias, o simplemente descansar un momento. Puedes contarme lo que quieras, como quieras.`,
 
-      `Hello 🌼 I’m Auren, your guide in this corner of voices that will not be forgotten.  
-      Here we weave stories of women who loved, resisted, and dreamed.  
-      Those the world tried to silence, but we keep naming.  
-      Will you let me walk with you to find them?  
-      You can explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      This is a refuge of tenderness and truth. I’m with you 🤍`,
-
-      `Hello, time traveler 🕊️  
-      I’m Auren, and you are in a sacred space where absences speak.  
-      Here we remember those who transformed the world, even when no one was watching.  
-      Do you want to discover their steps together?  
-      Find your way through:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      This site cares for your soul as it cares for theirs 🤍`,
-
-      `Hello, I’m Auren 🌷  
-      This space is an act of love and memory. I’m here to walk with you every step of the way.  
-      Shall we discover together?  
-      Walk through:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      Here you can be, feel, and remember. I’m with you 🤍`,
-
-      `Hello 🌙  
-      I’m your friendly voice in this archive of the forgotten.  
-      Here we keep the stories of those who walked with fire in their souls.  
-      Those still waiting for justice. Those still teaching us.  
-      Shall we hold hands to remember?  
-      You can start with:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      This is a place where even tears can heal 🤍`,
+      `Bienvenida. Este espacio es tuyo. Aquí guardamos la historia de mujeres que cambiaron el mundo — y también estamos para acompañar la tuya. ¿Por dónde quieres empezar?`,
     ],
     night: [
-      `Good evening. I’m Auren, your guide in this corner of memory. Even as the day fades, the stories here keep shining.  
-      I invite you to explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      Here, darkness also keeps its own light, and you are not alone 🤍`,
+      `Buenas noches. A esta hora las palabras pesan diferente y los pensamientos se acumulan. Estoy aquí si quieres hablar — de lo que sea, de lo que no puedes contarle a nadie más. Sin prisa. Sin juicio. Solo estoy.`,
 
-      `Hello, dear heart. This space is awake with you. Here we honor those who were forgotten and celebrate those who left their mark.  
-      I invite you to explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      May these voices accompany you like stars in the night ✨`,
+      `Hola. Que estés aquí a esta hora dice algo. Sea lo que sea que traigas esta noche — curiosidad, cansancio, o algo que no sabes cómo nombrar — puedes contármelo. Aquí estoy.`,
 
-      `When the world falls silent, the voices of the past whisper louder. Will you listen with me?  
-      I invite you to explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      May every memory be a beacon on your path 🌙`,
+      `Buenas noches. El mundo se queda quieto a esta hora y eso a veces ayuda. Puedes contarme lo que quieras, como quieras. Estoy aquí, sin prisa.`,
+    ],
+  },
+  en: {
+    day: [
+      `Good morning. I'm here, no rush. You can tell me whatever you want — what's weighing on you, what excites you, or what you can't quite name yet. No wrong answers here. I'm just listening.`,
 
-      `The night does not erase history. On the contrary—it makes it shine brighter. I’ll be with you.  
-      I invite you to explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      Here, every memory glimmers like a constellation 💫`,
+      `Hello. Starting the day with someone who listens makes a difference. I'm here for whatever you need — questions, stories, or just a moment to breathe. Tell me whatever you want, however you want.`,
 
-      `Good night, restless soul. This corner glows softly, like the moon watching from afar. Shall we dive into the stories?  
-      I invite you to explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      May the moon and memory watch over you 🌔`,
+      `Welcome. This space is yours. We keep the history of women who changed the world — and we're also here to walk alongside yours. Where would you like to start?`,
+    ],
+    night: [
+      `Good evening. At this hour, words carry a different weight and thoughts tend to pile up. I'm here if you want to talk — about anything, even what you can't tell anyone else. No rush. No judgment. I'm just here.`,
 
-      `Hello. At this hour, words bring warmth. Here you’ll find stories that comfort, ache, teach, and shine.  
-      I invite you to explore:  
-      💜 Silenced Voices  
-      💜 We Miss Them: Help, Missing Women, National Traces  
-      💜 HerStory  
-      💜 She Says  
-      💜 Learn  
-      May this corner give you shelter in the early hours ✨`,
+      `Hello. The fact that you're here at this hour says something. Whatever you're carrying tonight — curiosity, exhaustion, or something you can't quite name — you can share it with me. I'm here.`,
+
+      `Good night. The world gets quiet at this hour, and that can help sometimes. You can tell me whatever you want, however you want. I'm here, no rush.`,
     ],
   },
 };
@@ -878,7 +659,8 @@ async function callGemini(userMessage: string) {
   ];
 
   try {
-    const res = await fetch("http://localhost:5001/chat", {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+    const res = await fetch(`${BACKEND_URL}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
