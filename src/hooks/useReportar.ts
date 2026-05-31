@@ -177,7 +177,7 @@ export function useReportar() {
       data.append("upload_preset", "herStory_desaparecidas")
       data.append("folder", "mujeresDesaparecidas")
 
-      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUND_NAME
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         { method: "POST", body: data }
@@ -383,7 +383,7 @@ Si tienes dudas escríbenos a herstoryy2025@gmail.com`
       }
 
       // Vincular colectivo si se seleccionó uno
-      if (formData.colectivo_id) {
+      if (formData.colectivo_id && formData.colectivo_id !== "ninguno") {
         const { data: casoInsertado } = await supabase
           .from("personas")
           .select("id")
