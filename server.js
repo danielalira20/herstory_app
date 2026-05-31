@@ -49,6 +49,66 @@ function detectarRiesgoAgudo(mensaje) {
   return matched || null;
 }
 
+// ============================================================
+// AUR-B07: Clasificador de submodo por palabras clave
+// Corre antes de Gemini para dar contexto prioritario al modo reflexivo
+// ============================================================
+const SUBMODO_B_SIGNALS = [
+  // ES — reconocimiento del problema
+  "se que no esta bien", "se que esta mal", "se que es violencia",
+  "no es normal lo que", "ya se que deberia", "reconozco que",
+  "se que me hace dano", "se que me lastima",
+  // ES — querer salir
+  "quisiera irme pero", "quiero irme pero", "quiero salir pero",
+  "ya tome la decision", "ya decidi irme", "ya decidi dejarlo",
+  "intente dejarlo", "ya lo intente",
+  // ES — amenazas concretas
+  "tiene fotos mias", "me amenazo con fotos", "me amenazo con publicar",
+  "dice que le hara algo a mi familia", "amenazo a mi familia",
+  "hacerle algo a mis hijos", "amenazo con mis hijos",
+  // ES — miedo a dejar
+  "tengo miedo de dejarlo", "si lo dejo", "si me voy el",
+  // ES — trampa económica consciente
+  "no tengo dinero propio", "no tengo un centavo propio",
+  "todo esta a su nombre", "no tengo nada mio",
+  // ES — ya regresó y lo sabe
+  "ya lo deje una vez", "ya lo habia dejado", "regrese con el",
+  // EN — recognition
+  "i know its not okay", "i know its wrong", "i know its abuse",
+  "i know its violence", "i know its not right", "i acknowledge",
+  "i know he is hurting me", "i know he hurts me",
+  // EN — wanting to leave
+  "i want to leave but", "ive decided to leave", "ive decided to go",
+  "i want out but", "i tried to leave", "i already tried leaving",
+  // EN — concrete threats
+  "he has photos of me", "he threatened to post", "he has my photos",
+  "he threatened to hurt my family", "threatened my family",
+  "he threatened my kids",
+  // EN — fear of leaving
+  "if i leave him", "if i leave he", "scared to leave",
+  "afraid to leave",
+  // EN — economic trap (conscious)
+  "i dont have any money of my own", "everything is in his name",
+  "i have nothing of my own",
+  // EN — returned and knows it
+  "i had already left", "i left once and came back", "i went back to him",
+];
+
+function detectarSubmodo(messages) {
+  // Analizar los últimos 5 mensajes del usuario
+  const textoCombinado = messages
+    .filter(m => m.role === "user")
+    .slice(-5)
+    .map(m => normalizar(m.parts[0].text))
+    .join(" ");
+
+  const tieneSignalB = SUBMODO_B_SIGNALS.some(signal =>
+    textoCombinado.includes(normalizar(signal))
+  );
+
+  return tieneSignalB ? "B" : "A";
+}
+
 const app = express();
 const port = process.env.PORT || 5001;
 
@@ -497,9 +557,19 @@ app.post("/chat", async (req, res) => {
       });
     }
 
+    // AUR-B07: Clasificador de submodo por palabras clave
+    const submodoPrevio = detectarSubmodo(messages);
+    console.log(`🔍 Clasificador submodo: ${submodoPrevio}`);
+
+    // Pasar resultado del clasificador a Gemini como contexto prioritario
+    const systemWithSubmodo = AUREN_SYSTEM_PROMPT +
+      `\n\nCLASIFICADOR PREVIO (AUR-B07): El análisis de palabras clave indica Submodo ${submodoPrevio}. ` +
+      `Si el modo es 2, usa esto como referencia prioritaria para el campo "submodo" en tu JSON. ` +
+      `Si el modo es 1 o 3, ignora este campo.`;
+
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
-      systemInstruction: AUREN_SYSTEM_PROMPT,
+      systemInstruction: systemWithSubmodo,
     });
 
     const chat = model.startChat({
