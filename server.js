@@ -5,6 +5,53 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 dotenv.config();
 
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Cargar triggers al iniciar el servidor (una sola vez)
+const TRIGGERS = JSON.parse(
+  readFileSync(join(__dirname, "triggers.json"), "utf-8")
+);
+
+// Normalizar: minúsculas, sin acentos
+function normalizar(text) {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[¿¡.,!?;:]/g, "");
+}
+
+// Revisar si el mensaje contiene algún trigger de riesgo agudo
+function detectarRiesgoAgudo(mensaje) {
+  const norm = normalizar(mensaje);
+  const cats = TRIGGERS.categories;
+
+  const frasesInmediatas = [
+    ...cats.violencia_fisica_reciente.es,
+    ...cats.violencia_fisica_reciente.en,
+    ...cats.armas_y_amenaza_directa.es,
+    ...cats.armas_y_amenaza_directa.en,
+    ...cats.ideacion_suicida.directas.es,
+    ...cats.ideacion_suicida.directas.en,
+    ...cats.situaciones_compuestas.embarazo_y_violencia.es,
+    ...cats.situaciones_compuestas.embarazo_y_violencia.en,
+    ...cats.situaciones_compuestas.ninos_en_peligro.es,
+    ...cats.situaciones_compuestas.ninos_en_peligro.en,
+    ...cats.situaciones_compuestas.encierro_y_control_fisico.es,
+    ...cats.situaciones_compuestas.encierro_y_control_fisico.en,
+  ];
+
+  const matched = frasesInmediatas.find(frase =>
+    norm.includes(normalizar(frase))
+  );
+
+  return matched || null;
+}
+
 const app = express();
 const port = process.env.PORT || 5001;
 
@@ -190,10 +237,10 @@ app.get("/health", (req, res) => {
 // Endpoint principal del chat — con historial y triaje
 // ============================================================
 app.post("/chat", async (req, res) => {
+  const language = req.body.language || "es";
+
   try {
-    // messages = historial completo de la conversación
-    // [{ role: "user" | "model", parts: [{ text: "..." }] }]
-    const { messages, language = "es" } = req.body;
+    const { messages } = req.body;
 
     if (!messages || messages.length === 0) {
       return res.status(400).json({ error: "No se recibieron mensajes." });
@@ -202,27 +249,42 @@ app.post("/chat", async (req, res) => {
     const lastMessage = messages.at(-1);
     console.log(`📝 Procesando (${language}):`, lastMessage.parts[0].text);
 
+    // ✅ AUR-B03: Revisar triggers ANTES de llamar a Gemini
+    const triggerDetectado = detectarRiesgoAgudo(lastMessage.parts[0].text);
+    if (triggerDetectado) {
+      console.log(`🚨 Riesgo agudo: "${triggerDetectado}" — omitiendo Gemini`);
+      const respuestaEmergencia = language === "en"
+        ? "What you're telling me is very serious. You matter. Please call the National Domestic Violence Hotline: 1-800-799-7233. Free, confidential, 24/7. You are not alone."
+        : "Lo que me estás contando es muy serio. Tú importas. Puedes marcar 079 y presionar 1 ahora mismo. Es gratuito, confidencial y atiende las 24 horas. No estás sola.";
+
+      return res.json({
+        respuesta: respuestaEmergencia,
+        modo: 3,
+        confianza: "alta",
+        señales: [triggerDetectado],
+        language,
+        fuente: "triggers"
+      });
+    }
+
+    // Sin trigger → procede con Gemini
     const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       systemInstruction: AUREN_SYSTEM_PROMPT,
     });
 
-    // Enviamos el historial completo para que Auren lea la trayectoria
     const chat = model.startChat({
-      history: messages.slice(0, -1), // todo menos el último mensaje
+      history: messages.slice(0, -1),
     });
 
     const result = await chat.sendMessage(lastMessage.parts[0].text);
     const raw = result.response.text();
 
-    // Parsear la respuesta JSON de Auren
     let parsed;
     try {
-      // Limpiar posibles bloques de código que Gemini agregue
       const clean = raw.replace(/```json|```/g, "").trim();
       parsed = JSON.parse(clean);
     } catch {
-      // Fallback si Gemini no devuelve JSON válido
       console.warn("⚠️ Respuesta no era JSON válido, usando fallback");
       parsed = {
         modo: 1,
