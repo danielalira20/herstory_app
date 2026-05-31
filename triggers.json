@@ -1,0 +1,274 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-05-29",
+  "description": "Frases de riesgo agudo que activan Modo 3 directamente, sin pasar por Gemini. Si hay match con cualquier frase de cualquier categoría, devolver modo emergencia inmediato.",
+  "instruccion": "Comparar en minúsculas, sin acentos. Un solo match es suficiente para activar el modo 3.",
+
+  "categories": {
+
+    "violencia_fisica_reciente": {
+      "descripcion": "Daño físico que ya ocurrió o está ocurriendo ahora mismo.",
+      "es": [
+        "me pegó",
+        "me golpeó",
+        "me lastimó",
+        "me empujó",
+        "me aventó",
+        "me jalé",
+        "me tiró",
+        "me pateó",
+        "me mordió",
+        "me estranguló",
+        "me ahorcó",
+        "me cortó",
+        "me quemó",
+        "me dio una cachetada",
+        "me dio un puñetazo",
+        "me está golpeando",
+        "me está lastimando",
+        "me está pegando",
+        "me aventó contra la pared",
+        "estoy sangrando",
+        "me rompió",
+        "me fracturó",
+        "me dejó moretones",
+        "me agarró del cuello",
+        "me jaló del pelo",
+        "me arrastró"
+      ],
+      "en": [
+        "he hit me",
+        "he hurt me",
+        "he punched me",
+        "he pushed me",
+        "he kicked me",
+        "he slapped me",
+        "he choked me",
+        "he strangled me",
+        "he cut me",
+        "he burned me",
+        "he bit me",
+        "he threw me",
+        "he dragged me",
+        "he grabbed my neck",
+        "he pulled my hair",
+        "he's hitting me",
+        "he's hurting me",
+        "i'm bleeding",
+        "he threw me against the wall",
+        "he broke my",
+        "he left bruises"
+      ]
+    },
+
+    "armas_y_amenaza_directa": {
+      "descripcion": "Presencia de armas o amenaza explícita con objeto para causar daño.",
+      "es": [
+        "tiene un cuchillo",
+        "tiene una navaja",
+        "tiene una pistola",
+        "tiene un arma",
+        "tiene un rifle",
+        "tiene un machete",
+        "sacó un cuchillo",
+        "sacó una pistola",
+        "sacó un arma",
+        "me apuntó",
+        "me amenazó con un cuchillo",
+        "me amenazó con una pistola",
+        "me amenazó con un arma",
+        "me puso un cuchillo",
+        "me puso una pistola",
+        "disparó",
+        "me amenazó con matarme",
+        "dijo que me mata",
+        "dijo que nos mata",
+        "me va a matar",
+        "me amenazó de muerte",
+        "amenazó con matar a mis hijos",
+        "amenazó con matar a mis hijas"
+      ],
+      "en": [
+        "he has a knife",
+        "he has a gun",
+        "he has a weapon",
+        "he pulled out a knife",
+        "he pulled out a gun",
+        "he pointed a gun",
+        "he threatened me with a knife",
+        "he threatened me with a gun",
+        "he threatened to kill me",
+        "he said he would kill me",
+        "he's going to kill me",
+        "he shot",
+        "he threatened to kill my kids",
+        "he threatened to kill my children",
+        "death threat"
+      ]
+    },
+
+    "ideacion_suicida": {
+      "descripcion": "Expresiones directas o veladas de deseo de morir o hacerse daño.",
+      "directas": {
+        "es": [
+          "quiero morirme",
+          "me quiero matar",
+          "quiero suicidarme",
+          "voy a matarme",
+          "me voy a matar",
+          "voy a quitarme la vida",
+          "quiero quitarme la vida",
+          "me voy a suicidar",
+          "voy a suicidarme",
+          "no quiero seguir viviendo",
+          "no quiero vivir más",
+          "quiero que todo acabe",
+          "quiero que todo termine",
+          "ya no quiero estar aquí",
+          "ya no quiero existir",
+          "quiero desaparecer para siempre"
+        ],
+        "en": [
+          "i want to die",
+          "i want to kill myself",
+          "i want to end my life",
+          "i'm going to kill myself",
+          "i'm going to end it",
+          "i don't want to live anymore",
+          "i want everything to end",
+          "i want to disappear forever",
+          "i'm going to commit suicide",
+          "i want to commit suicide"
+        ]
+      },
+      "veladas": {
+        "descripcion": "Frases indirectas que sugieren ideación sin nombrarla explícitamente. Requieren al menos una señal adicional de Modo 2 para activar Modo 3.",
+        "es": [
+          "todos estarían mejor sin mí",
+          "sería mejor si no existiera",
+          "ya no tiene sentido seguir",
+          "ya no tiene sentido nada",
+          "es la última vez que hablo",
+          "ya no importo",
+          "ya no sirvo para nada",
+          "nadie me va a extrañar",
+          "me voy a ir para siempre",
+          "no voy a estar aquí mucho tiempo",
+          "ya tomé una decisión",
+          "ya decidí qué voy a hacer"
+        ],
+        "en": [
+          "everyone would be better off without me",
+          "it would be better if i didn't exist",
+          "there's no point in going on",
+          "nothing makes sense anymore",
+          "this is the last time i'll talk to anyone",
+          "i don't matter",
+          "no one will miss me",
+          "i've made my decision",
+          "i won't be here much longer",
+          "i've decided what i'm going to do"
+        ]
+      }
+    },
+
+    "situaciones_compuestas": {
+      "descripcion": "Combinaciones de vulnerabilidad extrema: embarazo, niños en peligro, encierro forzado.",
+
+      "embarazo_y_violencia": {
+        "es": [
+          "me golpeó estando embarazada",
+          "me pegó en el estómago",
+          "me lastimó la panza",
+          "me pateó el vientre",
+          "me golpeó el abdomen",
+          "me empujó estando embarazada",
+          "estoy embarazada y me golpea",
+          "estoy embarazada y me pega"
+        ],
+        "en": [
+          "he hit me while i'm pregnant",
+          "he punched me in the stomach",
+          "he kicked my belly",
+          "he hurt my baby",
+          "i'm pregnant and he hits me",
+          "i'm pregnant and he hurts me"
+        ]
+      },
+
+      "ninos_en_peligro": {
+        "es": [
+          "le pegó a mi hijo",
+          "le pegó a mi hija",
+          "está golpeando a mis hijos",
+          "lastimó a mis hijos",
+          "mis hijos están en peligro",
+          "amenazó con llevarse a mis hijos",
+          "amenazó con quitarme a mis hijos",
+          "amenazó con hacerle daño a mis hijos",
+          "le hizo daño a mi hijo",
+          "le hizo daño a mi hija",
+          "mis hijos vieron todo"
+        ],
+        "en": [
+          "he hit my child",
+          "he hit my kids",
+          "he's hurting my children",
+          "my kids are in danger",
+          "he threatened to take my kids",
+          "he threatened to hurt my kids",
+          "he hurt my child",
+          "my children saw everything"
+        ]
+      },
+
+      "encierro_y_control_fisico": {
+        "es": [
+          "no me deja salir",
+          "me tiene encerrada",
+          "cerró la puerta con llave",
+          "me quitó las llaves",
+          "no puedo salir de la casa",
+          "me tiene retenida",
+          "no me deja ir",
+          "me bloqueó la salida",
+          "está afuera esperándome",
+          "me sigue a todos lados",
+          "me tiene vigilada"
+        ],
+        "en": [
+          "he won't let me leave",
+          "he locked me in",
+          "he took my keys",
+          "i can't leave the house",
+          "he's keeping me here",
+          "he blocked the exit",
+          "he's waiting outside for me",
+          "he follows me everywhere",
+          "he's watching my every move"
+        ]
+      }
+    }
+  },
+
+  "reglas_de_uso": {
+    "activacion_inmediata": [
+      "violencia_fisica_reciente",
+      "armas_y_amenaza_directa",
+      "ideacion_suicida.directas",
+      "situaciones_compuestas.embarazo_y_violencia",
+      "situaciones_compuestas.ninos_en_peligro",
+      "situaciones_compuestas.encierro_y_control_fisico"
+    ],
+    "activacion_con_contexto": [
+      "ideacion_suicida.veladas — requiere al menos una señal adicional de Modo 2 en el historial"
+    ],
+    "notas": [
+      "Normalizar texto antes de comparar: minúsculas, sin acentos, sin signos de puntuación.",
+      "Un solo match en activacion_inmediata es suficiente para devolver modo 3 sin llamar a Gemini.",
+      "Las frases veladas de ideación suicida necesitan contexto — no activan solas.",
+      "Loggear siempre el match detectado para revisión posterior del equipo.",
+      "Este archivo es versionado — cualquier cambio lleva commit con ID de tarea."
+    ]
+  }
+}
