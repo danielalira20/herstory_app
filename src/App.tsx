@@ -19,14 +19,15 @@ import HerStory from "./pages/HerStory";
 //import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
 import HerStoryBot from "./components/HerStoryBot";
+import PanicButton from "./components/PanicButton";
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
 import RastroNacional from "./pages/RastroNacional";
 import Landing from "./pages/Landing";
 import Search from "./pages/Search"; 
 import Learn from "./pages/Learn"; 
-import { SectionProvider } from "./context/SectionContext"; 
 import Guias from "./pages/Guias";
+import { SectionProvider } from "./context/SectionContext";  
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
             <HerStoryBot />
+            <PanicButton />
             </SectionProvider>
           </BrowserRouter>
         </TooltipProvider>
