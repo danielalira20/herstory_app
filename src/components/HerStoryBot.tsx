@@ -503,10 +503,16 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
 
   // ====== Helpers ======
   function getMexicoHour(): number {
-    const now = new Date();
-    const mexicoTime = new Date(now.getTime() - (6 * 60 * 60 * 1000));
-    return mexicoTime.getHours();
-  }
+  const now = new Date();
+  const mexicoHour = parseInt(
+    new Intl.DateTimeFormat('es-MX', {
+      timeZone: 'America/Mexico_City',
+      hour: 'numeric',
+      hour12: false
+    }).format(now)
+  );
+  return mexicoHour;
+}
 
   function isNightTime(): boolean {
     const hour = getMexicoHour();
@@ -555,6 +561,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState(false);
   const [geminiHistory, setGeminiHistory] = useState<Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>>([]);
+  const [currentMode, setCurrentMode] = useState<1 | 2 | 3>(1);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   // ====== Saludo inicial: página específica → horario (fallback) ======
@@ -595,6 +602,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
       const data = await res.json();
       const botAnswer = data.respuesta || "No tengo respuesta en este momento.";
+      if (data.modo) setCurrentMode(data.modo as 1 | 2 | 3);
       setGeminiHistory([
         ...updatedHistory,
         { role: "model" as const, parts: [{ text: botAnswer }] },
@@ -670,6 +678,35 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     if (!botAnswer) reply(sample(DATA_CONTENT.inspiration[lang]));
   }
 
+  function getModeStyles() {
+  switch (currentMode) {
+    case 2:
+      return {
+        header: "bg-gradient-to-r from-blue-500 to-teal-500",
+        container: "bg-gradient-to-br from-blue-50 to-teal-50 dark:from-gray-900 dark:to-teal-900",
+        border: "border-blue-200 dark:border-teal-700",
+        indicator: "🔵",
+        label: lang === "es" ? "Modo reflexión" : "Reflection mode",
+      };
+    case 3:
+      return {
+        header: "bg-gradient-to-r from-rose-600 to-red-500",
+        container: "bg-gradient-to-br from-rose-50 to-red-50 dark:from-gray-900 dark:to-red-900",
+        border: "border-rose-300 dark:border-red-700",
+        indicator: "🔴",
+        label: lang === "es" ? "Modo emergencia" : "Emergency mode",
+      };
+    default:
+      return {
+        header: "bg-gradient-to-r from-purple-600 to-pink-500",
+        container: "bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-purple-900",
+        border: "border-purple-200 dark:border-purple-700",
+        indicator: null,
+        label: null,
+      };
+  }
+}
+
   // ====== Render ======
   return (
     <>
@@ -685,108 +722,113 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
         </motion.button>
       </div>
 
+      
       <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-purple-200 dark:border-purple-700"
+  {open && (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      className={`fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
+        ${getModeStyles().container}
+        shadow-2xl rounded-2xl flex flex-col overflow-hidden 
+        border ${getModeStyles().border}
+        transition-all duration-500`}
+    >
+      {/* Header */}
+      <div className={`flex justify-between items-center p-4 ${getModeStyles().header} text-white transition-all duration-500`}>
+        <div>
+          <h2 className="text-lg font-bold">{UI[lang].title}</h2>
+          <p className="text-xs opacity-80 flex items-center gap-1">
+            {getModeStyles().label || UI[lang].subtitle}
+            {getModeStyles().indicator && (
+              <span className="animate-pulse">{getModeStyles().indicator}</span>
+            )}
+          </p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <select
+            value={lang}
+            onChange={(e) => setLang(e.target.value as LangCode)}
+            className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
           >
-            {/* Header */}
-            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
-              <div>
-                <h2 className="text-lg font-bold">{UI[lang].title}</h2>
-                <p className="text-xs opacity-80">{UI[lang].subtitle}</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                <select
-                  value={lang}
-                  onChange={(e) => setLang(e.target.value as LangCode)}
-                  className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
-                >
-                  {LANGS.map((l) => (
-                    <option key={l.code} value={l.code} className="text-gray-800">{l.label}</option>
-                  ))}
-                </select>
-                <Languages size={18} className="opacity-80" />
-                <button
-                  onClick={() => { setOpen(false); setGeminiHistory([]); }}
-                  className="p-1 rounded-full hover:bg-white/20 transition"
-                >
-                  <X />
-                </button>
-              </div>
-            </div>
+            {LANGS.map((l) => (
+              <option key={l.code} value={l.code} className="text-gray-800">{l.label}</option>
+            ))}
+          </select>
+          <Languages size={18} className="opacity-80" />
+          <button
+            onClick={() => { setOpen(false); setGeminiHistory([]); setCurrentMode(1); }}
+            className="p-1 rounded-full hover:bg-white/20 transition"
+          >
+            <X />
+          </button>
+        </div>
+      </div>
 
-            {/* Mensajes */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-              {messages.map(m => (
-                <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-                  <div
-                    className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line ${m.from === "bot" ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100" : "bg-purple-600 dark:bg-purple-500 text-white"}`}
-                    dangerouslySetInnerHTML={{
-                      __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
-                    }}
-                  />
-                </div>
-              ))}
-              {typing && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 italic">
-                    {UI[lang].typing}
-                  </div>
-                </div>
-              )}
-              <div ref={bottomRef} />
+      {/* Mensajes — igual que antes */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
+        {messages.map(m => (
+          <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+            <div
+              className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line ${m.from === "bot" ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100" : "bg-purple-600 dark:bg-purple-500 text-white"}`}
+              dangerouslySetInnerHTML={{
+                __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
+              }}
+            />
+          </div>
+        ))}
+        {typing && (
+          <div className="flex justify-start">
+            <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 italic">
+              {UI[lang].typing}
             </div>
-
-            {/* Chips */}
-            <div className="mb-2 px-3">
-              <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
-                  { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
-                  { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
-                  { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
-                  { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
-                  { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
-                  { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
-                  { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
-                  { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
-                ].map(chip => (
-                  <button
-                    key={chip.key}
-                    onClick={chip.action}
-                    className="rounded-full bg-purple-100 dark:bg-gray-700 hover:bg-purple-200 dark:hover:bg-gray-600 text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm"
-                  >
-                    {chip.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Input */}
-            <div className="p-3 border-t border-purple-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 flex space-x-2">
-              <input
-                type="text"
-                className="flex-1 border border-purple-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
-                placeholder={UI[lang].inputPlaceholder}
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
-              />
-              <button
-                onClick={() => handleSend()}
-                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition"
-              >
-                <Send />
-              </button>
-            </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+        <div ref={bottomRef} />
+      </div>
+
+      {/* Chips — igual que antes */}
+      <div className="mb-2 px-3">
+        <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
+            { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
+            { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
+            { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
+            { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
+            { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
+            { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
+            { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
+            { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
+          ].map(chip => (
+            <button key={chip.key} onClick={chip.action}
+              className="rounded-full bg-purple-100 dark:bg-gray-700 hover:bg-purple-200 dark:hover:bg-gray-600 text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm">
+              {chip.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Input — igual que antes */}
+      <div className="p-3 border-t border-purple-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 flex space-x-2">
+        <input
+          type="text"
+          className="flex-1 border border-purple-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+          placeholder={UI[lang].inputPlaceholder}
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
+        />
+        <button onClick={() => handleSend()}
+          className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition">
+          <Send />
+        </button>
+      </div>
+    </motion.div>
+  )}
+    </AnimatePresence>
     </>
   );
 }
