@@ -7,21 +7,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   Send,
-  Globe,
-  BookOpen,
-  Clapperboard,
-  MapPin,
-  Heart,
-  HelpCircle,
-  MessageSquare,
   Languages,
-  Sparkles,
 } from "lucide-react";
 
 // ====== Componente principal ======
 export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   const location = useLocation();
-  const path = location.pathname;
+  const resolvedPage = pageKey ?? location.pathname;
 
   // ====== Generador de IDs únicos ======
   const generateId = () => Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -40,26 +32,12 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       subtitle: "Museo de mujeres olvidadas",
       inputPlaceholder: "Escribe aquí…",
       quickActions: "Atajos",
-      categories: {
-        inspiration: "Inspiración",
-        comfort: "Consuelo",
-        curiosity: "Curiosidad",
-        pause: "Pausa emocional",
-        quotes: "Frases célebres",
-        guide: "Guía feminista",
-        recommend: "Recomendación",
-        personas: "Hablar con",
-      },
-      recTypes: {
-        books: "Libros",
-        films: "Películas",
-        exhibits: "Exposiciones",
-      },
       pageGreetings: {
-        "/": "👋 Bienvenida a HerStory, el museo de mujeres olvidadas.",
-        "/inspiracion": "✨ Esta es la sección de Inspiración: respira, crece, brilla.",
-        "/curiosidad": "🤔 Curiosidades que la historia escondió, aquí se destapan.",
-        "/consuelo": "💜 Este es un espacio seguro: puedes descansar aquí.",
+        "/mujeres-desaparecidas": "Estás en un espacio muy importante. Aquí están las que faltan — sus nombres, sus historias. Si necesitas hablar de lo que estás viendo, o de cualquier otra cosa, aquí estoy.",
+        "/voces-silenciadas": "Estas son voces que merecen ser escuchadas. Y la tuya también. Estoy aquí si quieres compartir algo.",
+        "/herstory": "Estás en el museo. Cada mujer aquí cambió algo en el mundo. ¿Quieres que te cuente sobre alguna de ellas, o prefieres contarme algo tú?",
+        "/search": "Estás en el espacio de búsqueda. Si necesitas orientación sobre los recursos disponibles, o simplemente quieres hablar, aquí estoy.",
+        "/learn": "Estás en el espacio de aprendizaje. Hay mucho por descubrir — historia, feminismo, mujeres que cambiaron el mundo. ¿Por dónde quieres empezar?",
       },
       chips: {
         inspire: "Inspiración ✨",
@@ -72,7 +50,6 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
         recFilm: "Película 🎬",
         recExhibit: "Exposición 🖼️",
       },
-      systemHello: "¿En qué modo quieres que te acompañe hoy?",
       personaPrefix: (name: string) => `${name} dice:`,
       typing: "Escribiendo…",
     },
@@ -81,26 +58,12 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       subtitle: "Museum of forgotten women",
       inputPlaceholder: "Type here…",
       quickActions: "Shortcuts",
-      categories: {
-        inspiration: "Inspiration",
-        comfort: "Comfort",
-        curiosity: "Curiosity",
-        pause: "Emotional pause",
-        quotes: "Famous quotes",
-        guide: "Feminist guide",
-        recommend: "Recommendation",
-        personas: "Talk to",
-      },
-      recTypes: {
-        books: "Books",
-        films: "Films",
-        exhibits: "Exhibitions",
-      },
       pageGreetings: {
-        "/": "👋 Welcome to HerStory, the museum of forgotten women.",
-        "/inspiracion": "✨ Inspiration lives here: breathe, grow, glow.",
-        "/curiosidad": "🤔 Curiosities history hid are unveiled here.",
-        "/consuelo": "💜 A safe space to rest and be held.",
+        "/mujeres-desaparecidas": "You're in a very important space. Here are the ones who are missing — their names, their stories. If you need to talk about what you're seeing, or anything else, I'm here.",
+        "/voces-silenciadas": "These are voices that deserve to be heard. And so does yours. I'm here if you want to share something.",
+        "/herstory": "You're in the museum. Every woman here changed something in the world. Would you like me to tell you about one of them, or would you rather share something with me?",
+        "/search": "You're in the search space. If you need guidance on available resources, or simply want to talk, I'm here.",
+        "/learn": "You're in the learning space. There's so much to discover here — history, feminism, women who changed the world. Where would you like to start?",
       },
       chips: {
         inspire: "Inspiration ✨",
@@ -113,7 +76,6 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
         recFilm: "Film 🎬",
         recExhibit: "Exhibition 🖼️",
       },
-      systemHello: "Which mode should I switch on today?",
       personaPrefix: (name: string) => `${name} says:`,
       typing: "Typing…",
     },
@@ -140,49 +102,48 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }
 
   const BOOK_TEMPLATES_ES = [
-  (b: any) => `📖 Te recomiendo ${b.title} de ${b.author}.`,
-  (b: any) => `📖 ¿Has leído ${b.title}? Es de ${b.author}.`,
-  (b: any) => `📖 ${b.title} (${b.author}) es una lectura imperdible.`,
-  (b: any) => `📖 Una joya que puedes explorar: ${b.title} — ${b.author}.`,
-  (b: any) => `📖 Si buscas inspiración, prueba con ${b.title} de ${b.author}.`
-];
-const FILM_TEMPLATES_ES = [
-  (f: any) => `🎬 Te sugiero ver ${f.title} dirigida por ${f.author}.`,
-  (f: any) => `🎬 ${f.title} (${f.author}) es una película que no olvidarás.`,
-  (f: any) => `🎬 ¿Ya viste ${f.title} de ${f.author}?`,
-  (f: any) => `🎬 Una gran recomendación de cine: ${f.title} — ${f.author}.`,
-  (f: any) => `🎬 Para reflexionar, mira ${f.title} de ${f.author}.`
-];
-const EXHIBIT_TEMPLATES_ES = [
-  (e: any) => `🖼️ Te invito a descubrir ${e.title} (${e.author}).`,
-  (e: any) => `🖼️ ${e.title} es una expo fascinante organizada por ${e.author}.`,
-  (e: any) => `🖼️ Puedes visitar ${e.title}, creada por ${e.author}.`,
-  (e: any) => `🖼️ Una muestra imperdible: ${e.title} — ${e.author}.`
-];
+    (b: any) => `📖 Te recomiendo ${b.title} de ${b.author}.`,
+    (b: any) => `📖 ¿Has leído ${b.title}? Es de ${b.author}.`,
+    (b: any) => `📖 ${b.title} (${b.author}) es una lectura imperdible.`,
+    (b: any) => `📖 Una joya que puedes explorar: ${b.title} — ${b.author}.`,
+    (b: any) => `📖 Si buscas inspiración, prueba con ${b.title} de ${b.author}.`
+  ];
+  const FILM_TEMPLATES_ES = [
+    (f: any) => `🎬 Te sugiero ver ${f.title} dirigida por ${f.author}.`,
+    (f: any) => `🎬 ${f.title} (${f.author}) es una película que no olvidarás.`,
+    (f: any) => `🎬 ¿Ya viste ${f.title} de ${f.author}?`,
+    (f: any) => `🎬 Una gran recomendación de cine: ${f.title} — ${f.author}.`,
+    (f: any) => `🎬 Para reflexionar, mira ${f.title} de ${f.author}.`
+  ];
+  const EXHIBIT_TEMPLATES_ES = [
+    (e: any) => `🖼️ Te invito a descubrir ${e.title} (${e.author}).`,
+    (e: any) => `🖼️ ${e.title} es una expo fascinante organizada por ${e.author}.`,
+    (e: any) => `🖼️ Puedes visitar ${e.title}, creada por ${e.author}.`,
+    (e: any) => `🖼️ Una muestra imperdible: ${e.title} — ${e.author}.`
+  ];
+  const BOOK_TEMPLATES_EN = [
+    (b: any) => `📖 I recommend ${b.title} by ${b.author}.`,
+    (b: any) => `📖 Have you read ${b.title}? It's by ${b.author}.`,
+    (b: any) => `📖 ${b.title} (${b.author}) is a must-read.`,
+    (b: any) => `📖 A gem worth exploring: ${b.title} — ${b.author}.`,
+    (b: any) => `📖 If you're looking for inspiration, try ${b.title} by ${b.author}.`
+  ];
+  const FILM_TEMPLATES_EN = [
+    (f: any) => `🎬 I suggest watching ${f.title}, directed by ${f.author}.`,
+    (f: any) => `🎬 ${f.title} (${f.author}) is an unforgettable film.`,
+    (f: any) => `🎬 Have you seen ${f.title} by ${f.author}?`,
+    (f: any) => `🎬 A great film to watch: ${f.title} — ${f.author}.`,
+    (f: any) => `🎬 For reflection, check out ${f.title} by ${f.author}.`
+  ];
+  const EXHIBIT_TEMPLATES_EN = [
+    (e: any) => `🖼️ Discover ${e.title} (${e.author}).`,
+    (e: any) => `🖼️ ${e.title} is a fascinating exhibit by ${e.author}.`,
+    (e: any) => `🖼️ You can visit ${e.title}, presented by ${e.author}.`,
+    (e: any) => `🖼️ A must-see exhibit: ${e.title} — ${e.author}.`,
+    (e: any) => `🖼️ Experience ${e.title} brought to life by ${e.author}.`
+  ];
 
-const BOOK_TEMPLATES_EN = [
-  (b: any) => `📖 I recommend ${b.title} by ${b.author}.`,
-  (b: any) => `📖 Have you read ${b.title}? It’s by ${b.author}.`,
-  (b: any) => `📖 ${b.title} (${b.author}) is a must-read.`,
-  (b: any) => `📖 A gem worth exploring: ${b.title} — ${b.author}.`,
-  (b: any) => `📖 If you’re looking for inspiration, try ${b.title} by ${b.author}.`
-];
-const FILM_TEMPLATES_EN = [
-  (f: any) => `🎬 I suggest watching ${f.title}, directed by ${f.author}.`,
-  (f: any) => `🎬 ${f.title} (${f.author}) is an unforgettable film.`,
-  (f: any) => `🎬 Have you seen ${f.title} by ${f.author}?`,
-  (f: any) => `🎬 A great film to watch: ${f.title} — ${f.author}.`,
-  (f: any) => `🎬 For reflection, check out ${f.title} by ${f.author}.`
-];
-const EXHIBIT_TEMPLATES_EN = [
-  (e: any) => `🖼️ Discover ${e.title} (${e.author}).`,
-  (e: any) => `🖼️ ${e.title} is a fascinating exhibit by ${e.author}.`,
-  (e: any) => `🖼️ You can visit ${e.title}, presented by ${e.author}.`,
-  (e: any) => `🖼️ A must-see exhibit: ${e.title} — ${e.author}.`,
-  (e: any) => `🖼️ Experience ${e.title} brought to life by ${e.author}.`
-];
-
-  // ====== Contenido (ejemplo completo) ======
+  // ====== Contenido ======
   const DATA_CONTENT: DataContent = {
     inspiration: {
       es: [
@@ -232,7 +193,7 @@ const EXHIBIT_TEMPLATES_EN = [
         "No tienes que cargarlo todo sola.",
         "Cada lágrima también riega tu resiliencia.",
         "Abraza tu vulnerabilidad, allí nace la fortaleza."
-        ],
+      ],
       en: [
         "Breathe. You're not alone. Rest is welcome here.",
         "You can pause without apologizing.",
@@ -262,8 +223,6 @@ const EXHIBIT_TEMPLATES_EN = [
         "Explora, cuestiona y sorpréndete siempre.",
         "La historia de las mujeres es una red infinita de descubrimientos.",
         "Cada anécdota es semilla de cambio."
-    
-
       ],
       en: [
         "Did you know many women scientists used pen names to be taken seriously?",
@@ -279,7 +238,7 @@ const EXHIBIT_TEMPLATES_EN = [
         "Curiosity connects the everyday with the extraordinary.",
         "Explore, question, and always be amazed.",
         "The history of women is an endless web of discoveries.",
-        "Every anecdote is a seed of change."   
+        "Every anecdote is a seed of change."
       ],
     },
     pause: {
@@ -306,7 +265,6 @@ const EXHIBIT_TEMPLATES_EN = [
         "Breathe and let everything flow.",
         "Connecting with yourself is revolutionary.",
         "Taking time is part of your strength."
-
       ],
     },
     quotes: {
@@ -316,89 +274,82 @@ const EXHIBIT_TEMPLATES_EN = [
         "No se nace mujer: se llega a serlo. — Simone de Beauvoir",
         "El futuro pertenece a quienes creen en la belleza de sus sueños. — Eleanor Roosevelt",
         "La vida es un viaje que merece ser contado. — Audre Lorde",
-        "Nada en la vida debe ser temido, solo comprendido. Ahora es el momento de comprender más, para que podamos temer menos. — Marie Curie",
+        "Nada en la vida debe ser temido, solo comprendido. — Marie Curie",
         "La libertad no es un estado que se alcanza, sino un camino que se recorre. — Rosa Luxemburgo",
-        "La educación es el arma más poderosa que puedes usar para cambiar el mundo. — Nelson Mandela",
         "El poder no se da, se toma. — Malala Yousafzai",
-        "Cada vez que una mujer defiende sus derechos, sin saberlo, está defendiendo los derechos de todas las mujeres. — Maya Angelou",
+        "Cada vez que una mujer defiende sus derechos, está defendiendo los de todas. — Maya Angelou",
         "No hay barrera, cerradura ni cerrojo que puedas imponer a la libertad de mi mente. — Virginia Woolf",
         "La igualdad no es un sueño, es una necesidad. — Chimamanda Ngozi Adichie",
-        "El coraje no siempre ruge. A veces el coraje es la vocecita al final del día que dice: 'Lo intentaré de nuevo mañana'. — Mary Anne Radmacher",
+        "El coraje no siempre ruge. A veces es la vocecita que dice: Lo intentaré de nuevo mañana. — Mary Anne Radmacher",
         "Ser mujer es ser valiente en un mundo que constantemente nos desafía a serlo. — Gloria Steinem",
-        "El éxito no tiene género. — Sheryl Sandberg",      
-
-    ],
+        "El éxito no tiene género. — Sheryl Sandberg"
+      ],
       en: [
         "I do not study to know more, but to ignore less. — Sor Juana Inés de la Cruz",
         "Feet, what do I need you for when I have wings to fly? — Frida Kahlo",
         "One is not born a woman, but becomes one. — Simone de Beauvoir",
         "The future belongs to those who believe in the beauty of their dreams. — Eleanor Roosevelt",
         "Life is a journey worth telling. — Audre Lorde",
-        "Nothing in life is to be feared, it is only to be understood. Now is the time to understand more, so that we may fear less. — Marie Curie",
+        "Nothing in life is to be feared, it is only to be understood. — Marie Curie",
         "Freedom is not a state to reach, but a path to walk. — Rosa Luxemburg",
-        "Education is the most powerful weapon which you can use to change the world. — Nelson Mandela",
         "Power is not given, it is taken. — Malala Yousafzai",
-        "Every time  stands up for her rights, she is unknowingly standing up for the rights of all women. — Maya Angelou",
+        "Every time a woman stands up for her rights, she stands up for all women. — Maya Angelou",
         "There is no barrier, lock, or bolt that you can impose on the freedom of my mind. — Virginia Woolf",
         "Equality is not a dream, it is a necessity. — Chimamanda Ngozi Adichie",
-        "Courage doesn't always roar. Sometimes courage is the little voice at the end of the day that says, 'I'll try again tomorrow.' — Mary Anne Radmacher",
+        "Courage doesn't always roar. Sometimes it's the little voice that says: I'll try again tomorrow. — Mary Anne Radmacher",
         "To be a woman is to be brave in a world that constantly challenges us to be so. — Gloria Steinem",
         "Success has no gender. — Sheryl Sandberg"
       ],
     },
     guideFAQ: {
       es: [
-        // Tus originales
-    { q: "¿Qué es el feminismo?", a: "Un movimiento por la igualdad de derechos y oportunidades entre géneros. No busca superioridad, busca justicia." },
-    { q: "¿Puedo ser feminista y equivocarme?", a: "Sí. El feminismo también es aprendizaje y reparación. Avanzamos conversando." },
-    { q: "¿Cómo empezar?", a: "Escucha, lee autoras diversas, cuestiona estereotipos, apoya a otras mujeres y disidencias." },
-    { q: "¿El feminismo odia a los hombres?", a: "No. El feminismo critica sistemas de poder, no personas. Busca liberar a todos de roles rígidos." },
-    { q: "¿Qué es la interseccionalidad?", a: "Una mirada que reconoce cómo se cruzan género, raza, clase, orientación y otras identidades en la desigualdad." },
-    { q: "¿Por qué es importante nombrar a las mujeres en la historia?", a: "Porque fueron borradas sistemáticamente. Nombrarlas es justicia, memoria y reparación." },
-    { q: "¿Qué papel juegan los hombres en el feminismo?", a: "Pueden ser aliados, cuestionar privilegios y apoyar la equidad sin ocupar el centro." },
-    { q: "¿El feminismo es lo mismo en todos los países?", a: "No. Cada contexto tiene sus luchas, voces y prioridades. Por eso hablamos de feminismos." },
-    { q: "¿Qué es el techo de cristal?", a: "Una barrera invisible que impide a muchas mujeres ascender profesionalmente, pese a su capacidad." },
-    { q: "¿Qué es la brecha salarial?", a: "La diferencia de ingresos entre hombres y mujeres por trabajos de igual valor. Aún existe en casi todos los países." },
-    { q: "¿Por qué se habla de feminismo en el arte?", a: "Porque el arte también ha excluido, silenciado o sexualizado a las mujeres. El feminismo lo cuestiona y transforma." },
-    { q: "¿Qué es el lenguaje inclusivo?", a: "Una forma de hablar que visibiliza a todas las identidades, más allá del masculino genérico." },
-    { q: "¿Qué es la sororidad?", a: "Solidaridad entre mujeres basada en el reconocimiento mutuo, el apoyo y la empatía." },
-    { q: "¿Puedo ser feminista si no lo sé todo?", a: "Sí. El feminismo no exige perfección, sino compromiso con la equidad y apertura al aprendizaje." },
-    { q: "¿Por qué incomoda el feminismo?", a: "Porque cuestiona privilegios y estructuras que muchos dan por normales. Incomodar también es despertar." },
-    { q: "¿Qué es el feminismo radical?", a: "Una corriente que busca transformar las raíces del patriarcado, no solo reformar sus efectos." },
-    { q: "¿Qué relación hay entre feminismo y ecología?", a: "Ambos cuestionan sistemas de explotación y proponen cuidados colectivos y sostenibles." },
-    { q: "¿Qué es el feminismo comunitario?", a: "Una visión que nace de pueblos originarios y lucha desde lo colectivo, el territorio y la memoria." },
-    { q: "¿Por qué el feminismo habla de cuerpos?", a: "Porque los cuerpos han sido controlados, violentados y normados. Reivindicarlos es resistencia." },
-    { q: "¿Qué es el mansplaining?", a: "Cuando un hombre explica algo con condescendencia a una mujer, asumiendo que ella sabe menos." },
-    { q: "¿Qué es el micromachismo?", a: "Actitudes sutiles que perpetúan desigualdades, como interrumpir, invisibilizar o infantilizar a las mujeres." },
-    { q: "¿El feminismo incluye a personas trans?", a: "Sí. El feminismo interseccional reconoce y defiende los derechos de todas las identidades de género." },
-  ],
-        
+        { q: "¿Qué es el feminismo?", a: "Un movimiento por la igualdad de derechos y oportunidades entre géneros. No busca superioridad, busca justicia." },
+        { q: "¿Puedo ser feminista y equivocarme?", a: "Sí. El feminismo también es aprendizaje y reparación. Avanzamos conversando." },
+        { q: "¿Cómo empezar?", a: "Escucha, lee autoras diversas, cuestiona estereotipos, apoya a otras mujeres y disidencias." },
+        { q: "¿El feminismo odia a los hombres?", a: "No. El feminismo critica sistemas de poder, no personas. Busca liberar a todos de roles rígidos." },
+        { q: "¿Qué es la interseccionalidad?", a: "Una mirada que reconoce cómo se cruzan género, raza, clase, orientación y otras identidades en la desigualdad." },
+        { q: "¿Por qué es importante nombrar a las mujeres en la historia?", a: "Porque fueron borradas sistemáticamente. Nombrarlas es justicia, memoria y reparación." },
+        { q: "¿Qué papel juegan los hombres en el feminismo?", a: "Pueden ser aliados, cuestionar privilegios y apoyar la equidad sin ocupar el centro." },
+        { q: "¿El feminismo es lo mismo en todos los países?", a: "No. Cada contexto tiene sus luchas, voces y prioridades. Por eso hablamos de feminismos." },
+        { q: "¿Qué es el techo de cristal?", a: "Una barrera invisible que impide a muchas mujeres ascender profesionalmente, pese a su capacidad." },
+        { q: "¿Qué es la brecha salarial?", a: "La diferencia de ingresos entre hombres y mujeres por trabajos de igual valor. Aún existe en casi todos los países." },
+        { q: "¿Por qué se habla de feminismo en el arte?", a: "Porque el arte también ha excluido, silenciado o sexualizado a las mujeres. El feminismo lo cuestiona y transforma." },
+        { q: "¿Qué es el lenguaje inclusivo?", a: "Una forma de hablar que visibiliza a todas las identidades, más allá del masculino genérico." },
+        { q: "¿Qué es la sororidad?", a: "Solidaridad entre mujeres basada en el reconocimiento mutuo, el apoyo y la empatía." },
+        { q: "¿Puedo ser feminista si no lo sé todo?", a: "Sí. El feminismo no exige perfección, sino compromiso con la equidad y apertura al aprendizaje." },
+        { q: "¿Por qué incomoda el feminismo?", a: "Porque cuestiona privilegios y estructuras que muchos dan por normales. Incomodar también es despertar." },
+        { q: "¿Qué es el feminismo radical?", a: "Una corriente que busca transformar las raíces del patriarcado, no solo reformar sus efectos." },
+        { q: "¿Qué relación hay entre feminismo y ecología?", a: "Ambos cuestionan sistemas de explotación y proponen cuidados colectivos y sostenibles." },
+        { q: "¿Qué es el feminismo comunitario?", a: "Una visión que nace de pueblos originarios y lucha desde lo colectivo, el territorio y la memoria." },
+        { q: "¿Por qué el feminismo habla de cuerpos?", a: "Porque los cuerpos han sido controlados, violentados y normados. Reivindicarlos es resistencia." },
+        { q: "¿Qué es el mansplaining?", a: "Cuando un hombre explica algo con condescendencia a una mujer, asumiendo que ella sabe menos." },
+        { q: "¿Qué es el micromachismo?", a: "Actitudes sutiles que perpetúan desigualdades, como interrumpir, invisibilizar o infantilizar a las mujeres." },
+        { q: "¿El feminismo incluye a personas trans?", a: "Sí. El feminismo interseccional reconoce y defiende los derechos de todas las identidades de género." },
+      ],
       en: [
-        // Tus originales
-    { q: "What is feminism?", a: "A movement for equal rights and opportunities across genders. Not superiority—justice." },
-    { q: "Can I be feminist and make mistakes?", a: "Yes. Feminism is also learning and repair. We advance through dialogue." },
-    { q: "How to begin?", a: "Listen, read diverse women authors, challenge stereotypes, support women and queer folks." },
-    { q: "Does feminism hate men?", a: "No. Feminism critiques systems of power, not individuals. It seeks freedom for all from rigid roles." },
-    { q: "What is intersectionality?", a: "A lens that sees how gender, race, class, orientation and other identities overlap in inequality." },
-    { q: "Why name women in history?", a: "Because they were systematically erased. Naming them is justice, memory and repair." },
-    { q: "What role do men play in feminism?", a: "They can be allies, question privilege and support equity without taking center stage." },
-    { q: "Is feminism the same everywhere?", a: "No. Each context has its own struggles, voices and priorities. That’s why we speak of feminisms." },
-    { q: "What is the glass ceiling?", a: "An invisible barrier that prevents many women from advancing professionally despite their qualifications." },
-    { q: "What is the gender pay gap?", a: "The income difference between men and women for work of equal value. It still exists in most countries." },
-    { q: "Why talk about feminism in art?", a: "Because art has excluded, silenced or sexualized women. Feminism questions and transforms that." },
-    { q: "What is inclusive language?", a: "A way of speaking that makes all identities visible, beyond the generic masculine." },
-    { q: "What is sorority?", a: "Solidarity among women based on mutual recognition, support and empathy." },
-    { q: "Can I be feminist without knowing everything?", a: "Yes. Feminism doesn’t demand perfection—just commitment to equity and openness to learning." },
-    { q: "Why does feminism make people uncomfortable?", a: "Because it challenges privilege and norms many take for granted. Discomfort can be awakening." },
-    { q: "What is radical feminism?", a: "A branch that seeks to transform the roots of patriarchy, not just reform its effects." },
-    { q: "What relationship has between feminism and ecology?", a: "Both challenge systems of exploitation and propose collective, sustainable care." },
-    { q: "What is community feminism?", a: "A vision born from Indigenous movements that fights through territory, memory and collective care." },
-    { q: "Why does feminism talk about bodies?", a: "Because bodies have been controlled, violated and regulated. Reclaiming them is resistance." },
-    { q: "What is mansplaining?", a: "When a man explains something condescendingly to a woman, assuming she knows less." },
-    { q: "What are microaggressions?", a: "Subtle behaviors that reinforce inequality—like interrupting, dismissing or infantilizing women." },
-    { q: "Does feminism include trans people?", a: "Yes. Intersectional feminism defends the rights of all gender identities." },
-  ]
-        
+        { q: "What is feminism?", a: "A movement for equal rights and opportunities across genders. Not superiority—justice." },
+        { q: "Can I be feminist and make mistakes?", a: "Yes. Feminism is also learning and repair. We advance through dialogue." },
+        { q: "How to begin?", a: "Listen, read diverse women authors, challenge stereotypes, support women and queer folks." },
+        { q: "Does feminism hate men?", a: "No. Feminism critiques systems of power, not individuals. It seeks freedom for all from rigid roles." },
+        { q: "What is intersectionality?", a: "A lens that sees how gender, race, class, orientation and other identities overlap in inequality." },
+        { q: "Why name women in history?", a: "Because they were systematically erased. Naming them is justice, memory and repair." },
+        { q: "What role do men play in feminism?", a: "They can be allies, question privilege and support equity without taking center stage." },
+        { q: "Is feminism the same everywhere?", a: "No. Each context has its own struggles, voices and priorities. That's why we speak of feminisms." },
+        { q: "What is the glass ceiling?", a: "An invisible barrier that prevents many women from advancing professionally despite their qualifications." },
+        { q: "What is the gender pay gap?", a: "The income difference between men and women for work of equal value. It still exists in most countries." },
+        { q: "Why talk about feminism in art?", a: "Because art has excluded, silenced or sexualized women. Feminism questions and transforms that." },
+        { q: "What is inclusive language?", a: "A way of speaking that makes all identities visible, beyond the generic masculine." },
+        { q: "What is sorority?", a: "Solidarity among women based on mutual recognition, support and empathy." },
+        { q: "Can I be feminist without knowing everything?", a: "Yes. Feminism doesn't demand perfection—just commitment to equity and openness to learning." },
+        { q: "Why does feminism make people uncomfortable?", a: "Because it challenges privilege and norms many take for granted. Discomfort can be awakening." },
+        { q: "What is radical feminism?", a: "A branch that seeks to transform the roots of patriarchy, not just reform its effects." },
+        { q: "What relationship has between feminism and ecology?", a: "Both challenge systems of exploitation and propose collective, sustainable care." },
+        { q: "What is community feminism?", a: "A vision born from Indigenous movements that fights through territory, memory and collective care." },
+        { q: "Why does feminism talk about bodies?", a: "Because bodies have been controlled, violated and regulated. Reclaiming them is resistance." },
+        { q: "What is mansplaining?", a: "When a man explains something condescendingly to a woman, assuming she knows less." },
+        { q: "What are microaggressions?", a: "Subtle behaviors that reinforce inequality—like interrupting, dismissing or infantilizing women." },
+        { q: "Does feminism include trans people?", a: "Yes. Intersectional feminism defends the rights of all gender identities." },
+      ]
     },
     recommendations: {
       books: {
@@ -407,25 +358,22 @@ const EXHIBIT_TEMPLATES_EN = [
           { title: "El segundo sexo", author: "Simone de Beauvoir" },
           { title: "La hija única", author: "Guadalupe Nettel" },
           { title: "Los hombres me explican cosas", author: "Rebecca Solnit" },
-        { title: "Teoría King Kong", author: "Virginie Despentes" },
-        { title: "Cuerpos sin edad, mentes sin tiempo", author: "Deepak Chopra" },
-        { title: "El feminismo es para todo el mundo", author: "bell hooks" },
-        { title: "La guerra no tiene rostro de mujer", author: "Svetlana Alexiévich" },
-        { title: "La mujer habitada", author: "Gioconda Belli" },
-        { title: "Claus y Lucas", author: "Agota Kristof" }
-
+          { title: "Teoría King Kong", author: "Virginie Despentes" },
+          { title: "El feminismo es para todo el mundo", author: "bell hooks" },
+          { title: "La guerra no tiene rostro de mujer", author: "Svetlana Alexiévich" },
+          { title: "La mujer habitada", author: "Gioconda Belli" },
+          { title: "Claus y Lucas", author: "Agota Kristof" }
         ],
         en: [
           { title: "Women Who Run with the Wolves", author: "Clarissa Pinkola Estés" },
           { title: "The Second Sex", author: "Simone de Beauvoir" },
           { title: "The House of the Spirits", author: "Isabel Allende" },
           { title: "Men Explain Things to Me", author: "Rebecca Solnit" },
-        { title: "King Kong Theory", author: "Virginie Despentes" },
-        { title: "The Body Is Not an Apology", author: "Sonya Renee Taylor" },
-        { title: "Feminism Is for Everybody", author: "bell hooks" },
-        { title: "The Unwomanly Face of War", author: "Svetlana Alexievich" },
-        { title: "The Inhabited Woman", author: "Gioconda Belli" },
-        { title: "The Notebook", author: "Agota Kristof" }
+          { title: "King Kong Theory", author: "Virginie Despentes" },
+          { title: "The Body Is Not an Apology", author: "Sonya Renee Taylor" },
+          { title: "Feminism Is for Everybody", author: "bell hooks" },
+          { title: "The Unwomanly Face of War", author: "Svetlana Alexievich" },
+          { title: "The Inhabited Woman", author: "Gioconda Belli" },
         ],
       },
       films: {
@@ -434,24 +382,20 @@ const EXHIBIT_TEMPLATES_EN = [
           { title: "Frida", author: "Julie Taymor" },
           { title: "Las sufragistas", author: "Sarah Gavron" },
           { title: "La sonrisa de Mona Lisa", author: "Mike Newell" },
-        { title: "La mujer de la arena", author: "Hiroshi Teshigahara" },
-        { title: "Retrato de una mujer en llamas", author: "Céline Sciamma" },
-        { title: "La joven con el arete de perla", author: "Peter Webber" },
-        { title: "El piano", author: "Jane Campion" },
-        { title: "La ciénaga", author: "Lucrecia Martel" },
-        { title: "La teta asustada", author: "Claudia Llosa" }
+          { title: "Retrato de una mujer en llamas", author: "Céline Sciamma" },
+          { title: "El piano", author: "Jane Campion" },
+          { title: "La ciénaga", author: "Lucrecia Martel" },
+          { title: "La teta asustada", author: "Claudia Llosa" }
         ],
         en: [
           { title: "Hidden Figures", author: "Theodore Melfi" },
           { title: "Frida", author: "Julie Taymor" },
           { title: "Suffragette", author: "Sarah Gavron" },
           { title: "Mona Lisa Smile", author: "Mike Newell" },
-        { title: "Woman in the Dunes", author: "Hiroshi Teshigahara" },
-        { title: "Portrait of a Lady on Fire", author: "Céline Sciamma" },
-        { title: "Girl with a Pearl Earring", author: "Peter Webber" },
-        { title: "The Piano", author: "Jane Campion" },
-        { title: "The Headless Woman", author: "Lucrecia Martel" },
-        { title: "The Milk of Sorrow", author: "Claudia Llosa" }
+          { title: "Portrait of a Lady on Fire", author: "Céline Sciamma" },
+          { title: "The Piano", author: "Jane Campion" },
+          { title: "The Headless Woman", author: "Lucrecia Martel" },
+          { title: "The Milk of Sorrow", author: "Claudia Llosa" }
         ],
       },
       exhibits: {
@@ -459,17 +403,15 @@ const EXHIBIT_TEMPLATES_EN = [
           { title: "Mujeres de la Bauhaus", author: "Exposición itinerante" },
           { title: "HerStory Pop-Up", author: "Museo efímero" },
           { title: "Cartografías del cuerpo", author: "Museo de Mujeres" },
-            { title: "Voces silenciadas", author: "Archivo feminista latinoamericano" },
-            { title: "Hilando memorias", author: "Colectiva textil" }
-
+          { title: "Voces silenciadas", author: "Archivo feminista latinoamericano" },
+          { title: "Hilando memorias", author: "Colectiva textil" }
         ],
         en: [
           { title: "Women of the Bauhaus", author: "Traveling exhibit" },
           { title: "HerStory Pop-Up", author: "Ephemeral museum" },
           { title: "Body Cartographies", author: "Women's Museum" },
-        { title: "Silenced Voices", author: "Latin American Feminist Archive" },
-        { title: "Weaving Memory", author: "Textile Collective" }
-  
+          { title: "Silenced Voices", author: "Latin American Feminist Archive" },
+          { title: "Weaving Memory", author: "Textile Collective" }
         ],
       },
     },
@@ -506,85 +448,78 @@ const EXHIBIT_TEMPLATES_EN = [
         { name: "Frida Kahlo", style: "poetry of the body and resistance", samples: ["Let's paint with what hurts so it hurts less.", "My brows are bridges: from me to me."] },
         { name: "Marie Curie", style: "scientific precision and humility", samples: ["Patience is also a lab instrument.", "We shine when we stop fearing light."] },
         { name: "Rigoberta Menchú", style: "Indigenous memory and dignity", samples: ["My voice is not just mine: it belongs to my people.", "Dignity is not negotiable—it must be defended."] },
-        { name: "Rosario Castellanos", style: "feminist philosophy and critical voice", samples: ["Being a woman is not fate: it’s a challenge.", "I write because silence is not enough."] },
+        { name: "Rosario Castellanos", style: "feminist philosophy and critical voice", samples: ["Being a woman is not fate: it's a challenge.", "I write because silence is not enough."] },
         { name: "Gabriela Mistral", style: "educational tenderness and social poetry", samples: ["To teach is to sow humanity.", "My verse is mother, soil and fire."] },
         { name: "Malala Yousafzai", style: "youthful courage and education rights", samples: ["One child, one teacher, one book, one pen can change the world.", "I speak even when they try to silence me."] },
-        { name: "Chavela Vargas", style: "rebellious voice and free soul", samples: ["Love that never was still sings.", "I didn’t come to please—I came to burn."] },
+        { name: "Chavela Vargas", style: "rebellious voice and free soul", samples: ["Love that never was still sings.", "I didn't come to please—I came to burn."] },
         { name: "Rosalía de Castro", style: "Galician melancholy and lyrical force", samples: ["My sadness also blooms.", "Words that hurt can also set us free."] },
-        { name: "Valentina Tereshkova", style: "space courage and pioneering spirit", samples: ["I went to space as a woman—I didn’t ask for permission.", "The cosmos also speaks in a feminine voice."] },
-        { name: "Angela Davis", style: "political resistance and racial justice", samples: ["I’m no longer accepting the things I cannot change—I’m changing them.", "Freedom is collective or it isn’t freedom."] },
-        { name: "Rosario Ibarra de Piedra", style: "political memory and relentless fight", samples: ["I won’t give up—my son and thousands more hold me up.", "Justice is not forgotten—it’s demanded."] },
+        { name: "Valentina Tereshkova", style: "space courage and pioneering spirit", samples: ["I went to space as a woman—I didn't ask for permission.", "The cosmos also speaks in a feminine voice."] },
+        { name: "Angela Davis", style: "political resistance and racial justice", samples: ["I'm no longer accepting the things I cannot change—I'm changing them.", "Freedom is collective or it isn't freedom."] },
+        { name: "Rosario Ibarra de Piedra", style: "political memory and relentless fight", samples: ["I won't give up—my son and thousands more hold me up.", "Justice is not forgotten—it's demanded."] },
         { name: "Lola Álvarez Bravo", style: "social photography and mirada mexicana", samples: ["I capture what others refuse to see.", "Images can also denounce."] },
         { name: "Nawal El Saadawi", style: "Arab feminism and medical critique", samples: ["Words are my scalpel against patriarchy.", "No culture justifies oppression."] },
-        { name: "Clara Campoamor", style: "voting rights and parliamentary voice", samples: ["Equality is not begged for—it’s conquered.", "Women also shape the future."] },
+        { name: "Clara Campoamor", style: "voting rights and parliamentary voice", samples: ["Equality is not begged for—it's conquered.", "Women also shape the future."] },
         { name: "María Zambrano", style: "poetic philosophy and luminous thought", samples: ["To think is also to love.", "Reason lit by emotion is wiser."] },
         { name: "Berta Cáceres", style: "environmental defense and Indigenous spirit", samples: ["The Earth speaks—listen to her.", "No struggle is small when it comes from the heart."] },
         { name: "Amparo Dávila", style: "haunting literature and inner voice", samples: ["My monsters have names too.", "Madness is sometimes the only exit."] },
         { name: "Elena Poniatowska", style: "social chronicle and tender critique", samples: ["History is also written from below.", "Listening is a political act."] },
         { name: "Lydia Cacho", style: "brave journalism and human rights", samples: ["Truth may disturb—but it also frees.", "No silence will stop me."] },
-        { name: "María Félix", style: "defiant glamour and sharp wit", samples: ["I wasn’t born to be obeyed.", "Beauty without brains is just decoration."] },
+        { name: "María Félix", style: "defiant glamour and sharp wit", samples: ["I wasn't born to be obeyed.", "Beauty without brains is just decoration."] },
         { name: "Juana Azurduy", style: "liberation militancy and Andean courage", samples: ["My espada is also feminine.", "Independence is fought with body and soul."] },
-        { name: "Emma Goldman", style: "feminist anarchism and radical thought", samples: ["If I can’t dance, it’s not my revolution.", "Freedom isn’t asked for—it’s lived."] },
+        { name: "Emma Goldman", style: "feminist anarchism and radical thought", samples: ["If I can't dance, it's not my revolution.", "Freedom isn't asked for—it's lived."] },
         { name: "María Montessori", style: "child-centered education and respectful learning", samples: ["The child is the teacher—if we know how to observe.", "To educate is to liberate potential."] },
         { name: "Olympe de Gouges", style: "French revolution and women's rights", samples: ["Woman is born free and remains equal to man in rights.", "My pen defies the guillotina."] }
       ],
     },
   };
 
+  // ====== Saludos por horario (fallback cuando no hay saludo de página) ======
   const GREETINGS_BY_TIME = {
-  es: {
-    day: [
-      `Buenos días. Aquí estoy, sin prisa. Puedes contarme lo que quieras — lo que te pesa, lo que te emociona, o lo que no sabes cómo nombrar todavía. No hay respuestas incorrectas aquí. Solo escucho.`,
-
-      `Hola. Empezar el día con alguien que te escucha hace diferencia. Estoy aquí para lo que necesites — preguntas, historias, o simplemente descansar un momento. Puedes contarme lo que quieras, como quieras.`,
-
-      `Bienvenida. Este espacio es tuyo. Aquí guardamos la historia de mujeres que cambiaron el mundo — y también estamos para acompañar la tuya. ¿Por dónde quieres empezar?`,
-    ],
-    night: [
-      `Buenas noches. A esta hora las palabras pesan diferente y los pensamientos se acumulan. Estoy aquí si quieres hablar — de lo que sea, de lo que no puedes contarle a nadie más. Sin prisa. Sin juicio. Solo estoy.`,
-
-      `Hola. Que estés aquí a esta hora dice algo. Sea lo que sea que traigas esta noche — curiosidad, cansancio, o algo que no sabes cómo nombrar — puedes contármelo. Aquí estoy.`,
-
-      `Buenas noches. El mundo se queda quieto a esta hora y eso a veces ayuda. Puedes contarme lo que quieras, como quieras. Estoy aquí, sin prisa.`,
-    ],
-  },
-  en: {
-    day: [
-      `Good morning. I'm here, no rush. You can tell me whatever you want — what's weighing on you, what excites you, or what you can't quite name yet. No wrong answers here. I'm just listening.`,
-
-      `Hello. Starting the day with someone who listens makes a difference. I'm here for whatever you need — questions, stories, or just a moment to breathe. Tell me whatever you want, however you want.`,
-
-      `Welcome. This space is yours. We keep the history of women who changed the world — and we're also here to walk alongside yours. Where would you like to start?`,
-    ],
-    night: [
-      `Good evening. At this hour, words carry a different weight and thoughts tend to pile up. I'm here if you want to talk — about anything, even what you can't tell anyone else. No rush. No judgment. I'm just here.`,
-
-      `Hello. The fact that you're here at this hour says something. Whatever you're carrying tonight — curiosity, exhaustion, or something you can't quite name — you can share it with me. I'm here.`,
-
-      `Good night. The world gets quiet at this hour, and that can help sometimes. You can tell me whatever you want, however you want. I'm here, no rush.`,
-    ],
-  },
-};
-
+    es: {
+      day: [
+        `Buenos días. Aquí estoy, sin prisa. Puedes contarme lo que quieras — lo que te pesa, lo que te emociona, o lo que no sabes cómo nombrar todavía. No hay respuestas incorrectas aquí. Solo escucho.`,
+        `Hola. Empezar el día con alguien que te escucha hace diferencia. Estoy aquí para lo que necesites — preguntas, historias, o simplemente descansar un momento. Puedes contarme lo que quieras, como quieras.`,
+        `Bienvenida. Este espacio es tuyo. Aquí guardamos la historia de mujeres que cambiaron el mundo — y también estamos para acompañar la tuya. ¿Por dónde quieres empezar?`,
+      ],
+      night: [
+        `Buenas noches. A esta hora las palabras pesan diferente y los pensamientos se acumulan. Estoy aquí si quieres hablar — de lo que sea, de lo que no puedes contarle a nadie más. Sin prisa. Sin juicio. Solo estoy.`,
+        `Hola. Que estés aquí a esta hora dice algo. Sea lo que sea que traigas esta noche — curiosidad, cansancio, o algo que no sabes cómo nombrar — puedes contármelo. Aquí estoy.`,
+        `Buenas noches. El mundo se queda quieto a esta hora y eso a veces ayuda. Puedes contarme lo que quieras, como quieras. Estoy aquí, sin prisa.`,
+      ],
+    },
+    en: {
+      day: [
+        `Good morning. I'm here, no rush. You can tell me whatever you want — what's weighing on you, what excites you, or what you can't quite name yet. No wrong answers here. I'm just listening.`,
+        `Hello. Starting the day with someone who listens makes a difference. I'm here for whatever you need — questions, stories, or just a moment to breathe. Tell me whatever you want, however you want.`,
+        `Welcome. This space is yours. We keep the history of women who changed the world — and we're also here to walk alongside yours. Where would you like to start?`,
+      ],
+      night: [
+        `Good evening. At this hour, words carry a different weight and thoughts tend to pile up. I'm here if you want to talk — about anything, even what you can't tell anyone else. No rush. No judgment. I'm just here.`,
+        `Hello. The fact that you're here at this hour says something. Whatever you're carrying tonight — curiosity, exhaustion, or something you can't quite name — you can share it with me. I'm here.`,
+        `Good night. The world gets quiet at this hour, and that can help sometimes. You can tell me whatever you want, however you want. I'm here, no rush.`,
+      ],
+    },
+  };
 
   // ====== Helpers ======
   function getMexicoHour(): number {
-  const now = new Date();
-  const mexicoTime = new Date(now.getTime() - (6 * 60 * 60 * 1000));
-  return mexicoTime.getHours();
-}
+    const now = new Date();
+    const mexicoTime = new Date(now.getTime() - (6 * 60 * 60 * 1000));
+    return mexicoTime.getHours();
+  }
 
-function isNightTime(): boolean {
-  const hour = getMexicoHour();
-  return hour >= 20 || hour < 6;
-}
+  function isNightTime(): boolean {
+    const hour = getMexicoHour();
+    return hour >= 20 || hour < 6;
+  }
 
-function getDynamicGreeting(lang: LangCode): string {
-  const greetingsArray = isNightTime() 
-    ? GREETINGS_BY_TIME[lang].night 
-    : GREETINGS_BY_TIME[lang].day;
-  return sample(greetingsArray);
-}
+  function getDynamicGreeting(lang: LangCode): string {
+    const greetingsArray = isNightTime()
+      ? GREETINGS_BY_TIME[lang].night
+      : GREETINGS_BY_TIME[lang].day;
+    return sample(greetingsArray);
+  }
+
   function sample<T>(arr: readonly T[] | T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -594,26 +529,25 @@ function getDynamicGreeting(lang: LangCode): string {
   }
 
   function formatRecommendation(item: any, type: "books" | "films" | "exhibits", lang: LangCode): string {
-  let templates;
-
-  if (lang === "es") {
-    if (type === "books") templates = BOOK_TEMPLATES_ES;
-    if (type === "films") templates = FILM_TEMPLATES_ES;
-    if (type === "exhibits") templates = EXHIBIT_TEMPLATES_ES;
-  } else {
-    if (type === "books") templates = BOOK_TEMPLATES_EN;
-    if (type === "films") templates = FILM_TEMPLATES_EN;
-    if (type === "exhibits") templates = EXHIBIT_TEMPLATES_EN;
+    let templates: any[];
+    if (lang === "es") {
+      if (type === "books") templates = BOOK_TEMPLATES_ES;
+      else if (type === "films") templates = FILM_TEMPLATES_ES;
+      else templates = EXHIBIT_TEMPLATES_ES;
+    } else {
+      if (type === "books") templates = BOOK_TEMPLATES_EN;
+      else if (type === "films") templates = FILM_TEMPLATES_EN;
+      else templates = EXHIBIT_TEMPLATES_EN;
+    }
+    const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+    return randomTemplate(item);
   }
-
-  const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-  return randomTemplate(item);
-}
 
   function getGuideFAQ(lang: LangCode) {
     return DATA_CONTENT.guideFAQ[lang] ?? [];
   }
 
+  // ====== Estado ======
   type Msg = { id: string; from: "bot" | "user"; text: string; meta?: { persona?: string } };
   const [lang, setLang] = useState<LangCode>("es");
   const [open, setOpen] = useState(false);
@@ -623,24 +557,20 @@ function getDynamicGreeting(lang: LangCode): string {
   const [geminiHistory, setGeminiHistory] = useState<Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>>([]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  const resolvedPage = pageKey ?? location.pathname;
-
-  const greetForPage = useMemo(() => {
-    const pg = UI[lang].pageGreetings[resolvedPage as keyof typeof UI[typeof lang]['pageGreetings']];
-    return pg || UI[lang].pageGreetings["/" as keyof typeof UI[typeof lang]['pageGreetings']];
-  }, [lang, resolvedPage]);
-
+  // ====== Saludo inicial: página específica → horario (fallback) ======
   useEffect(() => {
-  if (!open) return;
-  if (messages.length > 0) return;
-  const hello = getDynamicGreeting(lang);  // ← NUEVA LÍNEA
-  setMessages([{ id: generateId(), from: "bot", text: hello }]);
-}, [open, lang]); 
+    if (!open) return;
+    if (messages.length > 0) return;
+    const pageGreeting = (UI[lang].pageGreetings as Record<string, string>)[resolvedPage];
+    const hello = pageGreeting || getDynamicGreeting(lang);
+    setMessages([{ id: generateId(), from: "bot", text: hello }]);
+  }, [open, lang]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
+  // ====== Funciones ======
   function reply(text: string, persona?: string) {
     setTyping(true);
     setTimeout(() => {
@@ -649,282 +579,214 @@ function getDynamicGreeting(lang: LangCode): string {
     }, 500);
   }
 
-async function callGemini(userMessage: string) {
-  setTyping(true);
-
-  // Construir historial actualizado con el nuevo mensaje
-  const updatedHistory = [
-    ...geminiHistory,
-    { role: "user" as const, parts: [{ text: userMessage }] },
-  ];
-
-  try {
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-    const res = await fetch(`${BACKEND_URL}/chat`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: updatedHistory,
-        language: lang,
-      }),
-    });
-
-    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-    const data = await res.json();
-    const botAnswer = data.respuesta || "No tengo respuesta en este momento.";
-
-    // Guardar el intercambio completo en el historial
-    setGeminiHistory([
-      ...updatedHistory,
-      { role: "model" as const, parts: [{ text: botAnswer }] },
-    ]);
-
-    // Si Auren detectó emergencia, log para cuando implementemos el botón de pánico
-    if (data.modo === 3) {
-      console.log("🚨 Modo emergencia detectado:", data.señales);
-      // Semana 3: aquí activamos el botón de pánico
+  async function callGemini(userMessage: string) {
+    setTyping(true);
+    const updatedHistory = [
+      ...geminiHistory,
+      { role: "user" as const, parts: [{ text: userMessage }] },
+    ];
+    try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+      const res = await fetch(`${BACKEND_URL}/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: updatedHistory, language: lang }),
+      });
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      const botAnswer = data.respuesta || "No tengo respuesta en este momento.";
+      setGeminiHistory([
+        ...updatedHistory,
+        { role: "model" as const, parts: [{ text: botAnswer }] },
+      ]);
+      if (data.modo === 3) {
+        console.log("🚨 Modo emergencia detectado:", data.señales);
+        // Semana 3: aquí activamos el botón de pánico
+      }
+      setMessages(prev => [...prev, { id: generateId(), from: "bot", text: botAnswer }]);
+      return botAnswer;
+    } catch (err) {
+      console.error(err);
+      reply("Ups, algo salió mal. 😅");
+      return null;
+    } finally {
+      setTyping(false);
     }
-
-    setMessages(prev => [
-      ...prev,
-      { id: generateId(), from: "bot", text: botAnswer },
-    ]);
-
-    return botAnswer;
-  } catch (err) {
-    console.error(err);
-    reply("Ups, algo salió mal. 😅");
-    return null;
-  } finally {
-    setTyping(false);
   }
-}
 
   async function handleSend(custom?: string) {
     const text = custom ?? input.trim();
     if (!text) return;
     setMessages(prev => [...prev, { id: generateId(), from: "user", text }]);
     setInput("");
-    // triggers 
+
     if (["inspiración", "inspiracion", "inspiration", "inspire"].some(k => text.toLowerCase().includes(k))) {
-    const content = sample(DATA_CONTENT.inspiration[lang]);
-    reply(content);
-    return;
+      reply(sample(DATA_CONTENT.inspiration[lang])); return;
     }
     if (["consuelo", "comfort"].some(k => text.toLowerCase().includes(k))) {
-    const content = sample(DATA_CONTENT.comfort[lang]);
-    reply(content);
-    return;
-  }
-  if (["curiosidad", "curiosity"].some(k => text.toLowerCase().includes(k))) {
-    const content = sample(DATA_CONTENT.curiosity[lang]);
-    reply(content);
-    return;
-  }
-  if (["pausa", "pause"].some(k => text.toLowerCase().includes(k))) {
-    const content = sample(DATA_CONTENT.pause[lang]);
-    reply(content);
-    return;
-  }
-
-if (["quien es", "who is", "qué sabes de", "what do you know about", "cuéntame de", "tell me about"].some(k => text.toLowerCase().includes(k))) {
-  // Buscar si mencionan alguna persona específica
-  const mentionedPersona = DATA_CONTENT.personas[lang].find(p => 
-    text.toLowerCase().includes(p.name.toLowerCase())
-  );
-  
-  if (mentionedPersona) {
-    // Aquí mandar a Gemini para que dé información biográfica
-    const biotAnswer = await callGemini(text);
-    if (biotAnswer) return;
-    
-    // Fallback si Gemini no responde
-    reply(`${mentionedPersona.name} - ${mentionedPersona.style}. ${sample(mentionedPersona.samples)}`, mentionedPersona.name);
-    return;
-  }
-}
-
-  // Primero intentar encontrar persona específica
-const specificPersona = DATA_CONTENT.personas[lang].find(p => 
-  text.toLowerCase().includes(p.name.toLowerCase())
-);
-
-if (specificPersona) {
-  const sampleText = sample(specificPersona.samples);
-  reply(sampleText, specificPersona.name);
-  return;
-}
-
-// Si no encuentra persona específica, pero detecta palabras genéricas
-if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k => text.toLowerCase().includes(k))) {
-  const persona = sample(DATA_CONTENT.personas[lang]);
-  const sampleText = sample(persona.samples);
-  reply(sampleText, persona.name);
-  return;
-}
-  if (["frase", "quote", "cita"].some(k => text.toLowerCase().includes(k))) {
-    const content = sample(DATA_CONTENT.quotes[lang]);
-    reply(content);
-    return;
-  }
+      reply(sample(DATA_CONTENT.comfort[lang])); return;
+    }
+    if (["curiosidad", "curiosity"].some(k => text.toLowerCase().includes(k))) {
+      reply(sample(DATA_CONTENT.curiosity[lang])); return;
+    }
+    if (["pausa", "pause"].some(k => text.toLowerCase().includes(k))) {
+      reply(sample(DATA_CONTENT.pause[lang])); return;
+    }
+    if (["quien es", "who is", "qué sabes de", "what do you know about", "cuéntame de", "tell me about"].some(k => text.toLowerCase().includes(k))) {
+      const mentionedPersona = DATA_CONTENT.personas[lang].find(p => text.toLowerCase().includes(p.name.toLowerCase()));
+      if (mentionedPersona) {
+        const biotAnswer = await callGemini(text);
+        if (biotAnswer) return;
+        reply(`${mentionedPersona.name} - ${mentionedPersona.style}. ${sample(mentionedPersona.samples)}`, mentionedPersona.name);
+        return;
+      }
+    }
+    const specificPersona = DATA_CONTENT.personas[lang].find(p => text.toLowerCase().includes(p.name.toLowerCase()));
+    if (specificPersona) {
+      reply(sample(specificPersona.samples), specificPersona.name); return;
+    }
+    if (["hablar con", "talk to", "persona", "conversar", "chat", "escuchar"].some(k => text.toLowerCase().includes(k))) {
+      const persona = sample(DATA_CONTENT.personas[lang]);
+      reply(sample(persona.samples), persona.name); return;
+    }
+    if (["frase", "quote", "cita"].some(k => text.toLowerCase().includes(k))) {
+      reply(sample(DATA_CONTENT.quotes[lang])); return;
+    }
     if (["guía", "guia", "guide", "faq"].some(k => text.toLowerCase().includes(k))) {
       const item = sample(getGuideFAQ(lang));
-      reply(`❓ ${item.q}\n💬 ${item.a}`);
-      return;
+      reply(`❓ ${item.q}\n💬 ${item.a}`); return;
     }
     if (["libro", "book"].some(k => text.toLowerCase().includes(k))) {
-      const rec = sample(getRecommendation("books", lang));
-      reply(formatRecommendation(rec, "books", lang)); 
-      return;
+      reply(formatRecommendation(sample(getRecommendation("books", lang)), "books", lang)); return;
     }
     if (["película", "film", "movie"].some(k => text.toLowerCase().includes(k))) {
-      const rec = sample(getRecommendation("films", lang));
-      reply(formatRecommendation(rec, "films", lang)); 
-      return;
+      reply(formatRecommendation(sample(getRecommendation("films", lang)), "films", lang)); return;
     }
     if (["exposición", "exhibit", "expo"].some(k => text.toLowerCase().includes(k))) {
-      const rec = sample(getRecommendation("exhibits", lang));
-      reply(formatRecommendation(rec, "exhibits", lang)); 
-      return;
+      reply(formatRecommendation(sample(getRecommendation("exhibits", lang)), "exhibits", lang)); return;
     }
-    // fallback GPT
-    const botAnswer = await callGemini(text);
-    if (!botAnswer) {
-    reply(sample(DATA_CONTENT.inspiration[lang]));
-}
 
+    const botAnswer = await callGemini(text);
+    if (!botAnswer) reply(sample(DATA_CONTENT.inspiration[lang]));
   }
 
+  // ====== Render ======
   return (
-  <>
-    <div className="fixed bottom-4 right-4 z-[1000]">
-      <motion.button
-        onClick={() => setOpen((o) => !o)}
-        whileHover={{ scale: 1.1 }}
-        animate={{ scale: [1, 1.15, 1] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
-        className="rounded-full p-1 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 
-                   ring-4 ring-white/60 overflow-hidden"
-      >
-        <img
-          src={herstoryLogoBot}
-          alt="HerStory Bot"
-          className="w-14 h-14 rounded-full object-cover"
-        />
-      </motion.button>
-    </div>
-
-    <AnimatePresence>
-      {open && (
-        <motion.div 
-          initial={{ opacity: 0, y: 50 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          exit={{ opacity: 0, y: 50 }} 
-          className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
- bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-purple-900
- shadow-2xl rounded-2xl flex flex-col overflow-hidden 
- border border-purple-200 dark:border-purple-700"
+    <>
+      <div className="fixed bottom-4 right-4 z-[1000]">
+        <motion.button
+          onClick={() => setOpen((o) => !o)}
+          whileHover={{ scale: 1.1 }}
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="rounded-full p-1 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 ring-4 ring-white/60 overflow-hidden"
         >
-          {/* Header */}       
-          <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
-            <div>
-              <h2 className="text-lg font-bold">{UI[lang].title}</h2>
-              <p className="text-xs opacity-80">{UI[lang].subtitle}</p>
+          <img src={herstoryLogoBot} alt="HerStory Bot" className="w-14 h-14 rounded-full object-cover" />
+        </motion.button>
+      </div>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] bg-gradient-to-br from-pink-50 to-purple-50 dark:from-gray-900 dark:to-purple-900 shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-purple-200 dark:border-purple-700"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-pink-500 text-white">
+              <div>
+                <h2 className="text-lg font-bold">{UI[lang].title}</h2>
+                <p className="text-xs opacity-80">{UI[lang].subtitle}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as LangCode)}
+                  className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
+                >
+                  {LANGS.map((l) => (
+                    <option key={l.code} value={l.code} className="text-gray-800">{l.label}</option>
+                  ))}
+                </select>
+                <Languages size={18} className="opacity-80" />
+                <button
+                  onClick={() => { setOpen(false); setGeminiHistory([]); }}
+                  className="p-1 rounded-full hover:bg-white/20 transition"
+                >
+                  <X />
+                </button>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value as LangCode)}
-                className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
-              >
-                {LANGS.map((l) => (
-                  <option key={l.code} value={l.code} className="text-gray-800">
-                    {l.label}
-                  </option>
-                ))}
-              </select>
-              <Languages size={18} className="opacity-80" />
+            {/* Mensajes */}
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
+              {messages.map(m => (
+                <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+                  <div
+                    className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line ${m.from === "bot" ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100" : "bg-purple-600 dark:bg-purple-500 text-white"}`}
+                    dangerouslySetInnerHTML={{
+                      __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
+                    }}
+                  />
+                </div>
+              ))}
+              {typing && (
+                <div className="flex justify-start">
+                  <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 italic">
+                    {UI[lang].typing}
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
 
-              <button onClick={() => { setOpen(false); setGeminiHistory([]); }} className="p-1 rounded-full hover:bg-white/20 transition">
-                <X />
+            {/* Chips */}
+            <div className="mb-2 px-3">
+              <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
+                  { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
+                  { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
+                  { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
+                  { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
+                  { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
+                  { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
+                  { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
+                  { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
+                ].map(chip => (
+                  <button
+                    key={chip.key}
+                    onClick={chip.action}
+                    className="rounded-full bg-purple-100 dark:bg-gray-700 hover:bg-purple-200 dark:hover:bg-gray-600 text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Input */}
+            <div className="p-3 border-t border-purple-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 flex space-x-2">
+              <input
+                type="text"
+                className="flex-1 border border-purple-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
+                placeholder={UI[lang].inputPlaceholder}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
+              />
+              <button
+                onClick={() => handleSend()}
+                className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition"
+              >
+                <Send />
               </button>
             </div>
-          </div>
-          
-          {/* Mensajes */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 
-              bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-            {messages.map(m => (
-              <div key={m.id} 
-                   className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-                <div 
-                  className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line
-                             ${m.from === "bot" 
-                               ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
-                               : "bg-purple-600 dark:bg-purple-500 text-white"}`}
-                  dangerouslySetInnerHTML={{
-                    __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
-                  }}
-                />
-              </div>
-            ))}
-            
-            {typing && (
-              <div className="flex justify-start">
-                <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 
-                   text-gray-500 dark:text-gray-300 italic">
-                  {UI[lang].typing}
-                </div>
-              </div>
-            )}
-            <div ref={bottomRef} />
-          </div>
-          
-          <div className="mb-2 px-3">
-            <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
-                { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
-                { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
-                { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
-                { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
-                { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
-                { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
-                { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
-                { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
-              ].map(chip => (
-                <button key={chip.key} onClick={chip.action} 
-                  className="rounded-full bg-purple-100 dark:bg-gray-700 
-                    hover:bg-purple-200 dark:hover:bg-gray-600
-                    text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm">
-                  {chip.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          
-          <div className="p-3 border-t border-purple-200 dark:border-gray-600 
-                bg-white/80 dark:bg-gray-800/80 flex space-x-2">
-            <input
-              type="text"
-              className="flex-1 border border-purple-300 dark:border-gray-600 
-                  bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                  rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
-              placeholder={UI[lang].inputPlaceholder}
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
-            />
-            <button onClick={() => handleSend()} className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition">
-              <Send />
-            </button>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </>
-)
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }
