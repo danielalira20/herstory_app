@@ -28,6 +28,10 @@ import Search from "./pages/Search";
 import Learn from "./pages/Learn"; 
 import { SectionProvider } from "./context/SectionContext";  
 
+/// Funcionar para pagina de admin: validar casos por levinshein
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute"
+import AdminVerificacion from "./pages/AdminVerificacion"
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -69,6 +73,17 @@ const App = () => {
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/ayuda" element={<Ayuda />} />
               
+
+              {/* Panel admin por levinshein  */}
+              <Route path="/admin/verificacion" element={
+                  <ProtectedAdminRoute>
+                    <AdminVerificacion />
+                  </ProtectedAdminRoute>
+                } 
+              />
+
+              {/* Fin panel admin*/}
+
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>

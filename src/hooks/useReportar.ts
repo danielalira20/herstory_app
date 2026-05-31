@@ -199,75 +199,56 @@ export function useReportar() {
 
   // ── Verificar duplicados con Levenshtein ──
   const verificarDuplicados = async (): Promise<ResultadoVerificacion> => {
-    try {
-    
-        interface CasoExistente {
-            id: number
-            Nombre: string | null
-            Primer_apellido: string | null
-            Segundo_apellido: string | null
-            "Desaparición": string | null
-            folio: string | null
-            }
-
-      // Obtener todos los casos existentes para comparar
-      const { data: casosExistentes, error } = await supabase
+  try {
+    // Primero verificar match exacto de folio
+    if (formData.folio) {
+      const { data: folioMatch } = await supabase
         .from("personas")
-        .select("id, Nombre, Primer_apellido, Segundo_apellido, Desaparición, folio")
+        .select("id")
+        .eq("folio", formData.folio.trim())
         .eq("estado", "verificado")
-        .returns<CasoExistente[]>()
+        .maybeSingle()
 
-      if (error || !casosExistentes) {
-        return { estado: 'limpio', posible_duplicado_de: null, similitud: 0 }
-      }
-
-      // Nombre completo del caso nuevo
-      const nombreNuevo = `${formData.Nombre} ${formData.Primer_apellido} ${formData.Segundo_apellido}`.trim()
-
-      let maxSimilitud = 0
-      let posibleDuplicadoId: number | null = null
-
-      for (const caso of casosExistentes) {
-        // Nivel 1: Match exacto de folio
-        if (formData.folio && caso.folio &&
-            formData.folio.trim().toLowerCase() === caso.folio.trim().toLowerCase()) {
-          return {
-            estado: 'posible_duplicado',
-            posible_duplicado_de: caso.id,
-            similitud: 1
-          }
-        }
-
-        // Nivel 2: Levenshtein sobre nombre completo
-        const nombreExistente = `${caso.Nombre} ${caso.Primer_apellido} ${caso.Segundo_apellido}`.trim()
-        const similitud = levenshteinNormalizado(nombreNuevo, nombreExistente)
-
-        if (similitud > maxSimilitud) {
-          maxSimilitud = similitud
-          posibleDuplicadoId = caso.id
-        }
-      }
-
-      // Umbral 0.85 definido en VER-D01
-      if (maxSimilitud > 0.85) {
-        // Verificar si además coincide la fecha
-        const casoConMayorSimilitud = casosExistentes.find(c => c.id === posibleDuplicadoId)
-        const mismaFecha = casoConMayorSimilitud?.["Desaparición"] === formData.Desaparicion
-
+      if (folioMatch) {
         return {
-          estado: mismaFecha ? 'posible_duplicado' : 'requiere_revision',
-          posible_duplicado_de: posibleDuplicadoId,
-          similitud: maxSimilitud
+          estado: 'posible_duplicado',
+          posible_duplicado_de: folioMatch.id,
+          similitud: 1
         }
       }
+    }
 
-      return { estado: 'limpio', posible_duplicado_de: null, similitud: maxSimilitud }
+    // Usar función de PostgreSQL para comparar nombres
+    const { data, error } = await supabase
+        .rpc('buscar_duplicados', {
+            p_nombre: formData.Nombre,
+            p_primer_apellido: formData.Primer_apellido,
+            p_segundo_apellido: formData.Segundo_apellido || '',
+            p_folio: formData.folio || null
+        })
+
+        if (error) {
+        console.error("Error en buscar_duplicados:", error)
+        return { estado: 'limpio', posible_duplicado_de: null, similitud: 0 }
+        }
+
+        if (data && data.length > 0) {
+        // Ordenar por similitud descendente y tomar el más similar
+        const mejorMatch = data.sort((a: any, b: any) => b.similitud - a.similitud)[0]
+        return {
+            estado: 'posible_duplicado',
+            posible_duplicado_de: mejorMatch.caso_id,
+            similitud: mejorMatch.similitud
+        }
+        }
+
+        return { estado: 'limpio', posible_duplicado_de: null, similitud: 0 }
 
     } catch (err) {
-      console.error("Error verificando duplicados:", err)
-      return { estado: 'limpio', posible_duplicado_de: null, similitud: 0 }
+        console.error("Error verificando duplicados:", err)
+        return { estado: 'limpio', posible_duplicado_de: null, similitud: 0 }
     }
-  }
+    }
 
   // ── Enviar email de confirmación vía Formspree ──
   const enviarEmailConfirmacion = async () => {

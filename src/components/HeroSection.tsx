@@ -3,8 +3,10 @@ import { useRef } from "react";
 import FloatingShapes from "./FloatingShapes";
 import WomenSilhouettes from "./WomenSilhouettes";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const HeroSection = () => {
+  const { user } = useAuth()
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -51,14 +53,29 @@ const HeroSection = () => {
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-50 p-6">
         <div className="max-w-7xl mx-auto flex justify-end">
-          <Link to="/login" className="text-white/90 hover:text-white font-medium px-6 py-2 rounded-full border border-pink-300/30 hover:border-pink-300/50 hover:bg-pink-300/10 transition-all duration-300">
-          <motion.span
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            Iniciar Sesión
-          </motion.span>
+          <Link to={user ? "/perfil" : "/login"}>
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              {user ? (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-pink-300/30 hover:border-pink-300/50 hover:bg-pink-300/10 transition-all duration-300">
+                    <img
+                      src={user.user_metadata?.avatar_url || user.user_metadata?.picture}
+                      alt="Perfil"
+                      className="w-8 h-8 rounded-full border border-pink-300/50 object-cover"
+                    />
+                    <span className="text-white/90 text-sm font-medium">
+                      {user.user_metadata?.name?.split(" ")[0] || "Mi perfil"}
+                    </span>
+                  </div>
+                ) : (
+                <span className="text-white/90 hover:text-white font-medium px-6 py-2 rounded-full border border-pink-300/30 hover:border-pink-300/50 hover:bg-pink-300/10 transition-all duration-300">
+                  Iniciar Sesión
+                </span>
+              )}
+            </motion.div>
           </Link>
         </div>
       </nav>
