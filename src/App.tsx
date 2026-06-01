@@ -2,7 +2,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -26,7 +25,9 @@ import RastroNacional from "./pages/RastroNacional";
 import Landing from "./pages/Landing";
 import Search from "./pages/Search"; 
 import Learn from "./pages/Learn"; 
-import { SectionProvider } from "./context/SectionContext";  
+import { SectionProvider } from "./context/SectionContext";
+import Onboarding from "./pages/Onboarding";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; 
 
 const queryClient = new QueryClient();
 
@@ -43,13 +44,18 @@ const App = () => {
             <SectionProvider> 
              <Routes>
               {/* Landing y hubs principales */}
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={
+              localStorage.getItem("herstory-onboarding-complete")
+              ? <Landing />
+              : <Navigate to="/onboarding" replace />
+              } />
               <Route path="/search" element={<Search />} />
               <Route path="/learn" element={<Learn />} />
               
               {/* Autenticación y perfil */}
               <Route path="/login" element={<Login />} />
               <Route path="/perfil" element={<Perfil />} />
+              <Route path="/onboarding" element={<Onboarding />} />
               
               {/* Páginas de Search (morado) */}
               <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />

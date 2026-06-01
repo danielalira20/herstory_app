@@ -13,14 +13,17 @@ interface AIResult {
   coincidencePercentage: number;
   explanation: string;
   imagen_url?: string;
-} 
+}
 
-const Quiz = () => {
+// ONB-F02: prop opcional para modo onboarding
+interface QuizProps {
+  onComplete?: () => void;
+}
+
+const Quiz = ({ onComplete }: QuizProps) => {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
-
-//  const { women, loading, error } = useWomen();
 
   const [aiResult, setAiResult] = useState<AIResult[]>([]);
   const [loadingResult, setLoadingResult] = useState(false);
@@ -30,7 +33,6 @@ const Quiz = () => {
     newAnswers[current] = option;
     setAnswers(newAnswers);
 
-    // Si no es la última pregunta, pasamos a la siguiente
     if (current < questions.length - 1) {
       setCurrent(current + 1);
     } else {
@@ -38,92 +40,71 @@ const Quiz = () => {
     }
   };
 
-  //Envio de respuesta a la IA
-   const userProfileText = answers
+  const userProfileText = answers
     .map((ans, i) => `Pregunta: ${questions[i].question} Respuesta: ${ans}`)
     .join("\n");
-{/*  
-const womenData = women.map((w) => ({
-    id: w.id,
-    nombre_completo: w.nombre_completo,
-    biografia: w.biografia,
-    logros: w.logros,
-    ocupacion: w.ocupacion,
-    categoria: w.categoria?.nombre || "",
-    imagen_url: w.imagen_url || "/assets/default.png",
-  }));
-*/}
-const fetchAIResult = async () => {
-  setLoadingResult(true);
-  try {
-    // 1️⃣ Pedimos las 3 mujeres más parecidas con búsqueda vectorial
-    const searchResponse = await fetch("http://localhost:3001/search-women", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userProfileText }),
-    });
 
-    if (!searchResponse.ok) {
-      throw new Error("Error al buscar mujeres similares");
+  const fetchAIResult = async () => {
+    setLoadingResult(true);
+    try {
+      const searchResponse = await fetch("http://localhost:3001/search-women", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userProfileText }),
+      });
+
+      if (!searchResponse.ok) {
+        throw new Error("Error al buscar mujeres similares");
+      }
+
+      const { results } = await searchResponse.json();
+
+      const aiResponse = await fetch("http://localhost:3000/api/quiz", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userProfileText, womenData: results }),
+      });
+
+      if (!aiResponse.ok) {
+        throw new Error("Error al generar resultado de IA");
+      }
+
+      const aiData = await aiResponse.json();
+
+      const parsed: AIResult[] = aiData.result.map((item: AIResult) => {
+        const match = results.find(
+          (w: { nombre_completo: string; imagen_url?: string }) =>
+            w.nombre_completo.toLowerCase() === item.name.toLowerCase()
+        );
+
+        return {
+          ...item,
+          imagen_url: match?.imagen_url || "/assets/default.png",
+        };
+      });
+
+      setAiResult(parsed);
+
+      // ONB-F02: guardar perfil en localStorage si viene de onboarding
+      if (onComplete) {
+        localStorage.setItem("herstory-user-profile", userProfileText);
+      }
+    } catch (err) {
+      console.error("Error al obtener resultado de IA:", err);
+    } finally {
+      setLoadingResult(false);
     }
-
-    const { results } = await searchResponse.json(); // <-- resultados vectoriales
-
-    // 2️⃣ Mandamos SOLO esas 3 mujeres a la IA para generar explicación
-    const aiResponse = await fetch("http://localhost:3000/api/quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userProfileText, womenData: results }),
-    });
-
-    if (!aiResponse.ok) {
-      throw new Error("Error al generar resultado de IA");
-    }
-
-    const aiData = await aiResponse.json();
-
-    // Guardamos en el estado los resultados finales
-
-    ///////--------------------------------CAMBIOSSSS---------------------------------------
-    //const parsed: AIResult[] = aiData.result;
-    //setAiResult(parsed);
-
-
-    const parsed: AIResult[] = aiData.result.map(item => {
-  // Buscar la mujer original en la lista que enviaste
-  const match = results.find(
-    w => w.nombre_completo.toLowerCase() === item.name.toLowerCase()
-  );
-
-  return {
-    ...item,
-    imagen_url: match?.imagen_url || "/assets/default.png", // fallback por si no hay imagen
   };
-});
 
-setAiResult(parsed);
-
-
-  } catch (err) {
-    console.error("Error al obtener resultado de IA:", err);
-  } finally {
-    setLoadingResult(false);
-  }
-};
-
-// Ejecutar IA cuando termine el quiz
-//la linea se quita si marca error
   useEffect(() => {
     if (finished) fetchAIResult();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
 
-const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
-
+  const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
 
   return (
-
-     <div className="w-full max-w-2xl mx-auto space-y-3">
+    <div className="w-full max-w-2xl mx-auto space-y-3">
       {!finished ? (
         <Card className="elegant-shadow smooth-transition hover:glow-shadow">
           <CardHeader>
@@ -184,7 +165,7 @@ const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
             </CardContent>
           </Card>
 
-           {loadingResult && (
+          {loadingResult && (
             <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card/95 backdrop-blur-md border rounded-2xl p-8 elegant-shadow animate-scale-in">
                 <div className="text-center space-y-4">
@@ -195,10 +176,10 @@ const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
                 </div>
               </div>
             </div>
-          )} 
+          )}
 
           {!loadingResult && (
-              aiResult.length > 0 && (
+            aiResult.length > 0 && (
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold text-center hero-gradient bg-clip-text text-transparent">
                   ✨ Tu Mujer Histórica Ideal
@@ -208,7 +189,6 @@ const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
                     <CardContent className="p-6">
                       <div className="flex flex-col md:flex-row gap-6 items-center">
                         <div className="flex-shrink-0">
-                        
                           <img
                             src={res.imagen_url}
                             alt={res.name}
@@ -241,12 +221,18 @@ const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
 
           <div className="flex justify-center">
             <Button
-                variant="hero"
-                size="lg"
-                onClick={() => window.location.reload()}
-                >
-                <Sparkles className="h-4 w-4 mr-2" />
-                Regresar
+              variant="hero"
+              size="lg"
+              onClick={() => {
+                if (onComplete) {
+                  onComplete();
+                } else {
+                  window.location.reload();
+                }
+              }}
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              {onComplete ? "Continuar a HerStory" : "Regresar"}
             </Button>
           </div>
         </div>
