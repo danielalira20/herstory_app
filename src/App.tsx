@@ -32,6 +32,10 @@ import { SectionProvider } from "./context/SectionContext";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute"
 import AdminVerificacion from "./pages/AdminVerificacion"
 
+
+///import para COlectivos
+import ParaColectivos from "./pages/ParaColectivos"
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -84,6 +88,10 @@ const App = () => {
 
               {/* Fin panel admin*/}
 
+              {/* Para colectivos */}
+              <Route path="/para-colectivos" element={<ParaColectivos />} />
+
+              
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
