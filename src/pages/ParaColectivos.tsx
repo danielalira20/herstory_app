@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import NavbarWrapper from "@/components/NavbarWrapper"
 import headerImage from "@/assets/herstory-header.jpg"
-import { Users, MapPin, Phone, Video, Facebook, CheckCircle, Upload, Mail} from "lucide-react"
+import { Users, MapPin, Phone, Video, Facebook, CheckCircle, Upload, Mail, Link, BookOpen} from "lucide-react"
 
 // ─────────────────────────────────────────
 // TIPOS
@@ -446,7 +446,18 @@ const ParaColectivos = () => {
             >
                 Leer nuestro reconocimiento a las buscadoras →
             </a>
+
             </div>
+
+            <div className="text-center mt-4">
+                <a
+                href="/guia-colectivos"
+                className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium"
+                >
+                Ver guía de buenas prácticas →
+            </a>
+            </div>
+            
 
           {/* Confirmación enviada */}
           {enviado && (

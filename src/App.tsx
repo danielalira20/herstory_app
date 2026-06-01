@@ -42,6 +42,9 @@ import AdminSolicitudes from "./pages/AdminSolicitudes";
 /// import para reconocimientos de madres buscadoras
 import Reconocimiento from "./pages/Reconocimiento";
 
+///import para guia colectivos
+import GuiaColectivos from "./pages/GuiaColectivos"
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -107,6 +110,9 @@ const App = () => {
 
               {/* Reconocimiento madres buscadoras */}
               <Route path="/reconocimiento" element={<Reconocimiento />} />
+              
+              {/* Guía para colectivos */}
+              <Route path="/guia-colectivos" element={<GuiaColectivos />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
