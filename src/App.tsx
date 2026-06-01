@@ -36,6 +36,9 @@ import AdminVerificacion from "./pages/AdminVerificacion"
 ///import para COlectivos
 import ParaColectivos from "./pages/ParaColectivos"
 
+/// import Admin solicitudes 
+import AdminSolicitudes from "./pages/AdminSolicitudes";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -82,6 +85,14 @@ const App = () => {
               <Route path="/admin/verificacion" element={
                   <ProtectedAdminRoute>
                     <AdminVerificacion />
+                  </ProtectedAdminRoute>
+                } 
+              />
+
+              {/* Panel admin - solicitudes */}
+              <Route path="/admin/solicitudes" element={
+                  <ProtectedAdminRoute>
+                    <AdminSolicitudes />
                   </ProtectedAdminRoute>
                 } 
               />
