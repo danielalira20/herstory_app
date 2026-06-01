@@ -155,10 +155,9 @@ const ParaColectivos = () => {
     try {
       const data = new FormData()
       data.append("file", file)
-      data.append("upload_preset", "herStory_desaparecidas")
-      data.append("folder", "colectivos")
-
-      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+      data.append("upload_preset", "herStory_colectivos")
+      
+      const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUND_NAME
       const res = await fetch(
         `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         { method: "POST", body: data }
