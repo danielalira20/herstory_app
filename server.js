@@ -413,6 +413,18 @@ Cómo eres:
 - Frases cortas. Tono firme pero suave.
 - Nunca diagnosticas ni etiquetas la situación
 - Nunca haces preguntas que profundicen el dolor
+- Después de dar el recurso, siempre añades UNA línea de presencia:
+  ES: "Estoy aquí contigo mientras decides qué necesitas."
+  EN: "I'm here with you while you decide what you need."
+- No desapareces después de dar el recurso. Te quedas.
+- Si la usuaria sigue escribiendo → acompañas sin interrogar. Solo puedes hacer UNA pregunta suave:
+  ES: "¿Quieres seguir hablando?"
+  EN: "Do you want to keep talking?"
+- Modo 3 es pegajoso: nunca baja directamente a Modo 1.
+  Si la usuaria dice "gracias" u "ok" → bajas a Modo 2, no a Modo 1.
+  Solo bajas a Modo 1 cuando la usuaria indica explícitamente que está segura:
+  ES: "ya estoy bien", "ya llamé", "estoy con alguien"
+  EN: "I'm okay now", "I called", "I'm with someone"
 
 SITUACIÓN ESPECIAL — Alguien escribe que no puede hablar o que la están observando:
 (ES: "no puedo hablar", "está aquí", "está viendo mi pantalla", "no puedo escribir mucho")
@@ -543,8 +555,8 @@ app.post("/chat", async (req, res) => {
     if (triggerDetectado) {
       console.log(`🚨 Riesgo agudo: "${triggerDetectado}" — omitiendo Gemini`);
       const respuestaEmergencia = language === "en"
-        ? "What you're telling me is very serious. You matter. Please call the National Domestic Violence Hotline: 1-800-799-7233. Free, confidential, 24/7. You are not alone."
-        : "Lo que me estás contando es muy serio. Tú importas. Puedes marcar 079 y presionar 1 ahora mismo. Es gratuito, confidencial y atiende las 24 horas. No estás sola.";
+        ? "What you're telling me is very serious. You matter. Please call the National Domestic Violence Hotline: 1-800-799-7233. Free, confidential, 24/7.\n\nI'm here with you while you decide what you need. You are not alone."
+        :  "Lo que me estás contando es muy serio. Tú importas. Puedes marcar 079 y presionar 1 ahora mismo. Es gratuito, confidencial y atiende las 24 horas.\n\nEstoy aquí contigo mientras decides qué necesitas. No estás sola.";
 
       return res.json({
         respuesta: respuestaEmergencia,
@@ -596,14 +608,32 @@ app.post("/chat", async (req, res) => {
 
     console.log(`✅ Modo: ${parsed.modo} | Submodo: ${parsed.submodo || "-"} | Confianza: ${parsed.confianza}`);
 
-    res.json({
-      respuesta: parsed.respuesta,
-      modo: parsed.modo,
-      submodo: parsed.submodo || null,
-      confianza: parsed.confianza,
-      señales: parsed.señales_detectadas || [],
-      language,
-    });
+// AUR-B08: si es emergencia, agregar bloque de recursos clicables
+const recursos = parsed.modo === 3 ? (
+  language === "en" ? {
+    principal: { nombre: "National DV Hotline", numero: "18007997233", display: "1-800-799-7233" },
+    emergencia: { nombre: "Emergency", numero: "911", display: "911" },
+    crisis: { nombre: "Crisis Text Line", numero: null, display: "Text HOME to 741741" }
+  } : {
+    principal: { nombre: "Línea de las Mujeres", numero: "0791", display: "079 → opción 1" },
+    refugios: { nombre: "Red Nacional de Refugios", numero: "8008224460", display: "800 822 4460" },
+    emergencia: { nombre: "Emergencias", numero: "911", display: "911" }
+  }
+) : null;
+
+if (parsed.modo === 3) {
+  console.log("🆘 Emergencia Gemini — enviando bloque de recursos");
+}
+
+res.json({
+  respuesta: parsed.respuesta,
+  modo: parsed.modo,
+  submodo: parsed.submodo || null,
+  confianza: parsed.confianza,
+  señales: parsed.señales_detectadas || [],
+  recursos,
+  language,
+});
 
   } catch (error) {
     console.error("❌ ERROR:", error.message);
