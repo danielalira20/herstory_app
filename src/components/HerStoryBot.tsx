@@ -554,7 +554,7 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }
 
   // ====== Estado ======
-  type Msg = { id: string; from: "bot" | "user"; text: string; meta?: { persona?: string } };
+  type Msg = { id: string; from: "bot" | "user"; text: string; meta?: { persona?: string }; tipo?: "normal" | "emergency-card"; };
   const [lang, setLang] = useState<LangCode>("es");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -587,40 +587,51 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }
 
   async function callGemini(userMessage: string) {
-    setTyping(true);
-    const updatedHistory = [
-      ...geminiHistory,
-      { role: "user" as const, parts: [{ text: userMessage }] },
-    ];
-    try {
-      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-      const res = await fetch(`${BACKEND_URL}/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: updatedHistory, language: lang }),
-      });
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const data = await res.json();
-      const botAnswer = data.respuesta || "No tengo respuesta en este momento.";
-      if (data.modo) setCurrentMode(data.modo as 1 | 2 | 3);
-      setGeminiHistory([
-        ...updatedHistory,
-        { role: "model" as const, parts: [{ text: botAnswer }] },
-      ]);
-      if (data.modo === 3) {
-        console.log("🚨 Modo emergencia detectado:", data.señales);
-        // Semana 3: aquí activamos el botón de pánico
-      }
-      setMessages(prev => [...prev, { id: generateId(), from: "bot", text: botAnswer }]);
-      return botAnswer;
-    } catch (err) {
-      console.error(err);
-      reply("Ups, algo salió mal. 😅");
-      return null;
-    } finally {
-      setTyping(false);
+  setTyping(true);
+  const updatedHistory = [
+    ...geminiHistory,
+    { role: "user" as const, parts: [{ text: userMessage }] },
+  ];
+  try {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+    const res = await fetch(`${BACKEND_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: updatedHistory, language: lang }),
+    });
+    if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+    const data = await res.json();
+    const botAnswer = data.respuesta || "No tengo respuesta en este momento.";
+
+    if (data.modo) setCurrentMode(data.modo as 1 | 2 | 3);
+
+    setGeminiHistory([
+      ...updatedHistory,
+      { role: "model" as const, parts: [{ text: botAnswer }] },
+    ]);
+
+    setMessages(prev => [...prev, { id: generateId(), from: "bot", text: botAnswer }]);
+
+    // AUR-F01: tarjeta de recursos clicables en Modo 3
+    if (data.modo === 3) {
+      console.log("🚨 Modo emergencia detectado:", data.señales);
+      setMessages(prev => [...prev, {
+        id: generateId(),
+        from: "bot",
+        text: "",
+        tipo: "emergency-card" as const
+      }]);
     }
+
+    return botAnswer;
+  } catch (err) {
+    console.error(err);
+    reply("Ups, algo salió mal. 😅");
+    return null;
+  } finally {
+    setTyping(false);
   }
+}
 
   async function handleSend(custom?: string) {
     const text = custom ?? input.trim();
@@ -677,6 +688,37 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
     const botAnswer = await callGemini(text);
     if (!botAnswer) reply(sample(DATA_CONTENT.inspiration[lang]));
   }
+
+  function EmergencyCard() {
+  const recursos = lang === "en" ? [
+    { nombre: "National DV Hotline", numero: "18007997233", display: "1-800-799-7233", emoji: "📞" },
+    { nombre: "Emergency", numero: "911", display: "911", emoji: "🚨" },
+  ] : [
+    { nombre: "Línea de las Mujeres", numero: "079", display: "079 → presiona 1", emoji: "📞" },
+    { nombre: "Red Nacional de Refugios", numero: "8008224460", display: "800 822 4460", emoji: "📞" },
+    { nombre: "Emergencias", numero: "911", display: "911", emoji: "🚨" },
+  ];
+
+  return (
+    <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3 max-w-[85%] shadow">
+      <p className="text-xs font-semibold text-rose-600 mb-2">
+        {lang === "en" ? "🆘 Help resources" : "🆘 Recursos de ayuda"}
+      </p>
+      <div className="flex flex-col gap-2">
+        {recursos.map(r => (
+          <a key={r.nombre} href={`tel:${r.numero}`}
+            className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm hover:bg-rose-100 transition border border-rose-100">
+            <span>{r.emoji}</span>
+            <div>
+              <div className="font-semibold text-gray-800 text-xs">{r.nombre}</div>
+              <div className="text-rose-600 font-mono text-xs">{r.display}</div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
 
   function getModeStyles() {
   switch (currentMode) {
@@ -768,16 +810,25 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
 
       {/* Mensajes — igual que antes */}
       <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-        {messages.map(m => (
-          <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-            <div
-              className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line ${m.from === "bot" ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100" : "bg-purple-600 dark:bg-purple-500 text-white"}`}
-              dangerouslySetInnerHTML={{
-                __html: m.meta?.persona ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}` : m.text
-              }}
-            />
-          </div>
-        ))}
+     {messages.map(m => (
+      <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+        {m.tipo === "emergency-card" ? (
+          <EmergencyCard />
+        ) : (
+          <div
+            className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line
+              ${m.from === "bot"
+                ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
+                : "bg-purple-600 dark:bg-purple-500 text-white"}`}
+            dangerouslySetInnerHTML={{
+              __html: m.meta?.persona
+                ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}`
+                : m.text
+            }}
+          />
+        )}
+      </div>
+      ))}
         {typing && (
           <div className="flex justify-start">
             <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 italic">
