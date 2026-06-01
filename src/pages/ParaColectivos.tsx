@@ -439,6 +439,15 @@ const ParaColectivos = () => {
             </div>
           )}
 
+          <div className="text-center mt-4">
+            <a
+                href="/reconocimiento"
+                className="text-sm text-primary hover:underline"
+            >
+                Leer nuestro reconocimiento a las buscadoras →
+            </a>
+            </div>
+
           {/* Confirmación enviada */}
           {enviado && (
             <Card className="max-w-xl mx-auto">

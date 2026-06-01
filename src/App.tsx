@@ -39,6 +39,9 @@ import ParaColectivos from "./pages/ParaColectivos"
 /// import Admin solicitudes 
 import AdminSolicitudes from "./pages/AdminSolicitudes";
 
+/// import para reconocimientos de madres buscadoras
+import Reconocimiento from "./pages/Reconocimiento";
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -102,6 +105,8 @@ const App = () => {
               {/* Para colectivos */}
               <Route path="/para-colectivos" element={<ParaColectivos />} />
 
+              {/* Reconocimiento madres buscadoras */}
+              <Route path="/reconocimiento" element={<Reconocimiento />} />
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
