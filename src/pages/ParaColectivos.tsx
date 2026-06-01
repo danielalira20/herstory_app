@@ -64,6 +64,41 @@ const estadoInicial: FormAlianza = {
   logo_url: "",
 }
 
+const getEmbedUrl = (url: string): string | null => {
+  if (!url) return null
+
+  // YouTube formatos:
+  // https://www.youtube.com/watch?v=VIDEO_ID
+  // https://youtu.be/VIDEO_ID
+  // https://www.youtube.com/embed/VIDEO_ID
+  const regexYoutubeWatch = /youtube\.com\/watch\?v=([^&]+)/
+  const regexYoutubeShort = /youtu\.be\/([^?]+)/
+  const regexYoutubeEmbed = /youtube\.com\/embed\/([^?]+)/
+
+  const matchWatch = url.match(regexYoutubeWatch)
+  const matchShort = url.match(regexYoutubeShort)
+  const matchEmbed = url.match(regexYoutubeEmbed)
+  const youtubeId = matchWatch?.[1] || matchShort?.[1] || matchEmbed?.[1]
+
+  if (youtubeId) {
+    return `https://www.youtube.com/embed/${youtubeId}`
+  }
+
+  // Vimeo formatos:
+  // https://vimeo.com/VIDEO_ID
+  // https://player.vimeo.com/video/VIDEO_ID
+  const regexVimeo = /vimeo\.com\/(?:video\/)?(\d+)/
+  const matchVimeo = url.match(regexVimeo)
+
+  if (matchVimeo?.[1]) {
+    return `https://player.vimeo.com/video/${matchVimeo[1]}`
+  }
+
+  // Facebook y otros → no se embeben, link externo
+  return null
+}
+
+
 // ─────────────────────────────────────────
 // COMPONENTE PRINCIPAL
 // ─────────────────────────────────────────
@@ -77,6 +112,7 @@ const ParaColectivos = () => {
   const [enviando, setEnviando] = useState(false)
   const [enviado, setEnviado] = useState(false)
   const [loadingLogo, setLoadingLogo] = useState(false)
+  const [busqueda, setBusqueda] = useState("")
 
   // ── Cargar colectivos ──
   useEffect(() => {
@@ -95,9 +131,12 @@ const ParaColectivos = () => {
   }, [])
 
   // ── Filtrar colectivos ──
-  const colectivosFiltrados = colectivos.filter(c =>
-    filtroEstado === "Todos" ? true : c.estado === filtroEstado
-  )
+  const colectivosFiltrados = colectivos.filter(c => {
+  const matchEstado = filtroEstado === "Todos" ? true : c.estado === filtroEstado
+  const matchBusqueda = busqueda === "" ? true :
+    c.nombre.toLowerCase().includes(busqueda.toLowerCase())
+  return matchEstado && matchBusqueda
+})
 
   // ── Estados únicos para el filtro ──
   const estadosDisponibles = ["Todos", ...Array.from(new Set(colectivos.map(c => c.estado))).sort()]
@@ -211,18 +250,51 @@ const ParaColectivos = () => {
         </div>
 
         {/* ── Filtro por estado ── */}
-        <div className="flex flex-wrap gap-2 justify-center">
-          {estadosDisponibles.map(estado => (
-            <Button
-              key={estado}
-              variant={filtroEstado === estado ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFiltroEstado(estado)}
-            >
-              {estado}
-            </Button>
-          ))}
-        </div>
+        <div className="space-y-3 max-w-2xl mx-auto w-full">
+            <div className="flex flex-col sm:flex-row gap-3">
+                <Input
+                placeholder=" Buscar por nombre..."
+                value={busqueda}
+                onChange={e => setBusqueda(e.target.value)}
+                className="flex-1"
+                />
+                <Select
+                value={filtroEstado}
+                onValueChange={setFiltroEstado}
+                >
+                <SelectTrigger className="w-full sm:w-52">
+                    <SelectValue placeholder="Filtrar por estado" />
+                </SelectTrigger>
+                <SelectContent>
+                    {estadosDisponibles.map(estado => (
+                    <SelectItem key={estado} value={estado}>
+                        {estado === "Todos" ? " Todos los estados" : ` ${estado}`}
+                    </SelectItem>
+                    ))}
+                </SelectContent>
+                </Select>
+                {/* Botón CTA */}
+                <Button
+                onClick={() => {
+                    setMostrarFormulario(true)
+                    // Scroll suave hasta el formulario
+                    setTimeout(() => {
+                    document.getElementById("seccion-alianza")?.scrollIntoView({
+                        behavior: "smooth"
+                    })
+                    }, 100)
+                }}
+                className="w-full sm:w-auto whitespace-nowrap"
+                variant="outline"
+                >
+                <Users className="h-4 w-4 mr-2" />
+                Unir mi colectivo
+                </Button>
+            </div>
+            <p className="text-xs text-muted-foreground text-right">
+                {colectivosFiltrados.length} colectivo(s) encontrado(s)
+            </p>
+            </div>
 
         {/* ── Directorio ── */}
         {loading && (
@@ -312,17 +384,36 @@ const ParaColectivos = () => {
                       <span>Facebook</span>
                     </a>
                   )}
-                  {colectivo.video_url && (
-                    <a
-                      href={colectivo.video_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-xs text-primary hover:underline"
-                    >
-                      <Video className="h-3 w-3" />
-                      <span>Ver entrevista</span>
-                    </a>
-                  )}
+                  {colectivo.video_url && (() => {
+                    const embedUrl = getEmbedUrl(colectivo.video_url)
+                    return embedUrl ? (
+                        <div className="mt-2 space-y-1">
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Video className="h-3 w-3" />
+                            Entrevista
+                        </p>
+                        <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                            <iframe
+                            src={embedUrl}
+                            title={`Entrevista ${colectivo.nombre}`}
+                            className="absolute inset-0 w-full h-full rounded-md"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            />
+                        </div>
+                        </div>
+                    ) : (
+                        <a
+                        href={colectivo.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 text-xs text-primary hover:underline"
+                        >
+                        <Video className="h-3 w-3" />
+                        <span>Ver entrevista</span>
+                        </a>
+                    )
+                    })()}
                 </div>
 
               </CardContent>
@@ -331,7 +422,7 @@ const ParaColectivos = () => {
         </div>
 
         {/* ── Sección formulario alianza ── */}
-        <div className="border-t pt-12 space-y-6">
+        <div id="seccion-alianza" className="border-t pt-12 space-y-6">
           <div className="text-center max-w-2xl mx-auto space-y-3">
             <h2 className="text-2xl font-bold">¿Tu colectivo quiere ser aliado de HerStory?</h2>
             <p className="text-muted-foreground text-sm">
