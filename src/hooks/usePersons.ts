@@ -7,17 +7,14 @@ export interface Person {
   name: string;
   age: number;
   sexo: string;
-  nacionalidad: string;
   estado: string;
   fechaDesaparicion: string;
-  registroPublico: string;
   folio: string;
   foto: string;
   estatura: string;
   peso: string;
   ojos: string;
   cabello: string;
-  contacto: string;
   caracteristicas: string;
 }
 
@@ -33,7 +30,7 @@ export function usePersons() {
         setError(null);
 
         const { data, error } = await supabase
-          .from("personas")
+          .from("vista_mapa_publico")
           .select(`
             id,
             Nombre,
@@ -41,17 +38,14 @@ export function usePersons() {
             Segundo_apellido,
             Edad,
             Sexo,
-            Nacionalidad,
             Desaparición,
             Entidad_desaparición,
-            Registro_publico,
             folio,
             imagen_url,
             estatura,
             peso_kg,
             color_ojos,
             color_cabello,
-            contacto_desaparecida,
             caracteriticas
           `)
           .limit(5000);
@@ -74,17 +68,14 @@ export function usePersons() {
           name: `${item.Nombre || ""} ${item.Primer_apellido || ""} ${item.Segundo_apellido || ""}`.trim(),
           age: item.Edad || 0,
           sexo: item.Sexo || "No especificado",
-          nacionalidad: item.Nacionalidad || "No especificada",
           estado: item.Entidad_desaparición || "No especificado",
           fechaDesaparicion: item.Desaparición || "Fecha desconocida",
-          registroPublico: item.Registro_publico || "No disponible",
           folio: item.folio || "No disponible",
           foto: item.imagen_url ? item.imagen_url : "/assests/default.png",
           estatura: item.estatura ? `${item.estatura} cm` : "No especificada",
           peso: item.peso_kg ? `${item.peso_kg} kg` : "No especificado",
           ojos: item.color_ojos || "No especificado",
           cabello: item.color_cabello || "No especificado",
-          contacto: item.contacto_desaparecida || "No disponible",
           caracteristicas: item.caracteriticas || "No hay información disponible",
         }));
 
