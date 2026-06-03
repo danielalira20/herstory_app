@@ -565,26 +565,31 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   // ====== Saludo inicial: página específica → horario (fallback) ======
-  useEffect(() => {
-    if (!open) return;
-    if (messages.length > 0) return;
-    const pageGreeting = (UI[lang].pageGreetings as Record<string, string>)[resolvedPage];
-    const hello = pageGreeting || getDynamicGreeting(lang);
-    setMessages([{ id: generateId(), from: "bot", text: hello }]);
-  }, [open, lang]);
+useEffect(() => {
+  if (!open) return;
+  if (messages.length > 0) return;
+  const pageGreeting = (UI[lang].pageGreetings as Record<string, string>)[resolvedPage];
+  const hello = pageGreeting || getDynamicGreeting(lang);
+  setMessages([{ id: generateId(), from: "bot", text: hello }]);
+}, [open, lang]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, typing]);
-
+// ====== Scroll automático — CAMBIO 2: agrega `open` ======
+useEffect(() => {
+  if (!open) return;
+  bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages, typing, open]);
   // ====== Funciones ======
-  function reply(text: string, persona?: string) {
-    setTyping(true);
-    setTimeout(() => {
-      setMessages(prev => [...prev, { id: generateId(), from: "bot", text, meta: { persona } }]);
-      setTyping(false);
-    }, 500);
-  }
+function reply(text: string, persona?: string) {
+  setTyping(true);
+  const delay = Math.min(400 + text.length * 10, 2400);
+  setTimeout(() => {
+    setMessages(prev => [
+      ...prev,
+      { id: generateId(), from: "bot", text, meta: { persona } },
+    ]);
+    setTyping(false);
+  }, delay);
+}
 
   async function callGemini(userMessage: string) {
   setTyping(true);
@@ -749,6 +754,19 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }
 }
 
+function MessageText({ text, persona }: { text: string; persona?: string }) {
+  const prefix = persona ? `${UI[lang].personaPrefix(persona)} ` : "";
+  const full = prefix + text;
+  const lines = full.split("\n");
+  return (
+    <>
+      {lines.map((line, i) => (
+        <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
+      ))}
+    </>
+  );
+}
+
   // ====== Render ======
   return (
     <>
@@ -811,28 +829,31 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       {/* Mensajes — igual que antes */}
       <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
      {messages.map(m => (
-      <div key={m.id} className={`flex ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-        {m.tipo === "emergency-card" ? (
-          <EmergencyCard />
-        ) : (
-          <div
-            className={`px-4 py-2 rounded-2xl max-w-[75%] shadow whitespace-pre-line
+        <div key={m.id} className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
+          {m.from === "bot" && (
+            <img src={herstoryLogoBot} alt="Auren"
+              className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm" />
+          )}
+          {m.tipo === "emergency-card" ? (
+            <EmergencyCard />
+          ) : (
+            <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow text-sm leading-relaxed
               ${m.from === "bot"
-                ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100"
-                : "bg-purple-600 dark:bg-purple-500 text-white"}`}
-            dangerouslySetInnerHTML={{
-              __html: m.meta?.persona
-                ? `${UI[lang].personaPrefix(m.meta.persona)} ${m.text}`
-                : m.text
-            }}
-          />
-        )}
-      </div>
+                ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-sm"
+                : "bg-purple-600 dark:bg-purple-500 text-white rounded-br-sm"}`}>
+              <MessageText text={m.text} persona={m.meta?.persona} />
+            </div>
+          )}
+        </div>
       ))}
         {typing && (
-          <div className="flex justify-start">
-            <div className="px-4 py-2 rounded-2xl bg-purple-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 italic">
-              {UI[lang].typing}
+          <div className="flex items-end gap-2 justify-start">
+            <img src={herstoryLogoBot} alt="Auren"
+              className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm" />
+            <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-purple-100 dark:bg-gray-700 flex items-center gap-1.5 shadow">
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:0ms]" />
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:150ms]" />
+              <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:300ms]" />
             </div>
           </div>
         )}
@@ -866,15 +887,26 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
       <div className="p-3 border-t border-purple-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 flex space-x-2">
         <input
           type="text"
-          className="flex-1 border border-purple-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-400 focus:outline-none"
-          placeholder={UI[lang].inputPlaceholder}
+          className={`flex-1 border border-purple-300 dark:border-gray-600 bg-white dark:bg-gray-700
+            text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm
+            focus:ring-2 focus:ring-purple-400 focus:outline-none transition
+            ${typing ? "opacity-50 cursor-not-allowed" : ""}`}
+          placeholder={typing
+            ? (lang === "es" ? "Auren está escribiendo…" : "Auren is typing…")
+            : UI[lang].inputPlaceholder}
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
+          onKeyDown={e => { if (e.key === "Enter" && !typing) handleSend(); }}
+          disabled={typing}
+          maxLength={500}
         />
-        <button onClick={() => handleSend()}
-          className="bg-gradient-to-r from-purple-600 to-pink-500 text-white p-2 rounded-lg shadow-md hover:opacity-90 transition">
-          <Send />
+        <button
+          onClick={() => handleSend()}
+          disabled={typing || !input.trim()}
+          className={`p-2 rounded-lg shadow-md transition bg-gradient-to-r from-purple-600 to-pink-500 text-white
+            ${(typing || !input.trim()) ? "opacity-40 cursor-not-allowed" : "hover:opacity-90 active:scale-95"}`}
+        >
+          <Send size={18} />
         </button>
       </div>
     </motion.div>
