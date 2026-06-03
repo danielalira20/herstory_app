@@ -40,9 +40,9 @@ const NavbarLearn = () => {
     { label: "Glosario",   href: "/glosario",        icon: BookMarked    },
     { label: "Aprende",    href: "/aprende",          icon: Gamepad2      },
     // TODO [DEL-F01 — JESS, Semana 1]: Eliminar este item y quitar su route en App.tsx.
-    { label: "Ella Dice",         href: "/ella-dice",        icon: MessageCircle },
+    //{ label: "Ella Dice",         href: "/ella-dice",        icon: MessageCircle },
     // TODO [DEL-D01 — JESS, Semana 1]: Pendiente decisión grupal.
-    { label: "Voces Silenciadas", href: "/voces-silenciadas", icon: Mic  },
+    //{ label: "Voces Silenciadas", href: "/voces-silenciadas", icon: Mic  },
   ];
 
   const universalItems: NavItem[] = [

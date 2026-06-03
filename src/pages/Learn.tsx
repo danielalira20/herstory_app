@@ -17,18 +17,24 @@ const features = [
     description: "Trivia, juegos y recursos educativos interactivos. Aprende mientras te diviertes con desafíos gamificados.",
     link: '/aprende',
   },
-  {
+  /*{
     Icon: Mic,
     title: "Podcast Ella Dice",
     description: "Escucha historias inspiradoras contadas por voces femeninas empoderadas. Episodios semanales sobre mujeres que transformaron la historia.",
     link: '/ella-dice',
-  },
+  },*/
   {
     Icon: Lightbulb,
     title: "Guía de Concienciación",
     description: "Recursos para educadores y activistas. Materiales didácticos y guías de acción para el cambio.",
     link: '/awareness-guide',
   },
+  {
+  Icon: BookOpen,
+  title: "Guías de Apoyo",
+  description: "Recursos descargables sobre derechos, salud, seguridad y empoderamiento. Encuentra la guía que necesitas.",
+  link: '/guias',
+},
 ];
 
 const Learn = () => {

@@ -15,10 +15,11 @@ import Ayuda from './pages/Ayuda';
 import Perfil from "./pages/perfil";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
-import VocesSilenciadas from "./pages/VocesSilenciadas";
+//import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
 import HerStoryBot from "./components/HerStoryBot";
 import PanicButton from "./components/PanicButton";
+
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
 import RastroNacional from "./pages/RastroNacional";
@@ -77,7 +78,7 @@ const App = () => {
               {/* Páginas de Search (morado) */}
               <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
               <Route path="/rastro-nacional" element={<RastroNacional />} />
-              <Route path="/voces-silenciadas" element={<VocesSilenciadas />} />
+             
               <Route path="/reportar" element={<Reportar />} />
               
               {/* Páginas de Learn (rosa) */}
@@ -86,6 +87,7 @@ const App = () => {
               <Route path="/aprende" element={<Aprende />} />
               <Route path="/ella-dice" element={<EllaDice />} />
               <Route path="/awareness-guide" element={<AwarenessGuide />} />
+              <Route path="/guias" element={<Guias />} />
               
               {/* Páginas universales */}
               <Route path="/nosotras" element={<Nosotras />} />
