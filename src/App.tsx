@@ -26,6 +26,7 @@ import RastroNacional from "./pages/RastroNacional";
 import Landing from "./pages/Landing";
 import Search from "./pages/Search"; 
 import Learn from "./pages/Learn"; 
+import Guias from "./pages/Guias";
 import { SectionProvider } from "./context/SectionContext";
 import Onboarding from "./pages/Onboarding";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; 
@@ -46,6 +47,7 @@ import Reconocimiento from "./pages/Reconocimiento";
 
 ///import para guia colectivos
 import GuiaColectivos from "./pages/GuiaColectivos"
+
 
 const queryClient = new QueryClient();
 
