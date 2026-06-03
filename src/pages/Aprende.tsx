@@ -1,217 +1,227 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import NavbarWrapper from '@/components/NavbarWrapper';
+import NavbarWrapper from "@/components/NavbarWrapper";
 import { useToast } from "@/hooks/use-toast";
 import headerImage from "@/assets/herstory-header.jpg";
-import Quiz from "../components/quiz";
 import QuizTrivias from "@/components/QuizTrivias";
-import Memorama from "@/components/Memorama";
-import banner from "@/assets/banner_trivias.png";
-import OrdenarPalabras from "@/components/OrdenarPalabras";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Brain, Users, BookOpen, Trophy, Play, Sparkles } from "lucide-react";
+import {
+  Brain,
+  BookOpen,
+  Play,
+  Sparkles,
+  HelpCircle,
+  Quote,
+  ArrowRight,
+  ArrowLeft,
+  GraduationCap,
+  Gamepad2,
+} from "lucide-react";
+import QuienSoy from "@/components/QuienSoy";
+import FraseCelebre from "@/components/FraseCelebre";
 
-  const Aprende = () => {
+const Aprende = () => {
   const { toast } = useToast();
-  const [showQuiz, setShowQuiz] = useState(false);
-  const [activeGame, setActiveGame] = useState<"memorama" | "ordenarPalabras" | null>(null);
+  const [activeGame, setActiveGame] = useState<
+    "quienSoy" | "fraseCelebre" | null
+  >(null);
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="relative w-full h-48 overflow-hidden">
+      {/* ── Hero Header ── */}
+      <div className="relative w-full h-64 md:h-72 overflow-hidden">
         <img
           src={headerImage}
           alt="HerStory Header"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover scale-105"
         />
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Aprende</h1>
-            <p className="text-lg italic">Explora y reflexiona</p>
+        <div className="absolute inset-0 bg-gradient-to-b from-pink-900/60 via-pink-800/50 to-pink-700/40 flex items-center justify-center">
+          <div className="text-center text-white space-y-3">
+            <p className="text-xs md:text-sm uppercase tracking-[4px] text-pink-200">
+              HerStory · Aprende
+            </p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              Aprende{" "}
+              <span className="italic font-normal text-pink-200">jugando</span>
+            </h1>
+            <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
+              Sumérgete en la historia de las mujeres que cambiaron el mundo,
+              una pregunta a la vez.
+            </p>
           </div>
         </div>
       </div>
 
       <NavbarWrapper />
 
+      {/* ── Stats rápidos ── */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { num: "5", label: "Categorías de trivia", icon: <Brain className="w-5 h-5" /> },
+              { num: "2", label: "Juegos interactivos", icon: <Gamepad2 className="w-5 h-5" /> },
+              { num: "∞", label: "Historias por descubrir", icon: <BookOpen className="w-5 h-5" /> },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className="bg-pink-50 dark:bg-pink-950/30 border border-pink-100 dark:border-pink-900/40 rounded-xl p-5 text-center"
+              >
+                <div className="flex justify-center mb-2 text-pink-400 dark:text-pink-400">
+                  {stat.icon}
+                </div>
+                <span className="text-3xl md:text-4xl font-bold text-pink-700 dark:text-pink-300 block">
+                  {stat.num}
+                </span>
+                <span className="text-xs text-pink-800/60 dark:text-pink-400/60 mt-1 block">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Sección Informativa Principal */}
-      <section className="py-16 px-4 subtle-gradient">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center space-y-6 mb-12">
-            <div className="flex justify-center">
-              <div className="h-16 w-16 bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 rounded-full flex items-center justify-center shadow-lg">
-  <Play className="h-8 w-8 text-white" />
-</div>
-
-            </div>
-            <h2 className="text-3xl md:text-4xl font-bold">
-              Aprende <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">Jugando</span>
-            </h2>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Sumérgete en una experiencia educativa única donde cada pregunta te acerca más al mundo 
-              fascinante de las mujeres que marcaron la historia. Nuestra trivia potenciada por IA 
-              adapta las preguntas a tu nivel, haciendo que cada sesión sea un nuevo desafío.
+      {/* ── Quiz Trivias ── */}
+      <section className="pb-12 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="flex items-center gap-3 mb-1">
+            <GraduationCap className="w-5 h-5 text-pink-400" />
+            <p className="text-xs uppercase tracking-[3px] text-pink-400 dark:text-pink-400">
+              Trivias
             </p>
           </div>
-
-         {/* Card Principal de Llamada a la Acción */}
-<div className="min-h-screen relative">
-      {!showQuiz ? (
-<div className="mb-16 relative rounded-xl overflow-hidde">
-  <div 
-    className="absolute inset-0 bg-cover bg-center rounded-xl" 
-    style={{ backgroundImage: `url(${banner})` }}
-  ></div>
-
-  <Card className="relative elegant-shadow hover:glow-shadow smooth-transition border-0 bg-transparent">
-    <CardContent className="p-8 md:p-12">
-      <div className="flex flex-col md:flex-row items-center md:items-start">
-        {/* Fondo de color a la izquierda */}
-        <div className="md:w-1/2  p-6 rounded-lg text-black space-y-6">
-          <div className="flex justify-center md:justify-start">
-            <div className="bg-black/20 p-4 rounded-full">
-              <Users className="h-10 w-10 text-white" />
-            </div>
-          </div>
-          <h3 className="text-2xl md:text-3xl font-bold">
-            ¿Que mujer historica eres?
-          </h3>
-          <p className="text-black/90 text-lg leading-relaxed">
-            Desde científicas pioneras como Marie Curie hasta activistas como Rosa Parks, 
-            cada pregunta te permitirá descubrir historias inspiradoras que quizás no conocías. 
-            ¡Pon a prueba tus conocimientos y aprende algo nuevo en cada partida!
+          <h2 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">
+            Pon a prueba tu conocimiento
+          </h2>
+          <p className="text-sm text-muted-foreground mb-8">
+            Elige una categoría y responde preguntas sobre igualdad, historia, derechos y más.
           </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            onClick={() => setShowQuiz(true)}
-            className="text-lg px-8 py-4 h-auto font-semibold"
-          >
-            <Play className="h-5 w-5 mr-2" />
-            Comenzar Trivia
-          </Button>
+          <QuizTrivias />
         </div>
+      </section>
 
-        {/* Espacio vacío o imagen al lado derecho */}
-        <div className="hidden md:block md:w-1/2"></div>
-      </div>
-    </CardContent>
-  </Card>
-</div> ): (
-
-<div className="">
-      <Quiz />
-    </div>
-)}
-</div>
-
-          <section className="pt-4 pb-12 px-4 subtle-gradient">
-              <QuizTrivias />
-            
-            </section>
-
-<section className="pt-4 pb-12 px-4 subtle-gradient">
-  {!activeGame ? (
-    <>
-      {/* Encabezado con icono */}
-      <div className="text-center mb-10 flex flex-col items-center">
-        <Brain className="h-12 w-12 text-primary mb-2" />
-        <h2 className="text-3xl font-bold">Elige un Juego</h2>
-        <p className="text-muted-foreground">Selecciona el que quieras jugar</p>
-      </div>
-
-      {/* Grid de botones */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-4xl mx-auto">
-        {/* Memorama */}
-        <div
-          className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-          onClick={() => setActiveGame("memorama")}
-        >
-          <img
-            src="/img/juegos/memorama.png"
-            alt="Memorama"
-            className="w-full h-64 object-cover"
-          />
-          <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
-            Memorama
-          </span>
-        </div>
-
-        {/* Ordenar Palabras */}
-        <div
-          className="relative cursor-pointer rounded-xl overflow-hidden shadow-lg hover:scale-105 transition-transform duration-300"
-          onClick={() => setActiveGame("ordenarPalabras")}
-        >
-          <img
-            src="/img/juegos/ordenarpalabras.png"
-            alt="Ordenar Palabras"
-            className="w-full h-64 object-cover"
-          />
-          <span className="absolute bottom-2 left-0 w-full text-center text-white font-bold text-xl bg-purple-700/60 py-1">
-            Ordenar Palabras
-          </span>
+      {/* ── Separador decorativo ── */}
+      <div className="container mx-auto max-w-5xl px-4">
+        <div className="flex items-center gap-4">
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-pink-300 dark:via-pink-700 to-transparent" />
+          <Sparkles className="w-4 h-4 text-pink-300 dark:text-pink-600" />
+          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-pink-300 dark:via-pink-700 to-transparent" />
         </div>
       </div>
-    </>
-  ) : (
-    <div className="w-full max-w-6xl mx-auto mt-8">
-      <Button
-        onClick={() => setActiveGame(null)}
-        className="mb-6 px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition"
-      >
-        Volver al menú
-      </Button>
 
-      {/* Renderizar el juego seleccionado */}
-      {activeGame === "memorama" && <Memorama onClose={() => setActiveGame(null)} />}
-      {activeGame === "ordenarPalabras" && <OrdenarPalabras />}
-    </div>
-  )}
-</section>
-         
-          {/* Sección de Motivación */}
-          <div className="text-center space-y-6">
-            <h3 className="text-2xl md:text-3xl font-bold">
-              Cada Respuesta es un <span className="bg-gradient-to-r from-purple-400 via-purple-500 to-purple-600 bg-clip-text text-transparent">Nuevo Descubrimiento</span>
-            </h3>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              No solo respondas preguntas, vive las experiencias de mujeres valientes que desafiaron 
-              las normas de su época. Cada trivia es una ventana al pasado que te inspirará para el futuro.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button variant="hero" size="lg" onClick={() => setShowQuiz(true)}>
-                <Sparkles className="h-5 w-5 mr-2" />
-                <a href="/voces-silenciadas"> 
-                Explorar Ahora
-                </a>
+      {/* ── Juegos ── */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-5xl">
+          {!activeGame ? (
+            <>
+              <div className="mb-8">
+                <div className="flex items-center gap-3 mb-1">
+                  <Gamepad2 className="w-5 h-5 text-pink-400" />
+                  <p className="text-xs uppercase tracking-[3px] text-pink-400 dark:text-pink-400">
+                    Juegos
+                  </p>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2 text-foreground">
+                  Desafíos interactivos
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Dos formas divertidas de conocer a las mujeres que hicieron historia.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                {/* ¿Quién Soy? */}
+                <div
+                  className="relative cursor-pointer rounded-2xl overflow-hidden group transition-transform duration-300 hover:-translate-y-1"
+                  onClick={() => setActiveGame("quienSoy")}
+                >
+                  <div className="w-full h-52 bg-gradient-to-br from-pink-300 via-pink-400 to-pink-600 dark:from-pink-700 dark:via-pink-600 dark:to-pink-800 flex flex-col items-start justify-end gap-2 p-6">
+                    <div className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <HelpCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-white font-bold text-xl">
+                      ¿Quién Soy?
+                    </span>
+                    <p className="text-white/70 text-xs max-w-[200px] leading-relaxed">
+                      Descubre mujeres históricas con pistas progresivas
+                    </p>
+                    <ArrowRight className="absolute bottom-5 right-5 w-5 h-5 text-white/40 group-hover:text-white/80 transition-colors" />
+                  </div>
+                </div>
+
+                {/* Frase Célebre */}
+                <div
+                  className="relative cursor-pointer rounded-2xl overflow-hidden group transition-transform duration-300 hover:-translate-y-1"
+                  onClick={() => setActiveGame("fraseCelebre")}
+                >
+                  <div className="w-full h-52 bg-gradient-to-br from-pink-200 via-rose-300 to-pink-700 dark:from-rose-700 dark:via-pink-600 dark:to-rose-800 flex flex-col items-start justify-end gap-2 p-6">
+                    <div className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+                      <Quote className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-white font-bold text-xl">
+                      Frase Célebre
+                    </span>
+                    <p className="text-white/70 text-xs max-w-[200px] leading-relaxed">
+                      ¿Sabes quién dijo estas palabras que marcaron la historia?
+                    </p>
+                    <ArrowRight className="absolute bottom-5 right-5 w-5 h-5 text-white/40 group-hover:text-white/80 transition-colors" />
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="w-full max-w-6xl mx-auto mt-4">
+              <Button
+                onClick={() => setActiveGame(null)}
+                className="mb-6 px-5 py-2 bg-pink-600 dark:bg-pink-700 text-white rounded-full hover:bg-pink-700 dark:hover:bg-pink-600 transition-colors text-sm"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Volver al menú
               </Button>
-              <Button variant="outline" size="lg" >
-                 <a href="/herStory"> 
-                <BookOpen className="h-5 w-5 mr-2" />
-                Más Información
+
+              {activeGame === "quienSoy" && <QuienSoy />}
+              {activeGame === "fraseCelebre" && <FraseCelebre />}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── CTA / Motivación ── */}
+      <section className="pb-20 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <div className="bg-pink-50 dark:bg-pink-950/30 border border-pink-200 dark:border-pink-800/50 rounded-2xl p-8 md:p-10 text-center space-y-5">
+            <Quote className="w-8 h-8 text-pink-300 dark:text-pink-600 mx-auto" />
+            <p className="text-lg md:text-xl italic text-pink-900/70 dark:text-pink-200/80 leading-relaxed">
+              "Una mujer con educación es una mujer con poder."
+            </p>
+            <p className="text-xs text-pink-500 dark:text-pink-400 tracking-wide">
+              — Malala Yousafzai
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center pt-2">
+              <Button
+                className="bg-pink-600 hover:bg-pink-700 dark:bg-pink-700 dark:hover:bg-pink-600 text-white rounded-full px-6"
+                size="lg"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                <a href="/voces-silenciadas">Explorar historias</a>
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full border-pink-300 dark:border-pink-700 text-pink-800 dark:text-pink-300 hover:bg-pink-50 dark:hover:bg-pink-950/50 px-6"
+              >
+                <a href="/herstory" className="flex items-center">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Más información
                 </a>
               </Button>
             </div>
           </div>
         </div>
       </section>
-
-    
-</div>
-
+    </div>
   );
 };
 
-
 export default Aprende;
-
-
-
-
-
-
-
-
-

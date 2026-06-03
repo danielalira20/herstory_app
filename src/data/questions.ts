@@ -54,5 +54,15 @@ export const questions: Question[] = [
     id: 10,
     question: "¿Cómo te describen mejor?",
     options: ["Creativa", "Analítica", "Empática", "Persistente"]
-  }
+  },
+  {
+  id: 11,
+  question: "¿Qué causa te mueve más?",
+  options: [
+    "Que nadie sea silenciada por pensar diferente",
+    "Que todas tengan acceso a educación",
+    "Defender la tierra y las comunidades",
+    "Luchar contra la discriminación racial"
+  ]
+}
 ];
