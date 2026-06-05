@@ -554,7 +554,24 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }
 
   // ====== Estado ======
-  type Msg = { id: string; from: "bot" | "user"; text: string; meta?: { persona?: string }; tipo?: "normal" | "emergency-card"; };
+  interface FiguraType {
+  id: number;
+  nombre: string;
+  region: string;
+  epoca: string;
+  injusticias: string[];
+  categoria_campo: string;
+}
+ 
+type Msg = {
+  id: string;
+  from: "bot" | "user";
+  text: string;
+  meta?: { persona?: string };
+  tipo?: "normal" | "emergency-card" | "companion-reveal" | "companion-message";
+  figura?: FiguraType;
+};
+
   const [lang, setLang] = useState<LangCode>("es");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -563,6 +580,10 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   const [geminiHistory, setGeminiHistory] = useState<Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>>([]);
   const [currentMode, setCurrentMode] = useState<1 | 2 | 3>(1);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [figuraAsignada, setFiguraAsignada] = useState<FiguraType | null>(null);
+  const matchSolicitadoRef = useRef(false);      // ref evita doble llamada en async
+  const figuraAsignadaRef  = useRef<FiguraType | null>(null);
+  
 
   // ====== Saludo inicial: página específica → horario (fallback) ======
 useEffect(() => {
@@ -624,11 +645,66 @@ function reply(text: string, persona?: string) {
         id: generateId(),
         from: "bot",
         text: "",
-        tipo: "emergency-card" as const
+        tipo: "emergency-card" as const,
       }]);
     }
-
+ 
+    // AUR-F05/F06: companion match
+   
+ 
+    if ((data.modo === 2 || data.modo === 3) && !matchSolicitadoRef.current) {
+      // Primera vez en modo 2/3 → buscar figura y revelarla
+      matchSolicitadoRef.current = true;
+      try {
+        const matchRes = await fetch(`${BACKEND_URL}/api/match/find`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: updatedHistory, modo: data.modo, language: lang }),
+        });
+        const matchData = await matchRes.json();
+        setFiguraAsignada(matchData.figura);
+        figuraAsignadaRef.current = matchData.figura;
+        setMessages(prev => [...prev, {
+          id: generateId(),
+          from: "bot",
+          text: "",
+          tipo: "companion-reveal" as const,
+          figura: matchData.figura,
+        }]);
+        console.log(`✨ Figura asignada: ${matchData.figura.nombre}`);
+      } catch (err) {
+        console.error("Error al solicitar match:", err);
+      }
+ 
+    } else if ((data.modo === 2 || data.modo === 3) && figuraAsignadaRef.current) {
+      // Mensajes siguientes en modo 2/3 → respuesta en voz de la figura
+      try {
+        const companionRes = await fetch(`${BACKEND_URL}/api/match/companion-response`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            figura: figuraAsignadaRef.current,
+            messages: updatedHistory,
+            language: lang,
+            modo: data.modo,
+          }),
+        });
+        const companionData = await companionRes.json();
+        setMessages(prev => [...prev, {
+          id: generateId(),
+          from: "bot",
+          text: companionData.respuesta,
+          tipo: "companion-message" as const,
+          meta: { persona: figuraAsignadaRef.current!.nombre },
+        }]);
+      } catch (err) {
+        console.error("Error companion-response:", err);
+      }
+    }
+ 
     return botAnswer;
+ 
+    
   } catch (err) {
     console.error(err);
     reply("Ups, algo salió mal. 😅");
@@ -767,6 +843,30 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
   );
 }
 
+function CompanionRevealCard({ figura }: { figura: FiguraType }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14, scale: 0.94 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
+      className="max-w-[85%] rounded-2xl overflow-hidden shadow-md border border-blue-200 dark:border-blue-700"
+    >
+      <div className="bg-gradient-to-r from-blue-500 to-teal-500 px-4 py-2.5">
+        <p className="text-white/80 text-xs font-medium mb-0.5">
+          {lang === "es" ? "✨ Tu compañera en este momento" : "✨ Your companion for now"}
+        </p>
+        <p className="text-white font-bold text-base leading-tight">{figura.nombre}</p>
+      </div>
+      <div className="bg-blue-50 dark:bg-blue-900/30 px-4 py-2 flex items-center gap-2">
+        <span className="text-blue-400 text-xs">📍</span>
+        <p className="text-blue-700 dark:text-blue-300 text-xs">
+          {figura.region} · {figura.epoca}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
   // ====== Render ======
   return (
     <>
@@ -818,7 +918,14 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
           </select>
           <Languages size={18} className="opacity-80" />
           <button
-            onClick={() => { setOpen(false); setGeminiHistory([]); setCurrentMode(1); }}
+          onClick={() => {
+            setOpen(false);
+            setGeminiHistory([]);
+            setCurrentMode(1);
+            setFiguraAsignada(null);
+            figuraAsignadaRef.current  = null;
+            matchSolicitadoRef.current = false;
+          }}            
             className="p-1 rounded-full hover:bg-white/20 transition"
           >
             <X />
@@ -828,24 +935,48 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
 
       {/* Mensajes — igual que antes */}
       <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-     {messages.map(m => (
-        <div key={m.id} className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-          {m.from === "bot" && (
-            <img src={herstoryLogoBot} alt="Auren"
-              className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm" />
-          )}
-          {m.tipo === "emergency-card" ? (
-            <EmergencyCard />
-          ) : (
-            <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow text-sm leading-relaxed
-              ${m.from === "bot"
-                ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-sm"
-                : "bg-purple-600 dark:bg-purple-500 text-white rounded-br-sm"}`}>
-              <MessageText text={m.text} persona={m.meta?.persona} />
-            </div>
-          )}
+      {messages.map(m => (
+  <div
+    key={m.id}
+    className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}
+  >
+    {/* Avatar / badge según tipo de mensaje */}
+    {m.from === "bot" && m.tipo !== "companion-reveal" && (
+      m.tipo === "companion-message" ? (
+        // Badge con inicial de la figura (azul)
+        <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-teal-500 shadow-sm text-white text-xs font-bold">
+          {m.meta?.persona?.[0] ?? "✦"}
         </div>
-      ))}
+      ) : (
+        // Avatar de Auren
+        <img
+          src={herstoryLogoBot}
+          alt="Auren"
+          className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm"
+        />
+      )
+    )}
+ 
+    {/* Contenido del mensaje */}
+    {m.tipo === "companion-reveal" && m.figura ? (
+      <CompanionRevealCard figura={m.figura} />
+    ) : m.tipo === "companion-message" ? (
+      <div className="px-4 py-2 rounded-2xl rounded-bl-sm max-w-[75%] shadow text-sm leading-relaxed bg-blue-100 dark:bg-blue-900/40 text-gray-700 dark:text-gray-200 italic">
+        <MessageText text={m.text} persona={undefined} />
+      </div>
+    ) : m.tipo === "emergency-card" ? (
+      <EmergencyCard />
+    ) : (
+      <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow text-sm leading-relaxed
+        ${m.from === "bot"
+          ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-sm"
+          : "bg-purple-600 dark:bg-purple-500 text-white rounded-br-sm"}`}>
+        <MessageText text={m.text} persona={m.meta?.persona} />
+      </div>
+    )}
+  </div>
+))}
+
         {typing && (
           <div className="flex items-end gap-2 justify-start">
             <img src={herstoryLogoBot} alt="Auren"
