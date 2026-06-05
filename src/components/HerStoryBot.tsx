@@ -8,7 +8,13 @@ import {
   X,
   Send,
   Languages,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
+
+
 
 // ====== Componente principal ======
 export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
@@ -583,7 +589,12 @@ type Msg = {
   const [figuraAsignada, setFiguraAsignada] = useState<FiguraType | null>(null);
   const matchSolicitadoRef = useRef(false);      // ref evita doble llamada en async
   const figuraAsignadaRef  = useRef<FiguraType | null>(null);
-  
+  const [isListening, setIsListening]   = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(
+    () => localStorage.getItem("auren-voice") === "true"  // AUR-F09: carga preferencia
+  );
+  const recognitionRef  = useRef<any>(null);
+  const lastSpokenIdRef = useRef<string>("");              // evita re-leer el mismo mensaje
 
   // ====== Saludo inicial: página específica → horario (fallback) ======
 useEffect(() => {
@@ -611,6 +622,25 @@ function reply(text: string, persona?: string) {
     setTyping(false);
   }, delay);
 }
+
+useEffect(() => {
+  localStorage.setItem("auren-voice", String(voiceEnabled));
+}, [voiceEnabled]);
+ 
+useEffect(() => {
+  if (!voiceEnabled || messages.length === 0) return;
+  const last = messages[messages.length - 1];
+  if (!last || last.from !== "bot" || !last.text) return;
+  if (last.tipo === "emergency-card" || last.tipo === "companion-reveal") return;
+  if (last.id === lastSpokenIdRef.current) return; // ya se leyó
+ 
+  lastSpokenIdRef.current = last.id;
+  const utterance = new SpeechSynthesisUtterance(last.text);
+  utterance.lang = lang === "es" ? "es-MX" : "en-US";
+  utterance.rate = 0.9;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utterance);
+}, [messages, voiceEnabled, lang]);
 
   async function callGemini(userMessage: string) {
   setTyping(true);
@@ -770,6 +800,43 @@ function reply(text: string, persona?: string) {
     if (!botAnswer) reply(sample(DATA_CONTENT.inspiration[lang]));
   }
 
+  function toggleMic() {
+  if (isListening) {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+    return;
+  }
+ 
+  const SpeechRecognition =
+    (window as any).SpeechRecognition ||
+    (window as any).webkitSpeechRecognition;
+ 
+  if (!SpeechRecognition) {
+    alert(lang === "es"
+      ? "Tu navegador no soporta reconocimiento de voz. Prueba en Chrome."
+      : "Your browser doesn't support voice input. Try Chrome.");
+    return;
+  }
+ 
+  const recognition = new SpeechRecognition();
+  recognition.lang = lang === "es" ? "es-MX" : "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+ 
+  recognition.onresult = (event: any) => {
+    const transcript = event.results[0][0].transcript;
+    setInput(transcript);
+    setIsListening(false);
+  };
+  recognition.onerror = () => setIsListening(false);
+  recognition.onend   = () => setIsListening(false);
+ 
+  recognitionRef.current = recognition;
+  recognition.start();
+  setIsListening(true);
+}
+
+
   function EmergencyCard() {
   const recursos = lang === "en" ? [
     { nombre: "National DV Hotline", numero: "18007997233", display: "1-800-799-7233", emoji: "📞" },
@@ -907,6 +974,19 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
           </p>
         </div>
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
+            title={voiceEnabled
+              ? (lang === "es" ? "Desactivar voz" : "Disable voice")
+              : (lang === "es" ? "Activar voz"    : "Enable voice")}
+            className={`p-1.5 rounded-full transition ${
+              voiceEnabled ? "bg-white/30" : "hover:bg-white/20"
+            }`}
+          >
+            {voiceEnabled
+              ? <Volume2 size={17} className="text-white" />
+              : <VolumeX  size={17} className="text-white/60" />}
+          </button>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as LangCode)}
@@ -919,13 +999,17 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
           <Languages size={18} className="opacity-80" />
           <button
           onClick={() => {
-            setOpen(false);
-            setGeminiHistory([]);
-            setCurrentMode(1);
-            setFiguraAsignada(null);
-            figuraAsignadaRef.current  = null;
-            matchSolicitadoRef.current = false;
-          }}            
+          setOpen(false);
+          setGeminiHistory([]);
+          setCurrentMode(1);
+          setFiguraAsignada(null);
+          figuraAsignadaRef.current  = null;
+          matchSolicitadoRef.current = false;
+          speechSynthesis.cancel();
+          recognitionRef.current?.stop();
+          setIsListening(false);
+        }}
+               
             className="p-1 rounded-full hover:bg-white/20 transition"
           >
             <X />
@@ -1031,6 +1115,20 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
           disabled={typing}
           maxLength={500}
         />
+        <button
+          onClick={toggleMic}
+          disabled={typing}
+          title={isListening
+            ? (lang === "es" ? "Detener grabación" : "Stop recording")
+            : (lang === "es" ? "Hablar"            : "Speak")}
+          className={`p-2 rounded-lg transition shadow-sm ${
+            isListening
+              ? "bg-red-500 text-white animate-pulse"
+              : "bg-purple-100 dark:bg-gray-700 text-purple-600 dark:text-purple-300 hover:bg-purple-200"
+          } ${typing ? "opacity-40 cursor-not-allowed" : ""}`}
+        >
+          {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+        </button>
         <button
           onClick={() => handleSend()}
           disabled={typing || !input.trim()}
