@@ -999,16 +999,11 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
           <Languages size={18} className="opacity-80" />
           <button
           onClick={() => {
-          setOpen(false);
-          setGeminiHistory([]);
-          setCurrentMode(1);
-          setFiguraAsignada(null);
-          figuraAsignadaRef.current  = null;
-          matchSolicitadoRef.current = false;
-          speechSynthesis.cancel();
-          recognitionRef.current?.stop();
-          setIsListening(false);
-        }}
+            setOpen(false);
+            speechSynthesis.cancel();
+            recognitionRef.current?.stop();
+            setIsListening(false);
+          }}
                
             className="p-1 rounded-full hover:bg-white/20 transition"
           >
