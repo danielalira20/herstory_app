@@ -57,15 +57,16 @@ const Glosario = () => {
       <NavbarLearn />
 
       {/* Hero */}
-      <div className="bg-gradient-to-r from-pink-50 to-purple-50 border-b border-pink-100 py-12 px-4">
-        <div className="container max-w-4xl mx-auto text-center">
-          <BookOpen className="h-10 w-10 mx-auto mb-3 text-primary opacity-80" />
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Glosario</h1>
-          <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-            Nombrar lo que vivimos es el primer paso para entenderlo. Un diccionario de violencias sutiles y herramientas de empoderamiento.
-          </p>
+      
+        <div className="bg-muted/40 border-b border-border py-12 px-4">
+          <div className="container max-w-4xl mx-auto text-center">
+            <BookOpen className="h-10 w-10 mx-auto mb-3 text-primary opacity-80" />
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Glosario</h1>
+            <p className="text-muted-foreground max-w-xl mx-auto text-sm">
+               Nombrar lo que vivimos es el primer paso para entenderlo. Un diccionario de violencias sutiles y herramientas de empoderamiento.
+            </p>
+          </div>
         </div>
-      </div>
 
       <div className="container max-w-4xl py-10">
 
