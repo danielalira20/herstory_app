@@ -595,6 +595,7 @@ type Msg = {
   );
   const recognitionRef  = useRef<any>(null);
   const lastSpokenIdRef = useRef<string>("");              // evita re-leer el mismo mensaje
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // ====== Saludo inicial: página específica → horario (fallback) ======
 useEffect(() => {
@@ -626,21 +627,73 @@ function reply(text: string, persona?: string) {
 useEffect(() => {
   localStorage.setItem("auren-voice", String(voiceEnabled));
 }, [voiceEnabled]);
+
+const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+useEffect(() => {
+  const load = () => { voicesRef.current = speechSynthesis.getVoices(); };
+  load();
+  speechSynthesis.addEventListener("voiceschanged", load);
+  return () => speechSynthesis.removeEventListener("voiceschanged", load);
+}, []);
  
 useEffect(() => {
   if (!voiceEnabled || messages.length === 0) return;
   const last = messages[messages.length - 1];
   if (!last || last.from !== "bot" || !last.text) return;
   if (last.tipo === "emergency-card" || last.tipo === "companion-reveal") return;
-  if (last.id === lastSpokenIdRef.current) return; // ya se leyó
+  if (last.id === lastSpokenIdRef.current) return;
  
   lastSpokenIdRef.current = last.id;
-  const utterance = new SpeechSynthesisUtterance(last.text);
-  utterance.lang = lang === "es" ? "es-MX" : "en-US";
-  utterance.rate = 0.9;
-  speechSynthesis.cancel();
-  speechSynthesis.speak(utterance);
+ 
+  const speak = async () => {
+    try {
+      // ── ElevenLabs TTS ──────────────────────────────────
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+      const res = await fetch(`${BACKEND_URL}/api/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: last.text, language: lang }),
+      });
+ 
+      if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
+ 
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+ 
+      // para audio anterior
+      if (audioRef.current) {
+        audioRef.current.pause();
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+ 
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.play();
+      audio.onended = () => URL.revokeObjectURL(url);
+ 
+    } catch (err) {
+      console.warn("⚠️ ElevenLabs falló, usando Paulina como fallback:", err);
+ 
+      // ── FALLBACK: Paulina (browser Speech Synthesis) ────
+      // Descomenta este bloque si ElevenLabs no está disponible:
+      /*
+      const utterance = new SpeechSynthesisUtterance(last.text);
+      const voices = voicesRef.current;
+      const found = voices.find(v => v.name === "Paulina")
+        ?? voices.find(v => v.lang === "es-MX")
+        ?? voices.find(v => v.name === "Samantha");
+      if (found) utterance.voice = found;
+      utterance.lang   = lang === "es" ? "es-MX" : "en-US";
+      utterance.rate   = 1.05;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+      */
+    }
+  };
+ 
+  speak();
 }, [messages, voiceEnabled, lang]);
+ 
 
   async function callGemini(userMessage: string) {
   setTyping(true);
@@ -1003,8 +1056,12 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
             speechSynthesis.cancel();
             recognitionRef.current?.stop();
             setIsListening(false);
-          }}
-               
+            // CAMBIO C ↓
+            if (audioRef.current) {
+              audioRef.current.pause();
+              audioRef.current = null;
+            }
+          }}              
             className="p-1 rounded-full hover:bg-white/20 transition"
           >
             <X />

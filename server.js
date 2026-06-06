@@ -872,6 +872,56 @@ Reglas absolutas:
   }
 });
 
+app.post("/api/tts", async (req, res) => {
+  const { text, language } = req.body;
+ 
+  if (!text?.trim()) {
+    return res.status(400).json({ error: "No text provided" });
+  }
+ 
+  try {
+    const voiceId = process.env.ELEVENLABS_VOICE_ID;
+    const apiKey  = process.env.ELEVENLABS_API_KEY;
+ 
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": apiKey,
+          "Content-Type": "application/json",
+          "Accept": "audio/mpeg",
+        },
+        body: JSON.stringify({
+          text: text.slice(0, 500),           // límite de seguridad
+          model_id: "eleven_multilingual_v2", // soporta ES + EN
+          voice_settings: {
+            stability:        0.4,
+            similarity_boost: 0.8,
+            style:            0.4,
+            use_speaker_boost: true,
+          },
+        }),
+      }
+    );
+ 
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("❌ ElevenLabs error:", errText);
+      return res.status(response.status).json({ error: "TTS error" });
+    }
+ 
+    const audioBuffer = await response.arrayBuffer();
+    res.set("Content-Type", "audio/mpeg");
+    res.send(Buffer.from(audioBuffer));
+    console.log(`🔊 TTS generado (${language}): "${text.slice(0, 40)}..."`);
+ 
+  } catch (error) {
+    console.error("❌ TTS error:", error.message);
+    res.status(500).json({ error: "TTS service unavailable" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`🚀 HerStoryBot corriendo en http://localhost:${port}`);
   console.log(`🔗 Prueba salud: http://localhost:${port}/health`);
