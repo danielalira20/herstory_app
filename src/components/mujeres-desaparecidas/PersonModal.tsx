@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Calendar, User, Phone, Mail, FileText } from "lucide-react";
+import { useEffect, useState } from "react"
+import { supabase } from "@/lib/supabaseClient"
 
 interface Person {
   id: string;
@@ -23,6 +25,7 @@ interface Person {
   ojos?: string;
   cabello?: string;
   folio?: string;
+  proyeccionPath?: string | null;
 }
 
 interface PersonModalProps {
@@ -33,6 +36,22 @@ interface PersonModalProps {
 
 const PersonModal = ({ person, isOpen, onClose }: PersonModalProps) => {
   if (!person) return null;
+
+  const [proyeccionUrl, setProyeccionUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!person?.proyeccionPath) {
+      setProyeccionUrl(null)
+      return
+    }
+    const cargar = async () => {
+      const { data } = await supabase.storage
+        .from("proyecciones-edad")
+        .createSignedUrl(person.proyeccionPath!, 3600)
+      if (data) setProyeccionUrl(data.signedUrl)
+    }
+    cargar()
+  }, [person?.proyeccionPath])
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -45,13 +64,50 @@ const PersonModal = ({ person, isOpen, onClose }: PersonModalProps) => {
         
         <div className="grid md:grid-cols-2 gap-6">
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg">
-              <img 
-                src={person.foto} 
-                alt={`Foto de ${person.name}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {proyeccionUrl ? (
+  <div className="space-y-3">
+    <div className="grid grid-cols-2 gap-2">
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground text-center">
+          Al desaparecer
+        </p>
+        <div className="aspect-square overflow-hidden rounded-lg">
+          <img
+            src={person.foto}
+            alt={`Foto de ${person.name}`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+      <div className="space-y-1">
+        <p className="text-xs text-muted-foreground text-center">
+          Proyección actual
+        </p>
+        <div className="aspect-square overflow-hidden rounded-lg">
+          <img
+            src={proyeccionUrl}
+            alt="Proyección de edad"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      </div>
+    </div>
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
+          <p className="text-xs text-amber-700 text-center">
+            Imagen generada por IA con fines de búsqueda.
+            No representa una fotografía real.
+          </p>
+        </div>
+      </div>
+    ) : (
+      <div className="aspect-square overflow-hidden rounded-lg">
+        <img
+          src={person.foto}
+          alt={`Foto de ${person.name}`}
+          className="w-full h-full object-cover"
+        />
+      </div>
+    )}
           </div>
           
           <div className="space-y-4">

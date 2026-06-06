@@ -16,6 +16,7 @@ export interface Person {
   ojos: string;
   cabello: string;
   caracteristicas: string;
+  proyeccionPath?: string | null;
 }
 
 export function usePersons() {
@@ -38,16 +39,18 @@ export function usePersons() {
             Segundo_apellido,
             Edad,
             Sexo,
-            Desaparición,
-            Entidad_desaparición,
+            "Desaparición",
+            "Entidad_desaparición",
             folio,
             imagen_url,
             estatura,
             peso_kg,
             color_ojos,
             color_cabello,
-            caracteriticas
+            caracteriticas,
+            proyeccion_path
           `)
+          .order("id", { ascending: false })
           .limit(5000);
 
         if (error) {
@@ -77,6 +80,7 @@ export function usePersons() {
           ojos: item.color_ojos || "No especificado",
           cabello: item.color_cabello || "No especificado",
           caracteristicas: item.caracteriticas || "No hay información disponible",
+          proyeccionPath: item.proyeccion_path || null,
         }));
 
         setPersons(transformed);
