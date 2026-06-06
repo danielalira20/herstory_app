@@ -175,10 +175,10 @@ const Onboarding = () => {
             className="relative z-10 min-h-screen flex items-center justify-center px-4 py-12"
           >
             <Quiz
-              onComplete={() => {
-                localStorage.setItem("herstory-onboarding-complete", "true");
-                navigate("/");
-              }}
+            onComplete={() => {
+              localStorage.setItem("herstory-onboarding-complete", "true");
+              window.location.href = "/";
+            }}
             />
           </motion.div>
         </div>

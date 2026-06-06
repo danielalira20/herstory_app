@@ -1,30 +1,58 @@
-// PAN-F01 [FRONT] — Daf — Semana 2
-// Botón de pánico flotante — conecta PAN-F03, F04, F05, F06
+// PAN-F01 [FRONT] — Daf — Semana 2 + Semana 4
+// Botón de pánico flotante — SOLO aparece si la usuaria configuró su código
+// Sin código configurado, el botón no existe
 
+import { useState, useEffect } from "react";
 import { Shield } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePanicMode } from "@/hooks/usePanicMode";
 import CamouflageCalculator from "./CamouflageCalculator";
 
 const PanicButton = () => {
-  const { isCamouflageActive, activateCamouflage, deactivateCamouflage } = usePanicMode();
+  const { isCamouflageActive, activateCamouflage, deactivateCamouflage } =
+    usePanicMode();
+  const [hasCode, setHasCode] = useState(false);
+
+  // Verificar si hay código configurado
+  useEffect(() => {
+    const checkCode = () => {
+      setHasCode(!!localStorage.getItem("herstory-panic-code"));
+    };
+
+    checkCode();
+
+    // Revisar periódicamente por si lo configura en otra pestaña o en el perfil
+    const interval = setInterval(checkCode, 2000);
+
+    // También escuchar cambios en localStorage
+    window.addEventListener("storage", checkCode);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", checkCode);
+    };
+  }, []);
 
   return (
     <>
-      {/* PAN-F04: calculadora como overlay cuando está activo */}
+      {/* Calculadora como overlay cuando está activo */}
       {isCamouflageActive && (
         <CamouflageCalculator onExit={deactivateCamouflage} />
       )}
 
-      {/* PAN-F01: botón flotante — se oculta cuando el camuflaje está activo */}
-      {!isCamouflageActive && (
+      {/* Botón flotante — solo si tiene código configurado Y no está en camuflaje */}
+      {hasCode && !isCamouflageActive && (
         <div className="fixed bottom-4 left-4 z-[1000]">
           <motion.button
             onClick={activateCamouflage}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             animate={{ scale: [1, 1.05, 1] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
             className="w-14 h-14 rounded-full bg-purple-600/90 dark:bg-purple-700/90 
                        shadow-lg flex items-center justify-center
                        border-2 border-purple-400/30
