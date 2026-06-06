@@ -1,133 +1,82 @@
-import { useState, useEffect } from "react";
-import { getGuias } from "@/lib/guiasService";
-import { GuideCard } from "@/components/ui/guide-card";
+import { Link } from "react-router-dom";
 import NavbarLearn from "@/components/NavbarLearn";
-import { Button } from "@/components/ui/button";
-import { MessageCircle, BookOpen } from "lucide-react";
+import { BookOpen, Shield } from "lucide-react";
 import headerImage from "@/assets/guides-book.jpg";
-
-const categorias = [
-  "Todas",
-  "Derechos Humanos",
-  "Derechos Laborales",
-  "Salud Sexual",
-  "Recursos Legales",
-  "Violencia",
-  "Empoderamiento",
-  "Salud Digital",
-];
+import WomenSilhouettes from "@/components/WomenSilhouettes";
 
 const Guias = () => {
-  const [guias, setGuias] = useState([]);
-  const [categoriaActiva, setCategoriaActiva] = useState("Todas");
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const cargar = async () => {
-      try {
-        const data = await getGuias();
-        setGuias(data);
-      } catch (e) {
-        console.error("Error cargando guías:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    cargar();
-  }, []);
-
-  const guiasFiltradas =
-    categoriaActiva === "Todas"
-      ? guias
-      : guias.filter((g: any) => g.categoria === categoriaActiva);
-
   return (
     <div className="min-h-screen bg-background">
       <NavbarLearn />
 
-      {/* Hero editorial */}
-      <div className="relative w-full h-56 overflow-hidden">
+      {/* Hero */}
+      <div className="relative w-full h-64 md:h-72 overflow-hidden">
         <img
           src={headerImage}
-          alt="Guías de apoyo"
-          className="w-full h-full object-cover"
+          alt="Guías"
+          className="w-full h-full object-cover scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30 flex items-end pb-8 px-8">
-          <div className="text-white max-w-2xl">
-            <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Recursos</p>
-            <h1 className="text-3xl md:text-4xl font-bold leading-tight">Guías de Apoyo</h1>
-            <p className="text-sm opacity-80 mt-1">
-              Documentos descargables para informarte, protegerte y actuar.
+        <div className="absolute inset-0 bg-gradient-to-b from-pink-900/70 via-pink-800/60 to-pink-700/50 flex items-center justify-center">
+          <WomenSilhouettes />
+          <div className="relative z-20 text-center text-white space-y-3 px-4">
+            <p className="text-xs md:text-sm uppercase tracking-[4px] text-pink-200">
+              HerStory · Guías
+            </p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              Guías{" "}
+              <span className="italic font-normal text-pink-200">para ti</span>
+            </h1>
+            <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
+              Recursos descargables y guías de concientización para informarte, protegerte y actuar.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="container py-10 max-w-6xl">
+      {/* Hub de secciones */}
+      <div className="container max-w-4xl py-16 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Filtros */}
-        <div className="flex flex-wrap gap-2 mb-10">
-          {categorias.map((cat) => (
-            <Button
-              key={cat}
-              variant={categoriaActiva === cat ? "default" : "outline"}
-              size="sm"
-              className="rounded-full text-xs"
-              onClick={() => setCategoriaActiva(cat)}
-            >
-              {cat}
-            </Button>
-          ))}
-        </div>
+          {/* Guías de Apoyo */}
+          <Link to="/guias/apoyo" className="group">
+            <div className="border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="h-40 bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center">
+                <BookOpen className="h-16 w-16 text-white opacity-80 group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                  Guías de Apoyo
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Documentos descargables sobre derechos humanos, salud, recursos legales, empoderamiento y más.
+                </p>
+                <p className="text-xs text-primary mt-4 font-medium">
+                  Ver guías →
+                </p>
+              </div>
+            </div>
+          </Link>
 
-        {/* Contador */}
-        {!loading && (
-          <p className="text-sm text-muted-foreground mb-6">
-            {guiasFiltradas.length} {guiasFiltradas.length === 1 ? "guía" : "guías"} disponibles
-          </p>
-        )}
+          {/* Guía de Concientización */}
+          <Link to="/guias/concientizacion" className="group">
+            <div className="border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+              <div className="h-40 bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center">
+                <Shield className="h-16 w-16 text-white opacity-80 group-hover:scale-110 transition-transform duration-300" />
+              </div>
+              <div className="p-6">
+                <h2 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+                  Guía de Concientización
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Recursos e información para reconocer, prevenir y enfrentar la violencia. Guías por situación.
+                </p>
+                <p className="text-xs text-primary mt-4 font-medium">
+                  Ver guía →
+                </p>
+              </div>
+            </div>
+          </Link>
 
-        {/* Grid */}
-        {loading ? (
-          <div className="text-center py-24 text-muted-foreground">Cargando guías...</div>
-        ) : guiasFiltradas.length === 0 ? (
-          <div className="text-center py-24 text-muted-foreground">
-            No hay guías en esta categoría.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {guiasFiltradas.map((guia: any) => (
-              <GuideCard
-                key={guia.id}
-                title={guia.titulo}
-                description={guia.descripcion}
-                category={guia.categoria}
-                downloadUrl={guia.url_descarga}
-                isNew={guia.es_nueva}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* CTA Chatbot */}
-        <div className="mt-16 border border-primary/20 rounded-2xl p-8 text-center bg-primary/5">
-          <MessageCircle className="h-8 w-8 mx-auto mb-3 text-primary opacity-80" />
-          <h2 className="text-lg font-semibold mb-1">¿No sabes qué guía necesitas?</h2>
-          <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-            HerStoryBot puede orientarte según tu situación de forma privada y segura.
-          </p>
-          <Button
-            variant="default"
-            size="sm"
-            className="gap-2"
-            onClick={() => {
-              const btn = document.querySelector("[data-herstorybot-trigger]") as HTMLButtonElement;
-              btn?.click();
-            }}
-          >
-            <MessageCircle className="h-4 w-4" />
-            Hablar con HerStoryBot
-          </Button>
         </div>
       </div>
     </div>
