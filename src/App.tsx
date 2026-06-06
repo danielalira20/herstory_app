@@ -15,10 +15,10 @@ import Ayuda from './pages/Ayuda';
 import Perfil from "./pages/perfil";
 import WomanDetail from "./pages/WomanDetail";
 import HerStory from "./pages/HerStory";
-//import VocesSilenciadas from "./pages/VocesSilenciadas";
 import { useInitializeUser } from "./hooks/useInitializeUser";
 import HerStoryBot from "./components/HerStoryBot";
 import PanicButton from "./components/PanicButton";
+import CamouflageCalculator from "./components/CamouflageCalculator";
 
 import AwarenessGuide from "@/pages/AwarenessGuide";
 import Reportar from "./pages/Reportar";
@@ -29,27 +29,30 @@ import Learn from "./pages/Learn";
 import Guias from "./pages/Guias";
 import { SectionProvider } from "./context/SectionContext";
 import Onboarding from "./pages/Onboarding";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; 
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom"; 
 
-/// Funcionar para pagina de admin: validar casos por levinshein
-import ProtectedAdminRoute from "./components/ProtectedAdminRoute"
-import AdminVerificacion from "./pages/AdminVerificacion"
-
-
-///import para COlectivos
-import ParaColectivos from "./pages/ParaColectivos"
-
-/// import Admin solicitudes 
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import AdminVerificacion from "./pages/AdminVerificacion";
+import ParaColectivos from "./pages/ParaColectivos";
 import AdminSolicitudes from "./pages/AdminSolicitudes";
-
-/// import para reconocimientos de madres buscadoras
 import Reconocimiento from "./pages/Reconocimiento";
-
-///import para guia colectivos
-import GuiaColectivos from "./pages/GuiaColectivos"
+import GuiaColectivos from "./pages/GuiaColectivos";
 
 
 const queryClient = new QueryClient();
+
+// Componentes globales que se ocultan en /calc
+const GlobalUI = () => {
+  const location = useLocation();
+  if (location.pathname === "/calc") return null;
+
+  return (
+    <>
+      <HerStoryBot />
+      <PanicButton />
+    </>
+  );
+};
 
 const App = () => {
   useInitializeUser();
@@ -80,7 +83,6 @@ const App = () => {
               {/* Páginas de Search (morado) */}
               <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
               <Route path="/rastro-nacional" element={<RastroNacional />} />
-             
               <Route path="/reportar" element={<Reportar />} />
               
               {/* Páginas de Learn (rosa) */}
@@ -95,25 +97,25 @@ const App = () => {
               <Route path="/nosotras" element={<Nosotras />} />
               <Route path="/contacto" element={<Contacto />} />
               <Route path="/ayuda" element={<Ayuda />} />
-              
 
-              {/* Panel admin por levinshein  */}
+              {/* Modo camuflaje — ruta real para refresh */}
+              <Route path="/calc" element={
+                <CamouflageCalculator onExit={() => window.location.href = '/'} />
+              } />
+
+              {/* Panel admin */}
               <Route path="/admin/verificacion" element={
                   <ProtectedAdminRoute>
                     <AdminVerificacion />
                   </ProtectedAdminRoute>
                 } 
               />
-
-              {/* Panel admin - solicitudes */}
               <Route path="/admin/solicitudes" element={
                   <ProtectedAdminRoute>
                     <AdminSolicitudes />
                   </ProtectedAdminRoute>
                 } 
               />
-
-              {/* Fin panel admin*/}
 
               {/* Para colectivos */}
               <Route path="/para-colectivos" element={<ParaColectivos />} />
@@ -127,8 +129,7 @@ const App = () => {
               {/* 404 */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <HerStoryBot />
-            <PanicButton />
+            <GlobalUI />
             </SectionProvider>
           </BrowserRouter>
         </TooltipProvider>
