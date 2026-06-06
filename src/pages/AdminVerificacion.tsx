@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import NavbarWrapper from "@/components/NavbarWrapper"
 import { Shield, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
-
+import ProyeccionEdad from "@/components/ProyeccionEdad"
 // ─────────────────────────────────────────
 // TIPOS
 // ─────────────────────────────────────────
@@ -29,6 +29,9 @@ interface CasoPendiente {
   errores_coherencia: string[]
   fecha_consentimiento: string | null
   created_at?: string | null
+  consentimiento_proyeccion: boolean
+  proyeccion_path: string | null
+  Sexo: string | null
 }
 
 interface CasoComparacion extends CasoPendiente {}
@@ -88,7 +91,8 @@ const AdminVerificacion = () => {
         contacto_desaparecida, estado,
         estado_verificacion_duplicado, posible_duplicado_de,
         coherencia_validada, errores_coherencia,
-        fecha_consentimiento
+        fecha_consentimiento, consentimiento_proyeccion,
+proyeccion_path
       `)
       .eq("estado", "pendiente")
       .order("estado_verificacion_duplicado", { ascending: false })
@@ -394,6 +398,22 @@ const AdminVerificacion = () => {
                         <option value="imagen_no_valida">Imagen no válida</option>
                         <option value="informacion_insuficiente">Información insuficiente</option>
                       </select>
+                    </div>
+                  )}
+
+                  {/* Proyección de edad */}
+                  {casoSeleccionado.imagen_url && 
+                  !casoSeleccionado.imagen_url.includes("default.png") && (
+                    <div className="border-t pt-4">
+                      <ProyeccionEdad
+                        casoId={casoSeleccionado.id}
+                        imagenUrl={casoSeleccionado.imagen_url}
+                        edadActual={casoSeleccionado.Edad || 0}
+                        fechaDesaparicion={casoSeleccionado["Desaparición"] || ""}
+                        sexo={casoSeleccionado.Sexo || "No especificado"}
+                        proyeccionPath={casoSeleccionado.proyeccion_path}
+                        consentimientoProyeccion={casoSeleccionado.consentimiento_proyeccion}
+                      />
                     </div>
                   )}
 
