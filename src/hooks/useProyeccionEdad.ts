@@ -60,6 +60,12 @@ CONTEXTO:
 - Edad proyectada: ${input.edadProyectada} años
 - Sexo: ${input.sexo}
 
+IMPORTANTE: Mantén la identidad de género
+  y expresión de género de la persona exactamente
+  como aparece en la fotografía original.
+  Si la persona presenta expresión femenina,
+  masculina o no binaria, consérvala en la proyección.
+
 INSTRUCCIONES TÉCNICAS:
 - Mantén los rasgos faciales únicos e identificables (estructura ósea, forma de ojos, nariz, orejas)
 - Aplica cambios naturales de envejecimiento propios de la edad proyectada
@@ -77,7 +83,7 @@ Genera únicamente la imagen proyectada.`
 
       // Llamada a Gemini API con imagen
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -112,16 +118,19 @@ Genera únicamente la imagen proyectada.`
 
       // Extraer imagen generada
       const parts = data.candidates?.[0]?.content?.parts || []
-      const imagePart = parts.find((p: any) => p.inline_data?.mime_type?.startsWith("image/"))
+      const imagePart = parts.find((p: any) => 
+        p.inlineData?.mimeType?.startsWith("image/") ||
+        p.inline_data?.mime_type?.startsWith("image/")
+        )
 
-      if (!imagePart?.inline_data?.data) {
+        if (!imagePart) {
         throw new Error("Gemini no devolvió una imagen")
-      }
+        }
 
-      const imagenGeneradaBase64 = imagePart.inline_data.data
-      const mimeType = imagePart.inline_data.mime_type
+        const imagenGeneradaBase64 = imagePart.inlineData?.data || imagePart.inline_data?.data
+        const mimeType = imagePart.inlineData?.mimeType || imagePart.inline_data?.mime_type
 
-      // Convertir base64 a Blob
+        // Convertir base64 a Blob
       const byteCharacters = atob(imagenGeneradaBase64)
       const byteNumbers = Array.from(byteCharacters, c => c.charCodeAt(0))
       const byteArray = new Uint8Array(byteNumbers)
