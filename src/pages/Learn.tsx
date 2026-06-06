@@ -35,6 +35,12 @@ const features = [
   description: "Recursos descargables sobre derechos, salud, seguridad y empoderamiento. Encuentra la guía que necesitas.",
   link: '/guias',
 },
+{
+  Icon: BookOpen,
+  title: "Glosario",
+  description: "Diccionario de violencias sutiles y herramientas de empoderamiento. Nombrar lo que vivimos es el primer paso.",
+  link: '/glosario',
+},
 ];
 
 const Learn = () => {

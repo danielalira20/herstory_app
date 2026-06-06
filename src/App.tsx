@@ -46,6 +46,11 @@ import AdminSolicitudes from "./pages/AdminSolicitudes";
 import Reconocimiento from "./pages/Reconocimiento";
 import GuiaColectivos from "./pages/GuiaColectivos";
 
+
+// Imports para glosario
+import Glosario from "./pages/Glosario";
+import GlosarioDetalle from "./pages/GlosarioDetalle";
+
 const queryClient = new QueryClient();
 
 // Componentes globales: se ocultan en /calc, muestran tutorial una vez
@@ -89,54 +94,43 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <SectionProvider>
-              <Routes>
-                {/* Landing y hubs principales */}
-                <Route
-                  path="/"
-                  element={
-                    localStorage.getItem("herstory-onboarding-complete") ? (
-                      <Landing />
-                    ) : (
-                      <Navigate to="/onboarding" replace />
-                    )
-                  }
-                />
-                <Route path="/search" element={<Search />} />
-                <Route path="/learn" element={<Learn />} />
-
-                {/* Autenticación y perfil */}
-                <Route path="/login" element={<Login />} />
-                <Route path="/perfil" element={<Perfil />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-
-                {/* Páginas de Search (morado) */}
-                <Route
-                  path="/mujeres-desaparecidas"
-                  element={<MujeresDesaparecidas />}
-                />
-                <Route
-                  path="/rastro-nacional"
-                  element={<RastroNacional />}
-                />
-                <Route path="/reportar" element={<Reportar />} />
-
-                {/* Páginas de Learn (rosa) */}
-                <Route path="/herstory" element={<HerStory />} />
-                <Route path="/mujer/:id" element={<WomanDetail />} />
-                <Route path="/aprende" element={<Aprende />} />
-                <Route path="/ella-dice" element={<EllaDice />} />
-                <Route
-                  path="/awareness-guide"
-                  element={<AwarenessGuide />}
-                />
-                <Route path="/guias" element={<Guias />} />
-
-                {/* Páginas universales */}
-                <Route path="/nosotras" element={<Nosotras />} />
-                <Route path="/contacto" element={<Contacto />} />
-                <Route path="/ayuda" element={<Ayuda />} />
-
+            <SectionProvider> 
+             <Routes>
+              {/* Landing y hubs principales */}
+              <Route path="/" element={
+              localStorage.getItem("herstory-onboarding-complete") ? (<Landing />)  
+              :( <Navigate to="/onboarding" replace />)
+              } />
+              <Route path="/search" element={<Search />} />
+              <Route path="/learn" element={<Learn />} />
+              
+              {/* Autenticación y perfil */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/perfil" element={<Perfil />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              
+              {/* Páginas de Search (morado) */}
+              <Route path="/mujeres-desaparecidas" element={<MujeresDesaparecidas />} />
+              <Route path="/rastro-nacional" element={<RastroNacional />} />
+             
+              <Route path="/reportar" element={<Reportar />} />
+              
+              {/* Páginas de Learn (rosa) */}
+              <Route path="/herstory" element={<HerStory />} />
+              <Route path="/mujer/:id" element={<WomanDetail />} />
+              <Route path="/aprende" element={<Aprende />} />
+              <Route path="/ella-dice" element={<EllaDice />} />
+              <Route path="/awareness-guide" element={<AwarenessGuide />} />
+              <Route path="/guias" element={<Guias />} />
+              <Route path="/glosario" element={<Glosario />} />
+              <Route path="/glosario/:slug" element={<GlosarioDetalle />} />
+              
+              {/* Páginas universales */}
+              <Route path="/nosotras" element={<Nosotras />} />
+              <Route path="/contacto" element={<Contacto />} />
+              <Route path="/ayuda" element={<Ayuda />} />
+              
+              
                 {/* Modo camuflaje — ruta real para refresh */}
                 <Route
                   path="/calc"
@@ -147,23 +141,23 @@ const App = () => {
                   }
                 />
 
-                {/* Panel admin */}
-                <Route
-                  path="/admin/verificacion"
-                  element={
-                    <ProtectedAdminRoute>
-                      <AdminVerificacion />
-                    </ProtectedAdminRoute>
-                  }
-                />
-                <Route
-                  path="/admin/solicitudes"
-                  element={
-                    <ProtectedAdminRoute>
-                      <AdminSolicitudes />
-                    </ProtectedAdminRoute>
-                  }
-                />
+              {/* Panel admin por levinshein  */}
+              <Route path="/admin/verificacion" element={
+                  <ProtectedAdminRoute>
+                    <AdminVerificacion />
+                  </ProtectedAdminRoute>
+                } 
+              />
+
+              {/* Panel admin - solicitudes */}
+              <Route path="/admin/solicitudes" element={
+                  <ProtectedAdminRoute>
+                    <AdminSolicitudes />
+                  </ProtectedAdminRoute>
+                } 
+              />
+
+              {/* Fin panel admin*/}
 
                 {/* Para colectivos */}
                 <Route
