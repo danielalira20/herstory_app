@@ -40,17 +40,25 @@ const Nosotras = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="relative w-full h-48 overflow-hidden">
-        <img 
-          src={headerImage} 
-          alt="HerStory Header" 
-          className="w-full h-full object-cover"
+      {/* ── Hero Header ── */}
+      <div className="relative w-full h-64 md:h-72 overflow-hidden">
+        <img
+          src={headerImage}
+          alt="HerStory Header"
+          className="w-full h-full object-cover scale-105"
         />
-        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-          <div className="text-center text-white">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Nosotras</h1>
-            <p className="text-lg italic">El equipo detrás de HerStory</p>
+        <div className="absolute inset-0 bg-gradient-to-b from-pink-900/60 via-pink-800/50 to-pink-700/40 flex items-center justify-center">
+          <div className="text-center text-white space-y-3">
+            <p className="text-xs md:text-sm uppercase tracking-[4px] text-pink-200">
+              HerStory · Nosotras
+            </p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              Nosotras{" "}
+              <span className="italic font-normal text-pink-200">somos</span>
+            </h1>
+            <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
+              El equipo detrás de herstory,.
+            </p>
           </div>
         </div>
       </div>

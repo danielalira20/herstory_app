@@ -1,7 +1,7 @@
-// PAN-F04 [FRONT] — Daf — Semana 2
+// PAN-F04 [FRONT] — Daf — Semana 2 + Semana 4
 // Calculadora funcional como página completa de camuflaje
-// PAN-F06: detecta secuencia 2580= para regresar a HerStory
-// Responsiva: pantalla completa en ambos, diseño nativo para cada uno
+// Solo funciona con código personal de la usuaria (no hay default)
+// Si no hay código en localStorage, el retorno secreto está deshabilitado
 
 import { useState } from "react";
 
@@ -16,17 +16,26 @@ const CamouflageCalculator = ({ onExit }: CamouflageCalculatorProps) => {
   const [waitingForNext, setWaitingForNext] = useState(false);
   const [secretSequence, setSecretSequence] = useState("");
 
-  const SECRET_CODE = "2580";
+  const getSecretCode = (): string | null => {
+    return localStorage.getItem("herstory-panic-code");
+  };
 
   const checkSecretCode = (sequence: string) => {
-    if (sequence === SECRET_CODE) {
+    const code = getSecretCode();
+    // Sin código configurado, no hay retorno secreto
+    if (!code) return;
+
+    const lastDigits = sequence.slice(-code.length);
+    if (lastDigits === code) {
       onExit();
     }
   };
 
   const handleNumber = (num: string) => {
     const newSequence = secretSequence + num;
-    setSecretSequence(newSequence.slice(-4));
+    const code = getSecretCode();
+    const maxLen = code ? code.length : 8;
+    setSecretSequence(newSequence.slice(-maxLen));
 
     if (waitingForNext) {
       setDisplay(num);
@@ -148,10 +157,7 @@ const CamouflageCalculator = ({ onExit }: CamouflageCalculatorProps) => {
 
   return (
     <div className="fixed inset-0 bg-[#1C1C1E] z-[9999] flex flex-col">
-
-      {/* Contenedor principal — centrado vertical y horizontalmente */}
       <div className="flex-1 flex flex-col justify-end w-full max-w-2xl mx-auto px-4 pb-4 lg:px-12 lg:pb-8 lg:justify-center">
-
         {/* Display */}
         <div className="flex items-end justify-end px-2 pb-4 lg:pb-8 min-h-[120px] lg:min-h-[160px]">
           <span
@@ -170,31 +176,26 @@ const CamouflageCalculator = ({ onExit }: CamouflageCalculatorProps) => {
 
         {/* Botones */}
         <div className="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-          {/* Fila 1 */}
           <Button label={display !== "0" ? "C" : "AC"} variant="function" onPress={handleClear} />
           <Button label="+/-" variant="function" onPress={handleToggleSign} />
           <Button label="%" variant="function" onPress={handlePercent} />
           <Button label="÷" variant="operator" onPress={() => handleOperator("÷")} active={isOperatorActive("÷")} />
 
-          {/* Fila 2 */}
           <Button label="7" onPress={() => handleNumber("7")} />
           <Button label="8" onPress={() => handleNumber("8")} />
           <Button label="9" onPress={() => handleNumber("9")} />
           <Button label="×" variant="operator" onPress={() => handleOperator("×")} active={isOperatorActive("×")} />
 
-          {/* Fila 3 */}
           <Button label="4" onPress={() => handleNumber("4")} />
           <Button label="5" onPress={() => handleNumber("5")} />
           <Button label="6" onPress={() => handleNumber("6")} />
           <Button label="−" variant="operator" onPress={() => handleOperator("−")} active={isOperatorActive("−")} />
 
-          {/* Fila 4 */}
           <Button label="1" onPress={() => handleNumber("1")} />
           <Button label="2" onPress={() => handleNumber("2")} />
           <Button label="3" onPress={() => handleNumber("3")} />
           <Button label="+" variant="operator" onPress={() => handleOperator("+")} active={isOperatorActive("+")} />
 
-          {/* Fila 5 */}
           <button
             onClick={() => handleNumber("0")}
             className="col-span-2 bg-[#333333] text-white hover:bg-[#444444] active:bg-[#555555]

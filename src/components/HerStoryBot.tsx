@@ -8,7 +8,13 @@ import {
   X,
   Send,
   Languages,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
+
+
 
 // ====== Componente principal ======
 export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
@@ -554,7 +560,24 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   }
 
   // ====== Estado ======
-  type Msg = { id: string; from: "bot" | "user"; text: string; meta?: { persona?: string }; tipo?: "normal" | "emergency-card"; };
+  interface FiguraType {
+  id: number;
+  nombre: string;
+  region: string;
+  epoca: string;
+  injusticias: string[];
+  categoria_campo: string;
+}
+ 
+type Msg = {
+  id: string;
+  from: "bot" | "user";
+  text: string;
+  meta?: { persona?: string };
+  tipo?: "normal" | "emergency-card" | "companion-reveal" | "companion-message";
+  figura?: FiguraType;
+};
+
   const [lang, setLang] = useState<LangCode>("es");
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -563,6 +586,16 @@ export default function HerStoryChatbot({ pageKey }: { pageKey?: string }) {
   const [geminiHistory, setGeminiHistory] = useState<Array<{ role: "user" | "model"; parts: Array<{ text: string }> }>>([]);
   const [currentMode, setCurrentMode] = useState<1 | 2 | 3>(1);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [figuraAsignada, setFiguraAsignada] = useState<FiguraType | null>(null);
+  const matchSolicitadoRef = useRef(false);      // ref evita doble llamada en async
+  const figuraAsignadaRef  = useRef<FiguraType | null>(null);
+  const [isListening, setIsListening]   = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(
+    () => localStorage.getItem("auren-voice") === "true"  // AUR-F09: carga preferencia
+  );
+  const recognitionRef  = useRef<any>(null);
+  const lastSpokenIdRef = useRef<string>("");              // evita re-leer el mismo mensaje
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // ====== Saludo inicial: página específica → horario (fallback) ======
 useEffect(() => {
@@ -590,6 +623,77 @@ function reply(text: string, persona?: string) {
     setTyping(false);
   }, delay);
 }
+
+useEffect(() => {
+  localStorage.setItem("auren-voice", String(voiceEnabled));
+}, [voiceEnabled]);
+
+const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+useEffect(() => {
+  const load = () => { voicesRef.current = speechSynthesis.getVoices(); };
+  load();
+  speechSynthesis.addEventListener("voiceschanged", load);
+  return () => speechSynthesis.removeEventListener("voiceschanged", load);
+}, []);
+ 
+useEffect(() => {
+  if (!voiceEnabled || messages.length === 0) return;
+  const last = messages[messages.length - 1];
+  if (!last || last.from !== "bot" || !last.text) return;
+  if (last.tipo === "emergency-card" || last.tipo === "companion-reveal") return;
+  if (last.id === lastSpokenIdRef.current) return;
+ 
+  lastSpokenIdRef.current = last.id;
+ 
+  const speak = async () => {
+    try {
+      // ── ElevenLabs TTS ──────────────────────────────────
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+      const res = await fetch(`${BACKEND_URL}/api/tts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: last.text, language: lang }),
+      });
+ 
+      if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
+ 
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+ 
+      // para audio anterior
+      if (audioRef.current) {
+        audioRef.current.pause();
+        URL.revokeObjectURL(audioRef.current.src);
+      }
+ 
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.play();
+      audio.onended = () => URL.revokeObjectURL(url);
+ 
+    } catch (err) {
+      console.warn("⚠️ ElevenLabs falló, usando Paulina como fallback:", err);
+ 
+      // ── FALLBACK: Paulina (browser Speech Synthesis) ────
+      // Descomenta este bloque si ElevenLabs no está disponible:
+      /*
+      const utterance = new SpeechSynthesisUtterance(last.text);
+      const voices = voicesRef.current;
+      const found = voices.find(v => v.name === "Paulina")
+        ?? voices.find(v => v.lang === "es-MX")
+        ?? voices.find(v => v.name === "Samantha");
+      if (found) utterance.voice = found;
+      utterance.lang   = lang === "es" ? "es-MX" : "en-US";
+      utterance.rate   = 1.05;
+      speechSynthesis.cancel();
+      speechSynthesis.speak(utterance);
+      */
+    }
+  };
+ 
+  speak();
+}, [messages, voiceEnabled, lang]);
+ 
 
   async function callGemini(userMessage: string) {
   setTyping(true);
@@ -624,11 +728,66 @@ function reply(text: string, persona?: string) {
         id: generateId(),
         from: "bot",
         text: "",
-        tipo: "emergency-card" as const
+        tipo: "emergency-card" as const,
       }]);
     }
-
+ 
+    // AUR-F05/F06: companion match
+   
+ 
+    if ((data.modo === 2 || data.modo === 3) && !matchSolicitadoRef.current) {
+      // Primera vez en modo 2/3 → buscar figura y revelarla
+      matchSolicitadoRef.current = true;
+      try {
+        const matchRes = await fetch(`${BACKEND_URL}/api/match/find`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: updatedHistory, modo: data.modo, language: lang }),
+        });
+        const matchData = await matchRes.json();
+        setFiguraAsignada(matchData.figura);
+        figuraAsignadaRef.current = matchData.figura;
+        setMessages(prev => [...prev, {
+          id: generateId(),
+          from: "bot",
+          text: "",
+          tipo: "companion-reveal" as const,
+          figura: matchData.figura,
+        }]);
+        console.log(`✨ Figura asignada: ${matchData.figura.nombre}`);
+      } catch (err) {
+        console.error("Error al solicitar match:", err);
+      }
+ 
+    } else if ((data.modo === 2 || data.modo === 3) && figuraAsignadaRef.current) {
+      // Mensajes siguientes en modo 2/3 → respuesta en voz de la figura
+      try {
+        const companionRes = await fetch(`${BACKEND_URL}/api/match/companion-response`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            figura: figuraAsignadaRef.current,
+            messages: updatedHistory,
+            language: lang,
+            modo: data.modo,
+          }),
+        });
+        const companionData = await companionRes.json();
+        setMessages(prev => [...prev, {
+          id: generateId(),
+          from: "bot",
+          text: companionData.respuesta,
+          tipo: "companion-message" as const,
+          meta: { persona: figuraAsignadaRef.current!.nombre },
+        }]);
+      } catch (err) {
+        console.error("Error companion-response:", err);
+      }
+    }
+ 
     return botAnswer;
+ 
+    
   } catch (err) {
     console.error(err);
     reply("Ups, algo salió mal. 😅");
@@ -693,6 +852,43 @@ function reply(text: string, persona?: string) {
     const botAnswer = await callGemini(text);
     if (!botAnswer) reply(sample(DATA_CONTENT.inspiration[lang]));
   }
+
+  function toggleMic() {
+  if (isListening) {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+    return;
+  }
+ 
+  const SpeechRecognition =
+    (window as any).SpeechRecognition ||
+    (window as any).webkitSpeechRecognition;
+ 
+  if (!SpeechRecognition) {
+    alert(lang === "es"
+      ? "Tu navegador no soporta reconocimiento de voz. Prueba en Chrome."
+      : "Your browser doesn't support voice input. Try Chrome.");
+    return;
+  }
+ 
+  const recognition = new SpeechRecognition();
+  recognition.lang = lang === "es" ? "es-MX" : "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+ 
+  recognition.onresult = (event: any) => {
+    const transcript = event.results[0][0].transcript;
+    setInput(transcript);
+    setIsListening(false);
+  };
+  recognition.onerror = () => setIsListening(false);
+  recognition.onend   = () => setIsListening(false);
+ 
+  recognitionRef.current = recognition;
+  recognition.start();
+  setIsListening(true);
+}
+
 
   function EmergencyCard() {
   const recursos = lang === "en" ? [
@@ -767,6 +963,30 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
   );
 }
 
+function CompanionRevealCard({ figura }: { figura: FiguraType }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14, scale: 0.94 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
+      className="max-w-[85%] rounded-2xl overflow-hidden shadow-md border border-blue-200 dark:border-blue-700"
+    >
+      <div className="bg-gradient-to-r from-blue-500 to-teal-500 px-4 py-2.5">
+        <p className="text-white/80 text-xs font-medium mb-0.5">
+          {lang === "es" ? "✨ Tu compañera en este momento" : "✨ Your companion for now"}
+        </p>
+        <p className="text-white font-bold text-base leading-tight">{figura.nombre}</p>
+      </div>
+      <div className="bg-blue-50 dark:bg-blue-900/30 px-4 py-2 flex items-center gap-2">
+        <span className="text-blue-400 text-xs">📍</span>
+        <p className="text-blue-700 dark:text-blue-300 text-xs">
+          {figura.region} · {figura.epoca}
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
   // ====== Render ======
   return (
     <>
@@ -807,6 +1027,19 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
           </p>
         </div>
         <div className="flex items-center space-x-2">
+          <button
+            onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
+            title={voiceEnabled
+              ? (lang === "es" ? "Desactivar voz" : "Disable voice")
+              : (lang === "es" ? "Activar voz"    : "Enable voice")}
+            className={`p-1.5 rounded-full transition ${
+              voiceEnabled ? "bg-white/30" : "hover:bg-white/20"
+            }`}
+          >
+            {voiceEnabled
+              ? <Volume2 size={17} className="text-white" />
+              : <VolumeX  size={17} className="text-white/60" />}
+          </button>
           <select
             value={lang}
             onChange={(e) => setLang(e.target.value as LangCode)}
@@ -818,7 +1051,17 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
           </select>
           <Languages size={18} className="opacity-80" />
           <button
-            onClick={() => { setOpen(false); setGeminiHistory([]); setCurrentMode(1); }}
+          onClick={() => {
+            setOpen(false);
+            speechSynthesis.cancel();
+            recognitionRef.current?.stop();
+            setIsListening(false);
+            // CAMBIO C ↓
+            if (audioRef.current) {
+              audioRef.current.pause();
+              audioRef.current = null;
+            }
+          }}              
             className="p-1 rounded-full hover:bg-white/20 transition"
           >
             <X />
@@ -828,24 +1071,48 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
 
       {/* Mensajes — igual que antes */}
       <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-     {messages.map(m => (
-        <div key={m.id} className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}>
-          {m.from === "bot" && (
-            <img src={herstoryLogoBot} alt="Auren"
-              className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm" />
-          )}
-          {m.tipo === "emergency-card" ? (
-            <EmergencyCard />
-          ) : (
-            <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow text-sm leading-relaxed
-              ${m.from === "bot"
-                ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-sm"
-                : "bg-purple-600 dark:bg-purple-500 text-white rounded-br-sm"}`}>
-              <MessageText text={m.text} persona={m.meta?.persona} />
-            </div>
-          )}
+      {messages.map(m => (
+  <div
+    key={m.id}
+    className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}
+  >
+    {/* Avatar / badge según tipo de mensaje */}
+    {m.from === "bot" && m.tipo !== "companion-reveal" && (
+      m.tipo === "companion-message" ? (
+        // Badge con inicial de la figura (azul)
+        <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-teal-500 shadow-sm text-white text-xs font-bold">
+          {m.meta?.persona?.[0] ?? "✦"}
         </div>
-      ))}
+      ) : (
+        // Avatar de Auren
+        <img
+          src={herstoryLogoBot}
+          alt="Auren"
+          className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm"
+        />
+      )
+    )}
+ 
+    {/* Contenido del mensaje */}
+    {m.tipo === "companion-reveal" && m.figura ? (
+      <CompanionRevealCard figura={m.figura} />
+    ) : m.tipo === "companion-message" ? (
+      <div className="px-4 py-2 rounded-2xl rounded-bl-sm max-w-[75%] shadow text-sm leading-relaxed bg-blue-100 dark:bg-blue-900/40 text-gray-700 dark:text-gray-200 italic">
+        <MessageText text={m.text} persona={undefined} />
+      </div>
+    ) : m.tipo === "emergency-card" ? (
+      <EmergencyCard />
+    ) : (
+      <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow text-sm leading-relaxed
+        ${m.from === "bot"
+          ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-sm"
+          : "bg-purple-600 dark:bg-purple-500 text-white rounded-br-sm"}`}>
+        <MessageText text={m.text} persona={m.meta?.persona} />
+      </div>
+    )}
+  </div>
+))}
+
         {typing && (
           <div className="flex items-end gap-2 justify-start">
             <img src={herstoryLogoBot} alt="Auren"
@@ -900,6 +1167,20 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
           disabled={typing}
           maxLength={500}
         />
+        <button
+          onClick={toggleMic}
+          disabled={typing}
+          title={isListening
+            ? (lang === "es" ? "Detener grabación" : "Stop recording")
+            : (lang === "es" ? "Hablar"            : "Speak")}
+          className={`p-2 rounded-lg transition shadow-sm ${
+            isListening
+              ? "bg-red-500 text-white animate-pulse"
+              : "bg-purple-100 dark:bg-gray-700 text-purple-600 dark:text-purple-300 hover:bg-purple-200"
+          } ${typing ? "opacity-40 cursor-not-allowed" : ""}`}
+        >
+          {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+        </button>
         <button
           onClick={() => handleSend()}
           disabled={typing || !input.trim()}

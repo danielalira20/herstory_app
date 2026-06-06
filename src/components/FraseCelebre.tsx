@@ -1,5 +1,4 @@
-// Juego "Frase Célebre" — ¿Quién dijo esta frase?
-// Citas reales de mujeres históricas
+// Juego "Frase Célebre" — ¿Quién dijo esta frase? · Paleta rosa + dark mode
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,7 +36,6 @@ const CITAS: Cita[] = [
   { frase: "Fui al espacio siendo mujer: no pedí permiso.", autora: "Valentina Tereshkova" },
 ];
 
-// Obtener todas las autoras únicas para generar opciones falsas
 const AUTORAS_UNICAS = [...new Set(CITAS.map((c) => c.autora))];
 
 const FraseCelebre = () => {
@@ -59,7 +57,6 @@ const FraseCelebre = () => {
     const citaIndex = CITAS.indexOf(disponibles[randomIndex]);
     const cita = disponibles[randomIndex];
 
-    // Generar 3 opciones falsas diferentes a la autora correcta
     const opcionesFalsas = AUTORAS_UNICAS
       .filter((a) => a !== cita.autora)
       .sort(() => Math.random() - 0.5)
@@ -111,6 +108,7 @@ const FraseCelebre = () => {
     setCitasUsadas([]);
   };
 
+  // ── Pantalla final ──
   if (juegoTerminado) {
     const porcentaje = Math.round((puntos / totalRondas) * 100);
 
@@ -120,36 +118,41 @@ const FraseCelebre = () => {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring" }}
-          className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto"
+          className="w-20 h-20 rounded-full bg-gradient-to-r from-pink-400 to-rose-500 flex items-center justify-center mx-auto"
         >
           <Trophy className="w-10 h-10 text-white" />
         </motion.div>
 
-        <h2 className="text-3xl font-serif font-bold text-purple-900">¡Juego terminado!</h2>
+        <h2 className="text-3xl font-bold text-pink-900 dark:text-pink-100">
+          ¡Juego terminado!
+        </h2>
 
         <div className="flex justify-center gap-8">
           <div className="text-center">
-            <div className="text-4xl font-bold text-purple-600">{puntos}/{totalRondas}</div>
-            <p className="text-sm text-purple-500">Aciertos</p>
+            <div className="text-4xl font-bold text-pink-600 dark:text-pink-400">
+              {puntos}/{totalRondas}
+            </div>
+            <p className="text-sm text-pink-500 dark:text-pink-400">Aciertos</p>
           </div>
           <div className="text-center">
-            <div className="text-4xl font-bold text-pink-500">{mejorRacha}</div>
-            <p className="text-sm text-pink-400">Mejor racha</p>
+            <div className="text-4xl font-bold text-rose-500 dark:text-rose-400">
+              {mejorRacha}
+            </div>
+            <p className="text-sm text-rose-400 dark:text-rose-500">Mejor racha</p>
           </div>
         </div>
 
-        <p className="text-lg text-purple-800">
+        <p className="text-lg text-pink-800 dark:text-pink-300">
           {porcentaje >= 80
             ? "¡Conoces sus voces como si fueran tuyas!"
             : porcentaje >= 50
-            ? "¡Bien! Cada frase es una ventana a su mundo"
-            : "Sus palabras esperan ser descubiertas"}
+              ? "¡Bien! Cada frase es una ventana a su mundo"
+              : "Sus palabras esperan ser descubiertas"}
         </p>
 
         <button
           onClick={reiniciar}
-          className="px-8 py-3 rounded-full text-white font-medium"
-          style={{ background: "linear-gradient(135deg, #a855f7, #ec4899)" }}
+          className="px-8 py-3 rounded-full text-white font-medium bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition"
         >
           <RotateCcw className="w-4 h-4 inline mr-2" />
           Jugar de nuevo
@@ -160,11 +163,12 @@ const FraseCelebre = () => {
 
   if (!rondaActual) return null;
 
+  // ── Juego activo ──
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 py-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-purple-700">
+        <span className="text-sm font-medium text-pink-700 dark:text-pink-300">
           {ronda + 1} / {totalRondas}
         </span>
         <div className="flex items-center gap-4">
@@ -172,14 +176,14 @@ const FraseCelebre = () => {
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="text-xs font-bold text-orange-500 bg-orange-100 px-2 py-1 rounded-full"
+              className="text-xs font-bold text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/40 px-2 py-1 rounded-full"
             >
               <Flame className="w-3 h-3 inline" /> Racha: {racha}
             </motion.span>
           )}
           <div className="flex items-center gap-1">
-            <Star className="w-4 h-4 text-yellow-500" />
-            <span className="text-sm font-bold text-purple-900">{puntos}</span>
+            <Star className="w-4 h-4 text-pink-400" />
+            <span className="text-sm font-bold text-foreground">{puntos}</span>
           </div>
         </div>
       </div>
@@ -190,7 +194,11 @@ const FraseCelebre = () => {
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition-all ${
-              i < ronda ? "bg-purple-500" : i === ronda ? "bg-pink-400" : "bg-purple-100"
+              i < ronda
+                ? "bg-pink-500 dark:bg-pink-400"
+                : i === ronda
+                  ? "bg-rose-400 dark:bg-rose-400"
+                  : "bg-pink-100 dark:bg-pink-900/40"
             }`}
           />
         ))}
@@ -204,20 +212,18 @@ const FraseCelebre = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.4 }}
-          className="p-8 rounded-2xl text-center"
-          style={{
-            background: "linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.08))",
-            border: "1px solid rgba(168,85,247,0.15)",
-          }}
+          className="p-8 rounded-2xl text-center bg-pink-50 dark:bg-pink-950/30 border border-pink-200 dark:border-pink-800"
         >
-          <Quote className="w-8 h-8 text-purple-400 mx-auto mb-4" />
-          <p className="text-xl md:text-2xl font-serif italic text-purple-900 leading-relaxed">
+          <Quote className="w-8 h-8 text-pink-400 dark:text-pink-500 mx-auto mb-4" />
+          <p className="text-xl md:text-2xl font-serif italic text-pink-900 dark:text-pink-100 leading-relaxed">
             "{rondaActual.cita.frase}"
           </p>
         </motion.div>
       </AnimatePresence>
 
-      <p className="text-center text-sm text-purple-500 font-medium">¿Quién dijo esta frase?</p>
+      <p className="text-center text-sm text-pink-500 dark:text-pink-400 font-medium">
+        ¿Quién dijo esta frase?
+      </p>
 
       {/* Opciones */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -225,11 +231,14 @@ const FraseCelebre = () => {
           const esCorrecta = autora === rondaActual.cita.autora;
           const esSeleccionada = autora === seleccion;
 
-          let estilo = "border-purple-200 hover:border-purple-400 hover:bg-purple-50";
+          let estilo =
+            "border-pink-200 dark:border-pink-800 hover:border-pink-400 dark:hover:border-pink-600 hover:bg-pink-50 dark:hover:bg-pink-950/30";
           if (resultado) {
-            if (esCorrecta) estilo = "border-green-400 bg-green-50";
-            else if (esSeleccionada && !esCorrecta) estilo = "border-red-400 bg-red-50";
-            else estilo = "border-gray-200 opacity-50";
+            if (esCorrecta)
+              estilo = "border-green-400 bg-green-50 dark:bg-green-950/30 dark:border-green-600";
+            else if (esSeleccionada && !esCorrecta)
+              estilo = "border-red-400 bg-red-50 dark:bg-red-950/30 dark:border-red-600";
+            else estilo = "border-gray-200 dark:border-gray-700 opacity-50";
           }
 
           return (
@@ -241,7 +250,13 @@ const FraseCelebre = () => {
               className={`p-4 rounded-xl border-2 text-center font-medium transition-all duration-200 ${estilo}`}
               disabled={!!resultado}
             >
-              <span className={resultado && esCorrecta ? "text-green-700" : "text-purple-900"}>
+              <span
+                className={
+                  resultado && esCorrecta
+                    ? "text-green-700 dark:text-green-400"
+                    : "text-foreground"
+                }
+              >
                 {autora}
               </span>
             </motion.button>
@@ -256,7 +271,13 @@ const FraseCelebre = () => {
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-4"
         >
-          <p className={`text-lg font-semibold ${resultado === "correcto" ? "text-green-600" : "text-red-500"}`}>
+          <p
+            className={`text-lg font-semibold ${
+              resultado === "correcto"
+                ? "text-green-600 dark:text-green-400"
+                : "text-red-500 dark:text-red-400"
+            }`}
+          >
             {resultado === "correcto"
               ? "¡Correcto!"
               : `Era ${rondaActual.cita.autora}`}
@@ -264,8 +285,7 @@ const FraseCelebre = () => {
 
           <button
             onClick={siguienteRonda}
-            className="flex items-center gap-2 mx-auto px-6 py-2.5 rounded-full text-white font-medium"
-            style={{ background: "linear-gradient(135deg, #a855f7, #ec4899)" }}
+            className="flex items-center gap-2 mx-auto px-6 py-2.5 rounded-full text-white font-medium bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 transition"
           >
             {ronda + 1 >= totalRondas ? "Ver resultados" : "Siguiente"}
             <ChevronRight className="w-4 h-4" />

@@ -15,6 +15,141 @@ const TRIGGERS = JSON.parse(
   readFileSync(join(__dirname, "triggers.json"), "utf-8")
 );
 
+const FIGURAS = JSON.parse(
+  readFileSync(join(__dirname, "src/data/figuras_historicas.json"), "utf-8")
+);
+ 
+// ── Detector de injusticias por palabras clave ──────────────
+// Lee los últimos 8 mensajes del usuario y mapea al catálogo
+// del JSON sin hacer una llamada extra a Gemini.
+const INJUSTICIA_SIGNALS = {
+  silenciamiento: [
+    "no me escuchan", "no me creen", "nadie me cree", "me ignoraron",
+    "borraron mi", "se lo robaron", "nobody believes me", "they ignored me",
+    "they erased", "no me tomaron en cuenta", "nobody listens"
+  ],
+  control_coercitivo: [
+    "no me deja", "me controla", "me vigila", "revisa mi celular",
+    "no puedo salir", "me tiene encerrada", "me prohíbe", "me dice con quien",
+    "he controls", "he watches", "he checks my phone", "won't let me",
+    "he decides everything", "no puedo decidir", "i can't go out"
+  ],
+  violencia_fisica: [
+    "me pegó", "me golpeó", "me lastimó", "me empujó", "me jaló",
+    "me aventó", "me amenazó con golpear", "me dio una cachetada",
+    "hit me", "hurt me", "pushed me", "grabbed me", "threatened to hit",
+    "slapped me", "threw something at me", "me lanzó"
+  ],
+  violencia_economica: [
+    "no tengo dinero", "no me da dinero", "maneja el dinero", "él maneja",
+    "no tengo nada mío", "todo está a su nombre", "no me deja trabajar",
+    "me quitó el trabajo", "i have no money", "he controls the money",
+    "nothing is in my name", "he won't let me work", "took my money"
+  ],
+  discriminacion_genero: [
+    "por ser mujer", "porque soy mujer", "no me tomaron en serio",
+    "me subestimaron", "solo por ser mujer", "being a woman",
+    "because i'm a woman", "they don't take women seriously"
+  ],
+  discriminacion_racial: [
+    "por mi raza", "racismo", "discriminaron por", "por ser indígena",
+    "por mi color", "racism", "because of my race", "because i'm indigenous"
+  ],
+  negacion_educacion: [
+    "no me dejó estudiar", "no pude estudiar", "me quitó la escuela",
+    "no pude ir a la escuela", "wouldn't let me study", "took me out of school",
+    "couldn't finish school", "me sacó de estudiar"
+  ],
+  violencia_sexual: [
+    "me forzó", "me obligó", "abuso sexual", "violación", "acoso sexual",
+    "me tocó sin", "forced me", "sexual abuse", "rape", "sexual assault",
+    "harassment", "me acosó", "me violó", "me manoseó"
+  ],
+  exilio_desarraigo: [
+    "tuve que irme de mi casa", "me sacaron", "ya no puedo volver",
+    "me fui a vivir a", "me corrieron de mi", "lost my home",
+    "had to leave my home", "can't go back", "displaced", "tuve que huir"
+  ],
+  violencia_institucional: [
+    "la policía no me ayudó", "no me hicieron caso", "el juez",
+    "el ministerio", "la denuncia no", "me fallaron", "me cerraron",
+    "police didn't help", "they didn't believe me", "report went nowhere",
+    "the system failed", "no me creyeron en el juzgado"
+  ],
+};
+ 
+function detectarInjusticias(messages) {
+  const texto = messages
+    .filter(m => m.role === "user")
+    .slice(-8)
+    .map(m => normalizar(m.parts[0].text))
+    .join(" ");
+ 
+  const scores = {};
+  Object.entries(INJUSTICIA_SIGNALS).forEach(([inj, keywords]) => {
+    scores[inj] = keywords.filter(kw => texto.includes(normalizar(kw))).length;
+  });
+ 
+  const detectadas = Object.entries(scores)
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([inj]) => inj);
+ 
+  // Fallback si no se detecta nada claro (modo 2/3 activo sin keywords explícitas)
+  return detectadas.length > 0
+    ? detectadas
+    : ["control_coercitivo", "discriminacion_genero"];
+}
+ 
+// ── Algoritmo de match ──────────────────────────────────────
+const REGIONES_LATAM = [
+  "México", "Guatemala", "Honduras", "Bolivia", "Perú", "Chile",
+  "Argentina", "Colombia", "Ecuador", "Paraguay", "Brasil", "Uruguay",
+  "Costa Rica", "Venezuela", "Cuba", "Nicaragua", "El Salvador",
+  "Puerto Rico", "Chiapas", "Oaxaca", "Yucatán"
+];
+ 
+function encontrarFigura(injusticias, modo) {
+  const figuras = FIGURAS.figuras;
+ 
+  const scored = figuras.map(figura => {
+    // Injusticias en común (peso principal)
+    const enComun = injusticias.filter(inj => figura.injusticias.includes(inj));
+    if (enComun.length === 0) return { figura, score: 0 };
+ 
+    let score = enComun.length * 2;
+ 
+    // Bonus modo emergencia: figura que vivió violencia_fisica (sobrevivió = esperanza)
+    if (modo === 3 && figura.injusticias.includes("violencia_fisica")) {
+      score += 2;
+    }
+ 
+    // Preferencia regional: latinoamericana
+    const esLatam = REGIONES_LATAM.some(r => figura.region.includes(r));
+    if (esLatam) score += 1;
+ 
+    // Preferencia mexicana (plataforma mexicana, mayor resonancia)
+    if (figura.region.includes("México") || figura.region.includes("Oaxaca") ||
+        figura.region.includes("Chiapas") || figura.region.includes("Yucatán")) {
+      score += 1;
+    }
+ 
+    return { figura, score };
+  });
+ 
+  const candidatas = scored
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+ 
+  // Fallback universal: Sor Juana (mexicana, silenciamiento + control coercitivo)
+  if (candidatas.length === 0) {
+    return figuras.find(f => f.nombre === "Sor Juana Inés de la Cruz");
+  }
+ 
+  return candidatas[0].figura;
+}
+ 
+
 function normalizar(text) {
   return text
     .toLowerCase()
@@ -654,7 +789,141 @@ res.json({
   }
 });
 
+// ── AUR-B09: Endpoint match/find ───────────────────────────
+app.post("/api/match/find", (req, res) => {
+  const { messages, modo, language } = req.body;
+ 
+  if (!messages || messages.length === 0) {
+    return res.status(400).json({ error: "No se recibieron mensajes." });
+  }
+ 
+  const injusticias = detectarInjusticias(messages);
+  const figura = encontrarFigura(injusticias, modo || 2);
+ 
+  console.log(`🔎 Match: ${figura.nombre} | Injusticias: ${injusticias.slice(0, 2).join(", ")}`);
+ 
+  res.json({
+    figura: {
+      id: figura.id,
+      nombre: figura.nombre,
+      region: figura.region,
+      epoca: figura.epoca,
+      injusticias: figura.injusticias,
+      categoria_campo: figura.categoria_campo,
+    },
+    injusticias_detectadas: injusticias,
+    language,
+  });
+});
+ 
+ 
+// ── AUR-B10: Endpoint match/companion-response ─────────────
+app.post("/api/match/companion-response", async (req, res) => {
+  const { figura, messages, language, modo } = req.body;
+ 
+  if (!figura || !messages) {
+    return res.status(400).json({ error: "Faltan figura o mensajes." });
+  }
+ 
+  // Últimas 3 palabras del usuario para contexto
+  const ultimoMensaje = messages
+    .filter(m => m.role === "user")
+    .slice(-1)[0]?.parts[0]?.text || "";
+ 
+  const idioma = language === "en" ? "English" : "español";
+  const tono = modo === 3
+    ? (language === "en"
+        ? "She is in danger or fear. Be brief, grounding, hopeful. Do NOT give advice."
+        : "Está en peligro o miedo. Sé breve, contenedora, esperanzadora. NO des consejos.")
+    : (language === "en"
+        ? "She is going through something painful. Be warm, present, not instructive."
+        : "Está pasando por algo doloroso. Sé cálida, presente, no instructiva.");
+ 
+  const companionPrompt = `
+Eres ${figura.nombre}.
+Viviste en ${figura.region} (${figura.epoca}).
+En tu vida enfrentaste: ${figura.injusticias.join(", ")}.
+ 
+Una mujer te está hablando. Su último mensaje fue:
+"${ultimoMensaje}"
+ 
+Tu única tarea: acompañarla en 2 a 4 oraciones en ${idioma}.
+${tono}
+ 
+Reglas absolutas:
+- Habla desde tu propia experiencia, no como historiadora de ti misma.
+- No menciones fechas, datos históricos ni tu nombre propio (ella ya sabe quién eres).
+- No des consejos. No menciones recursos. No hagas preguntas.
+- No menciones que eres una IA ni que estás en una plataforma.
+- Solo presencia. Solo 2-4 oraciones.
+`.trim();
+ 
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const result = await model.generateContent(companionPrompt);
+    const respuesta = result.response.text().trim();
+ 
+    console.log(`💬 Compañera: ${figura.nombre} → "${respuesta.slice(0, 60)}..."`);
+ 
+    res.json({ respuesta, figura: figura.nombre });
+  } catch (error) {
+    console.error("❌ Error companion-response:", error.message);
+    res.status(500).json({ error: "Error al generar respuesta de acompañamiento." });
+  }
+});
+
+app.post("/api/tts", async (req, res) => {
+  const { text, language } = req.body;
+ 
+  if (!text?.trim()) {
+    return res.status(400).json({ error: "No text provided" });
+  }
+ 
+  try {
+    const voiceId = process.env.ELEVENLABS_VOICE_ID;
+    const apiKey  = process.env.ELEVENLABS_API_KEY;
+ 
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": apiKey,
+          "Content-Type": "application/json",
+          "Accept": "audio/mpeg",
+        },
+        body: JSON.stringify({
+          text: text.slice(0, 500),           // límite de seguridad
+          model_id: "eleven_multilingual_v2", // soporta ES + EN
+          voice_settings: {
+            stability:        0.4,
+            similarity_boost: 0.8,
+            style:            0.4,
+            use_speaker_boost: true,
+          },
+        }),
+      }
+    );
+ 
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error("❌ ElevenLabs error:", errText);
+      return res.status(response.status).json({ error: "TTS error" });
+    }
+ 
+    const audioBuffer = await response.arrayBuffer();
+    res.set("Content-Type", "audio/mpeg");
+    res.send(Buffer.from(audioBuffer));
+    console.log(`🔊 TTS generado (${language}): "${text.slice(0, 40)}..."`);
+ 
+  } catch (error) {
+    console.error("❌ TTS error:", error.message);
+    res.status(500).json({ error: "TTS service unavailable" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`🚀 HerStoryBot corriendo en http://localhost:${port}`);
   console.log(`🔗 Prueba salud: http://localhost:${port}/health`);
 });
+
