@@ -993,6 +993,7 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
       <div className="fixed bottom-4 right-4 z-[1000]">
         <motion.button
           onClick={() => setOpen((o) => !o)}
+          data-herstorybot-trigger
           whileHover={{ scale: 1.1 }}
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
