@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, BookOpen } from "lucide-react";
+import headerImage from "@/assets/herstory-header.jpg";
+import WomenSilhouettes from "@/components/WomenSilhouettes";
 
 const categorias = ["Todas", "Violencia psicológica", "Manipulación", "Violencia", "Discriminación", "Empoderamiento"];
 
@@ -58,15 +60,28 @@ const Glosario = () => {
 
       {/* Hero */}
       
-        <div className="bg-muted/40 border-b border-border py-12 px-4">
-          <div className="container max-w-4xl mx-auto text-center">
-            <BookOpen className="h-10 w-10 mx-auto mb-3 text-primary opacity-80" />
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Glosario</h1>
-            <p className="text-muted-foreground max-w-xl mx-auto text-sm">
-               Nombrar lo que vivimos es el primer paso para entenderlo. Un diccionario de violencias sutiles y herramientas de empoderamiento.
-            </p>
-          </div>
-        </div>
+<div className="relative w-full h-64 md:h-72 overflow-hidden">
+  <img
+    src={headerImage}
+    alt="Glosario Header"
+    className="w-full h-full object-cover scale-105"
+  />
+  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 via-purple-800/60 to-purple-700/50 flex items-center justify-center">
+    <WomenSilhouettes />
+    <div className="relative z-20 text-center text-white space-y-3 px-4">
+      <p className="text-xs md:text-sm uppercase tracking-[4px] text-purple-200">
+        HerStory · Glosario
+      </p>
+      <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+        Glosario{" "}
+        <span className="italic font-normal text-purple-200">vivo</span>
+      </h1>
+      <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
+        Nombrar lo que vivimos es el primer paso para entenderlo.
+      </p>
+    </div>
+  </div>
+</div>
 
       <div className="container max-w-4xl py-10">
 
