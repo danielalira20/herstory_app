@@ -48,6 +48,9 @@ import Reconocimiento from "./pages/Reconocimiento";
 ///import para guia colectivos
 import GuiaColectivos from "./pages/GuiaColectivos"
 
+// Imports para glosario
+import Glosario from "./pages/Glosario";
+import GlosarioDetalle from "./pages/GlosarioDetalle";
 
 const queryClient = new QueryClient();
 
@@ -90,6 +93,8 @@ const App = () => {
               <Route path="/ella-dice" element={<EllaDice />} />
               <Route path="/awareness-guide" element={<AwarenessGuide />} />
               <Route path="/guias" element={<Guias />} />
+              <Route path="/glosario" element={<Glosario />} />
+              <Route path="/glosario/:slug" element={<GlosarioDetalle />} />
               
               {/* Páginas universales */}
               <Route path="/nosotras" element={<Nosotras />} />
