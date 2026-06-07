@@ -19,6 +19,7 @@ import { usePersons } from "@/hooks/usePersons";
 import { mockPersons, Person } from "@/data/mockData";
 import { Shield } from "lucide-react";
 import CarruselMujeres from "@/components/mujeres-desaparecidas/CarruselMujeres";
+import MensajeAnonimoModal from "@/components/mujeres-desaparecidas/MensajeAnonimoModal"
 
 const MujeresDesaparecidas = () => {
   const { toast } = useToast();
@@ -80,6 +81,14 @@ const handlePrev = () => {
   }
 };
 
+///mensaje anonimo 
+const [personaMensaje, setPersonaMensaje] = useState<Person | null>(null)
+const [isMensajeOpen, setIsMensajeOpen] = useState(false)
+
+const handleMensajeAnonimo = (person: Person) => {
+  setPersonaMensaje(person)
+  setIsMensajeOpen(true)
+}
 
   return (
     <>
@@ -142,7 +151,12 @@ const handlePrev = () => {
        
                {/* Carrusel */}
         {filteredPersons.length > 0 ? (
-          <CarruselMujeres persons={filteredPersons} onViewDetails={handleViewDetails} />
+          <CarruselMujeres 
+            persons={filteredPersons} 
+            onViewDetails={handleViewDetails} 
+            onMensajeAnonimo={handleMensajeAnonimo}
+          />
+
         ) : (
           <p className="text-center mt-4 text-muted-foreground">
             No se encontraron resultados para los filtros seleccionados.
@@ -180,6 +194,12 @@ const handlePrev = () => {
         person={selectedPerson}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <MensajeAnonimoModal
+        person={personaMensaje}
+        isOpen={isMensajeOpen}
+        onClose={() => setIsMensajeOpen(false)}
       />
     </div>
     </> 

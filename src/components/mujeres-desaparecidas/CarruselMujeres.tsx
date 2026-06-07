@@ -6,9 +6,10 @@ import { Person } from "@/data/mockData";
 interface CarruselMujeresProps {
   persons: Person[];
   onViewDetails: (person: Person) => void;
+  onMensajeAnonimo: (person: Person) => void;
 }
 
-const CarruselMujeres = ({ persons, onViewDetails }: CarruselMujeresProps) => {
+const CarruselMujeres = ({ persons, onViewDetails, onMensajeAnonimo }: CarruselMujeresProps) => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
 
@@ -30,8 +31,13 @@ const CarruselMujeres = ({ persons, onViewDetails }: CarruselMujeresProps) => {
     <div className="mb-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 mb-8">
         {currentItems.map((person) => (
-          <PersonCard key={person.id} person={person} onViewDetails={onViewDetails} />
-        ))}
+          <PersonCard
+            key={person.id}
+            person={person}
+            onViewDetails={onViewDetails}
+            onMensajeAnonimo={onMensajeAnonimo}
+          /> 
+          ))}
       </div>
 
       <div className="flex justify-center mt-4 gap-4">
