@@ -10,16 +10,24 @@ import { supabase } from "@/lib/supabaseClient";
 import { usePersons, Person } from "@/hooks/usePersons";
 import NavbarWrapper from "@/components/NavbarWrapper";
 import headerImage from "@/assets/herstory-header.jpg";
+import MensajeAnonimoModal from "@/components/mujeres-desaparecidas/MensajeAnonimoModal"
 
 const RastroNacional = () => {
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-const [people, setPeople] = useState<Person[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
 
- const { persons, loading, error } = usePersons();
+  const { persons, loading, error } = usePersons();
+  const [personaMensaje, setPersonaMensaje] = useState<Person | null>(null)
+  const [isMensajeOpen, setIsMensajeOpen] = useState(false)
 
+  const handleMensajeAnonimo = (person: Person) => {
+    setPersonaMensaje(person)
+    setIsMensajeOpen(true)
+  }
+  
   const filteredPersons = useMemo(() => {
     let filtered = persons;
 
@@ -148,11 +156,12 @@ const [people, setPeople] = useState<Person[]>([]);
               
                   {filteredPersons.map(person => (
                     <PersonCard
-                        key={person.id}
-                        person={person}
-                        onViewDetails={handleViewDetails}
+                      key={person.id}
+                      person={person}
+                      onViewDetails={handleViewDetails}
+                      onMensajeAnonimo={handleMensajeAnonimo}
                     />
-                    ))}
+                  ))}
                 
             
             </div>
@@ -182,6 +191,12 @@ const [people, setPeople] = useState<Person[]>([]);
         person={selectedPerson}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+
+      <MensajeAnonimoModal
+        person={personaMensaje}
+        isOpen={isMensajeOpen}
+        onClose={() => setIsMensajeOpen(false)}
       />
     </div>
   </>
