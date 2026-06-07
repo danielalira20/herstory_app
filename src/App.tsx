@@ -29,6 +29,7 @@ import Landing from "./pages/Landing";
 import Search from "./pages/Search";
 import Learn from "./pages/Learn";
 import Guias from "./pages/Guias";
+import GuiasApoyo from "./pages/GuiasApoyo";
 import { SectionProvider } from "./context/SectionContext";
 import Onboarding from "./pages/Onboarding";
 import {
@@ -122,6 +123,9 @@ const App = () => {
               <Route path="/ella-dice" element={<EllaDice />} />
               <Route path="/awareness-guide" element={<AwarenessGuide />} />
               <Route path="/guias" element={<Guias />} />
+              <Route path="/guias/apoyo" element={<GuiasApoyo />} />
+              <Route path="/guias/concientizacion" element={<AwarenessGuide />} />
+              <Route path="/awareness-guide" element={<AwarenessGuide />} />
               <Route path="/glosario" element={<Glosario />} />
               <Route path="/glosario/:slug" element={<GlosarioDetalle />} />
               

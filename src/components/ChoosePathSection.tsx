@@ -24,7 +24,7 @@ const ChoosePathSection = () => {
     <section className="relative py-24 overflow-hidden">
 
       {/* Fondo con tinte sutil */}
-      <div className="absolute inset-0 bg-purple-50/50" />
+      <div className="absolute inset-0 bg-purple-50/50 dark:bg-purple-950/20" />
 
       {/* Blobs decorativos */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -121,10 +121,10 @@ const ChoosePathSection = () => {
               boxShadow: "0 0 15px rgba(168, 85, 247, 0.3)",
             }}
           />
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-purple-900 mb-4">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif text-purple-900 dark:text-purple-200 mb-4">
             Elige cómo quieres sumarte hoy
           </h2>
-          <p className="text-base md:text-lg text-purple-600/60 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-purple-600/60 dark:text-purple-300/70 max-w-2xl mx-auto leading-relaxed">
             Encontrar a quienes nos faltan o recordar a quienes la historia silenció.
           </p>
         </motion.div>

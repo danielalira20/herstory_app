@@ -835,6 +835,12 @@ useEffect(() => {
     if (["frase", "quote", "cita"].some(k => text.toLowerCase().includes(k))) {
       reply(sample(DATA_CONTENT.quotes[lang])); return;
     }
+    if (["guía descargable", "guia descargable", "dame una guia", "dame una guía", "quiero una guia", "quiero una guía", "descargar guia", "descargar guía", "ver guias", "ver guías"].some(k => text.toLowerCase().includes(k))) {
+      reply(lang === "es"
+      ? "Puedes encontrar todas nuestras guías descargables aquí 👉 [Ir a Guías](/guias/apoyo)"
+      : "You can find all our downloadable guides here 👉 [Go to Guides](/guias/apoyo)"
+      ); return;
+    }
     if (["guía", "guia", "guide", "faq"].some(k => text.toLowerCase().includes(k))) {
       const item = sample(getGuideFAQ(lang));
       reply(`❓ ${item.q}\n💬 ${item.a}`); return;
@@ -956,9 +962,28 @@ function MessageText({ text, persona }: { text: string; persona?: string }) {
   const lines = full.split("\n");
   return (
     <>
-      {lines.map((line, i) => (
-        <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
-      ))}
+      {lines.map((line, i) => {
+        const linkMatch = line.match(/\[(.+?)\]\((.+?)\)/);
+        if (linkMatch) {
+          const [, label, href] = linkMatch;
+          const before = line.slice(0, line.indexOf(linkMatch[0]));
+          const after = line.slice(line.indexOf(linkMatch[0]) + linkMatch[0].length);
+          return (
+            <span key={i}>
+              {before}
+              <a href={href} className="underline text-purple-300 hover:text-purple-100 transition-colors" onClick={(e) => { e.preventDefault(); window.location.href = href; }}>{label}</a>
+              {after}
+              {i < lines.length - 1 && <br />}
+            </span>
+          );
+        }
+        return (
+          <span key={i}>
+            {line}
+            {i < lines.length - 1 && <br />}
+          </span>
+        );
+      })}
     </>
   );
 }
@@ -993,6 +1018,7 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
       <div className="fixed bottom-4 right-4 z-[1000]">
         <motion.button
           onClick={() => setOpen((o) => !o)}
+          data-herstorybot-trigger
           whileHover={{ scale: 1.1 }}
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
