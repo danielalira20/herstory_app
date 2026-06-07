@@ -33,64 +33,83 @@ const PathCard = ({
   const isSearch = variant === "search";
 
   const cardBg = isSearch
-    ? "linear-gradient(135deg, rgba(216,180,254,0.85) 0%, rgba(233,213,255,0.9) 100%)"
-    : "linear-gradient(135deg, rgba(249,168,212,0.75) 0%, rgba(252,207,232,0.85) 100%)";
+  ? "linear-gradient(135deg, rgba(216,180,254,0.85) 0%, rgba(233,213,255,0.9) 100%)"
+  : "linear-gradient(135deg, rgba(249,168,212,0.75) 0%, rgba(252,207,232,0.85) 100%)";
 
-  const borderColor = isSearch
-    ? "rgba(168, 85, 247, 0.3)"
-    : "rgba(236, 72, 153, 0.3)";
+const borderColor = isSearch
+  ? "rgba(168, 85, 247, 0.3)"
+  : "rgba(236, 72, 153, 0.3)";
 
-  const glowColor = isSearch
-    ? "rgba(168, 85, 247, 0.15)"
-    : "rgba(236, 72, 153, 0.15)";
+const glowColor = isSearch
+  ? "rgba(168, 85, 247, 0.15)"
+  : "rgba(236, 72, 153, 0.15)";
 
-  const accentColor = isSearch
-    ? "rgba(168, 85, 247, 0.6)"
-    : "rgba(236, 72, 153, 0.6)";
+const accentColor = isSearch
+  ? "rgba(168, 85, 247, 0.6)"
+  : "rgba(236, 72, 153, 0.6)";
 
-  const textColor = isSearch ? "text-purple-900" : "text-pink-900";
-  const textMuted = isSearch ? "text-purple-700/70" : "text-pink-700/70";
-  const textLight = isSearch ? "text-purple-600/60" : "text-pink-600/60";
+const textColor = isSearch
+  ? "text-purple-900 dark:text-white"
+  : "text-pink-900 dark:text-white";
 
-  const badgeBg = isSearch
-    ? "rgba(168, 85, 247, 0.12)"
-    : "rgba(236, 72, 153, 0.12)";
-  const badgeBorder = isSearch
-    ? "rgba(168, 85, 247, 0.25)"
-    : "rgba(236, 72, 153, 0.25)";
-  const badgeText = isSearch ? "text-purple-700" : "text-pink-700";
 
-  const checkBg = isSearch
-    ? "rgba(168, 85, 247, 0.15)"
-    : "rgba(236, 72, 153, 0.15)";
-  const checkBorder = isSearch
-    ? "rgba(168, 85, 247, 0.3)"
-    : "rgba(236, 72, 153, 0.3)";
-  const checkIcon = isSearch ? "text-purple-600" : "text-pink-600";
+const textMuted = isSearch
+  ? "text-purple-700/70 dark:text-purple-100/90"
+  : "text-pink-700/70 dark:text-pink-100/90";
 
-  const buttonGradient = isSearch
-    ? "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)"
-    : "linear-gradient(135deg, #ec4899 0%, #db2777 100%)";
+const textLight = isSearch
+  ? "text-purple-600/60 dark:text-purple-200/70"
+  : "text-pink-600/60 dark:text-pink-200/70";
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.8, delay, ease: "easeOut" }}
-      whileHover={{ y: -8, scale: 1.01 }}
-      className={`
-        relative rounded-3xl p-8 md:p-10 flex flex-col
-        shadow-xl
-        transition-all duration-500 ease-out
-        ${isOtherHovered ? "opacity-50 scale-[0.98]" : "opacity-100"}
-        overflow-hidden group
-      `}
-      style={{
-        background: cardBg,
-        border: `1px solid ${borderColor}`,
-      }}
-    >
+
+const badgeBg = isSearch
+  ? "rgba(168, 85, 247, 0.12)"
+  : "rgba(236, 72, 153, 0.12)";
+
+const badgeBorder = isSearch
+  ? "rgba(168, 85, 247, 0.25)"
+  : "rgba(236, 72, 153, 0.25)";
+
+const badgeText = isSearch
+  ? "text-purple-700 dark:text-purple-200"
+  : "text-pink-700 dark:text-pink-200";
+
+const checkBg = isSearch
+  ? "rgba(168, 85, 247, 0.15)"
+  : "rgba(236, 72, 153, 0.15)";
+
+const checkBorder = isSearch
+  ? "rgba(168, 85, 247, 0.3)"
+  : "rgba(236, 72, 153, 0.3)";
+
+const checkIcon = isSearch
+  ? "text-purple-600 dark:text-purple-200"
+  : "text-pink-600 dark:text-pink-200";
+
+const buttonGradient = isSearch
+  ? "linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)"
+  : "linear-gradient(135deg, #ec4899 0%, #db2777 100%)";
+
+ return (
+  <motion.div
+    initial={{ opacity: 0, y: 40 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: "-50px" }}
+    transition={{ duration: 0.8, delay, ease: "easeOut" }}
+    whileHover={{ y: -8, scale: 1.01 }}
+    className={`
+      relative rounded-3xl p-8 md:p-10 flex flex-col
+      shadow-xl
+      transition-all duration-500 ease-out
+      ${isOtherHovered ? "opacity-50 scale-[0.98]" : "opacity-100"}
+      overflow-hidden group
+      ${isSearch ? "dark:bg-purple-950/50" : "dark:bg-pink-950/50"}
+    `}
+    style={{
+      background: cardBg,
+      border: `1px solid ${borderColor}`,
+    }}
+  >
       {/* Glow sutil al hacer hover */}
       <div
         className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
