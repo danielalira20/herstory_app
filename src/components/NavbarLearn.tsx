@@ -38,7 +38,7 @@ const NavbarLearn = () => {
     { label: "Guías",      href: "/awareness-guide", icon: FileText      },
     { label: "Directorio", href: "/directorio",      icon: Users         },
     { label: "Glosario",   href: "/glosario",        icon: BookMarked    },
-    { label: "Aprende",    href: "/aprende",          icon: Gamepad2      },
+    { label: "MiniJuegos",    href: "/aprende",          icon: Gamepad2      },
     // TODO [DEL-F01 — JESS, Semana 1]: Eliminar este item y quitar su route en App.tsx.
     //{ label: "Ella Dice",         href: "/ella-dice",        icon: MessageCircle },
     // TODO [DEL-D01 — JESS, Semana 1]: Pendiente decisión grupal.
