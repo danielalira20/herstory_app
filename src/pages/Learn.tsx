@@ -24,15 +24,9 @@ const features = [
     link: '/ella-dice',
   },*/
   {
-    Icon: Lightbulb,
-    title: "Guía de Concienciación",
-    description: "Recursos para educadores y activistas. Materiales didácticos y guías de acción para el cambio.",
-    link: '/awareness-guide',
-  },
-  {
   Icon: BookOpen,
-  title: "Guías de Apoyo",
-  description: "Recursos descargables sobre derechos, salud, seguridad y empoderamiento. Encuentra la guía que necesitas.",
+  title: "Guías de Apoyo y Concientización",
+  description: "Recursos descargables y guías de concientización sobre derechos, salud, seguridad y empoderamiento para informarte y actuar.",
   link: '/guias',
 },
 {
