@@ -12,6 +12,7 @@ import {
   MicOff,
   Volume2,
   VolumeX,
+  LogOut,
 } from "lucide-react";
 
 
@@ -859,7 +860,7 @@ useEffect(() => {
     setIsListening(false);
     return;
   }
- 
+
   const SpeechRecognition =
     (window as any).SpeechRecognition ||
     (window as any).webkitSpeechRecognition;
@@ -888,6 +889,8 @@ useEffect(() => {
   recognition.start();
   setIsListening(true);
 }
+
+
 
 
   function EmergencyCard() {
@@ -987,6 +990,17 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
   );
 }
 
+function quickExit() {
+  const url = localStorage.getItem("herstory-exit-url");
+  if (url) {
+    for (let i = 0; i < 20; i++) {
+      window.history.pushState(null, "", "/");
+    }
+    window.location.replace(url); // replace = no queda HerStory en "atrás"
+  }
+}
+
+
   // ====== Render ======
   return (
     <>
@@ -1027,6 +1041,27 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
           </p>
         </div>
         <div className="flex items-center space-x-2">
+
+          {localStorage.getItem("herstory-exit-url") && (
+            <button
+              onClick={quickExit}
+              title={lang === "es" ? "Salida rápida" : "Quick exit"}
+              className="p-1.5 rounded-full hover:bg-white/20 transition"
+            >
+              <LogOut size={17} className="text-white/80" />
+            </button>
+          )}
+
+          <button
+            onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
+            title={voiceEnabled
+              ? (lang === "es" ? "Desactivar voz" : "Disable voice")
+              : (lang === "es" ? "Activar voz"    : "Enable voice")}
+            className={`p-1.5 rounded-full transition ${
+              voiceEnabled ? "bg-white/30" : "hover:bg-white/20"
+            }`}
+          ></button>
+
           <button
             onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
             title={voiceEnabled
