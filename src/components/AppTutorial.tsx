@@ -1,6 +1,5 @@
-// AppTutorial — Walkthrough de funciones de HerStory
-// No revela ningún código default — manda al perfil para configurar
-// Se muestra una vez después del primer login
+// AppTutorial — Walkthrough glassmorphism + paso de salida desde Auren
+// Se muestra una vez después del onboarding
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +12,7 @@ import {
   ChevronRight,
   ChevronLeft,
   X,
+  LogOut,
 } from "lucide-react";
 
 interface TutorialStep {
@@ -38,6 +38,14 @@ const STEPS: TutorialStep[] = [
     description:
       "Auren es una inteligencia artificial que te escucha sin juzgar. Puedes contarle cómo te sientes, hacerle preguntas, o simplemente hablar. Si detecta que estás en peligro, te conecta con ayuda real.",
     highlight: "Encuéntrala en el ícono de chat en la esquina",
+  },
+  {
+    icon: <LogOut className="w-7 h-7 text-white" />,
+    iconBg: "bg-gradient-to-br from-rose-400 to-red-500",
+    title: "Salida rápida desde Auren",
+    description:
+      "Mientras hablas con Auren, tienes un botón de salida rápida. Si alguien se acerca, tócalo y saldrás de la conversación al instante. Tu seguridad siempre es primero.",
+    highlight: "Búscalo dentro del chat de Auren",
   },
   {
     icon: <BookOpen className="w-7 h-7 text-white" />,
@@ -104,43 +112,68 @@ const AppTutorial = ({ onComplete }: AppTutorialProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-md"
         onClick={handleSkip}
       />
 
-      {/* Card */}
+      {/* Card Glass */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-        className="relative w-full max-w-md bg-background border border-purple-200 dark:border-purple-800/50 rounded-2xl shadow-2xl overflow-hidden"
+        className="relative w-full max-w-md overflow-hidden rounded-3xl shadow-2xl"
+        style={{
+          background: "rgba(255, 255, 255, 0.08)",
+          backdropFilter: "blur(24px) saturate(1.4)",
+          WebkitBackdropFilter: "blur(24px) saturate(1.4)",
+          border: "1px solid rgba(255, 255, 255, 0.15)",
+          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+        }}
       >
+        {/* Glow decorativo */}
+        <div
+          className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full pointer-events-none"
+          style={{
+            background: "radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%)",
+          }}
+        />
+
         {/* Skip button */}
         <button
           onClick={handleSkip}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-background/80 border border-purple-200 dark:border-purple-700 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full flex items-center justify-center text-white/50 hover:text-white/90 transition-colors"
+          style={{
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          }}
         >
           <X className="w-4 h-4" />
         </button>
 
         {/* Progress dots */}
-        <div className="flex justify-center gap-1.5 pt-5">
+        <div className="flex justify-center gap-1.5 pt-6 relative z-10">
           {STEPS.map((_, i) => (
             <div
               key={i}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === currentStep
-                  ? "w-6 bg-purple-500 dark:bg-purple-400"
+                  ? "w-6 bg-white/90"
                   : i < currentStep
-                    ? "w-1.5 bg-purple-300 dark:bg-purple-600"
-                    : "w-1.5 bg-purple-200 dark:bg-purple-800"
+                    ? "w-1.5 bg-white/40"
+                    : "w-1.5 bg-white/15"
               }`}
             />
           ))}
         </div>
 
         {/* Content */}
-        <div className="px-8 pt-8 pb-6">
+        <div className="px-8 pt-8 pb-6 relative z-10">
           <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={currentStep}
@@ -154,20 +187,23 @@ const AppTutorial = ({ onComplete }: AppTutorialProps) => {
               {/* Icon */}
               <div
                 className={`w-16 h-16 rounded-2xl ${step.iconBg} flex items-center justify-center shadow-lg`}
+                style={{
+                  boxShadow: "0 4px 20px rgba(168, 85, 247, 0.3)",
+                }}
               >
                 {step.icon}
               </div>
 
               {/* Text */}
               <div className="space-y-3">
-                <h2 className="text-xl font-bold text-foreground">
+                <h2 className="text-xl font-bold text-white">
                   {step.title}
                 </h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-sm text-white/60 leading-relaxed">
                   {step.description}
                 </p>
                 {step.highlight && (
-                  <p className="text-xs text-purple-500 dark:text-purple-400 font-medium mt-2">
+                  <p className="text-xs text-pink-300/80 font-medium mt-2">
                     {step.highlight}
                   </p>
                 )}
@@ -177,23 +213,28 @@ const AppTutorial = ({ onComplete }: AppTutorialProps) => {
         </div>
 
         {/* Navigation */}
-        <div className="flex items-center justify-between px-8 pb-6">
+        <div className="flex items-center justify-between px-8 pb-6 relative z-10">
           <button
             onClick={handlePrev}
             disabled={isFirst}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground disabled:opacity-0 transition-all"
+            className="flex items-center gap-1 text-sm text-white/40 hover:text-white/80 disabled:opacity-0 transition-all"
           >
             <ChevronLeft className="w-4 h-4" />
             Anterior
           </button>
 
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-white/30">
             {currentStep + 1} / {STEPS.length}
           </span>
 
           <button
             onClick={handleNext}
-            className="flex items-center gap-1 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600 px-5 py-2 rounded-full transition-colors"
+            className="flex items-center gap-1 text-sm font-medium text-white px-5 py-2 rounded-full transition-all hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.7), rgba(236, 72, 153, 0.7))",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 4px 15px rgba(168, 85, 247, 0.3)",
+            }}
           >
             {isLast ? "Empezar" : "Siguiente"}
             {!isLast && <ChevronRight className="w-4 h-4" />}
