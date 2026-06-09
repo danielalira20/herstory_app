@@ -189,7 +189,7 @@ const CategoryCarousel = ({ categoryId }: CategoryCarouselProps) => {
         {women.map((woman, index) => (
           <div
             key={woman.id}
-            className="flex-shrink-0 w-[calc(25%-9px)]"
+            className="flex-shrink-0 w-[calc(80%-9px)] sm:w-[calc(45%-9px)] md:w-[calc(33%-9px)] lg:w-[calc(25%-9px)]"
             ref={index === women.length - 1 ? lastItemRef : null}
           >
             <WomanCard
