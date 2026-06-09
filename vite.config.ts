@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "icons/*.svg"],
+      includeAssets: ["favicon.ico", "icons/*.svg", "icons/*.png"],
       manifest: {
         name: "Calculadora",
         short_name: "Calc",
@@ -35,16 +35,16 @@ export default defineConfig(({ mode }) => ({
         scope: "/",
         icons: [
           {
-            src: "/icons/calc-192.svg",
+            src: "/icons/calc-192.png",
             sizes: "192x192",
-            type: "image/svg+xml",
-            purpose: "any maskable",
+            type: "image/png",
+            purpose: "any",
           },
           {
-            src: "/icons/calc-512.svg",
+            src: "/icons/calc-512.png",
             sizes: "512x512",
-            type: "image/svg+xml",
-            purpose: "any maskable",
+            type: "image/png",
+            purpose: "maskable",
           },
         ],
       },
