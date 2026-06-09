@@ -100,6 +100,84 @@ function detectarInjusticias(messages) {
     ? detectadas
     : ["control_coercitivo", "discriminacion_genero"];
 }
+
+// ── Detector de categoría por respuestas del quiz (NUEVO) ───
+const CATEGORIA_SIGNALS = {
+  voces_creadoras: [
+    "pintar", "escribir", "creatividad", "pintar un cuadro",
+    "arte o literatura", "artistico y cultural", "mas arte y cultura",
+    "creativa", "renacimiento", "inspirar a otros", "pintar o escribir"
+  ],
+  pensamiento_critico: [
+    "investigar nuevas ideas", "conocimiento", "antiguedad",
+    "de forma independiente", "pensar diferente"
+  ],
+  guardianas_dignidad: [
+    "justicia", "defender causas", "en equipo",
+    "social y humanitario", "mas justicia social", "empatica",
+    "acceso a educacion", "discriminacion racial",
+    "que nadie sea silenciada", "luchar contra"
+  ],
+  liderazgo_transformacion: [
+    "organizar eventos", "liderazgo", "siglo xxi",
+    "politica o liderazgo", "liderando proyectos", "persistente"
+  ],
+  deporte: [
+    "hacer deporte", "deporte", "correr", "competir", "atleta"
+  ],
+  naturaleza_planeta: [
+    "salir a la naturaleza", "defensa del medio ambiente",
+    "mas cuidado ambiental", "defender la tierra", "naturaleza", "comunidades"
+  ],
+  ciencia_salud_tecnologia: [
+    "resolver problemas matematicos", "leer sobre ciencia",
+    "revolucion cientifica", "crear descubrimientos",
+    "innovar tecnologias", "medicina o biologia",
+    "ingenieria o tecnologia", "cientifico y tecnologico",
+    "mas ciencia e innovacion", "analitica", "experimentando cosas nuevas"
+  ],
+};
+
+function detectarCategoria(messages) {
+  const texto = messages
+    .filter(m => m.role === "user")
+    .map(m => normalizar(m.parts?.[0]?.text || m.content || ""))
+    .join(" ");
+
+  const scores = {};
+  Object.entries(CATEGORIA_SIGNALS).forEach(([cat, keywords]) => {
+    scores[cat] = keywords.filter(kw => texto.includes(normalizar(kw))).length;
+  });
+
+  const ranking = Object.entries(scores)
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  return ranking.length > 0 ? ranking[0][0] : null;
+}
+
+function encontrarFiguraPorCategoria(categoria) {
+  const figuras = FIGURAS.figuras;
+  const candidatas = figuras.filter(f => f.categoria_campo === categoria);
+
+  if (candidatas.length === 0) {
+    return figuras.find(f => f.nombre === "Sor Juana Inés de la Cruz");
+  }
+
+  const mexicanas = candidatas.filter(f =>
+    f.region.includes("México") || f.region.includes("Oaxaca") ||
+    f.region.includes("Chiapas") || f.region.includes("Yucatán")
+  );
+  const latam = candidatas.filter(f =>
+    REGIONES_LATAM.some(r => f.region.includes(r))
+  );
+
+  const pool = mexicanas.length > 0 ? mexicanas
+    : latam.length > 0 ? latam
+    : candidatas;
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
  
 // ── Algoritmo de match ──────────────────────────────────────
 const REGIONES_LATAM = [
@@ -789,7 +867,8 @@ res.json({
   }
 });
 
-// ── AUR-B09: Endpoint match/find ───────────────────────────
+// ── AUR-B09: Endpoint match/find (ACTUALIZADO) ─────────────
+// Quiz → match por categoria_campo | Auren → match por injusticias
 app.post("/api/match/find", (req, res) => {
   const { messages, modo, language } = req.body;
  
@@ -798,9 +877,29 @@ app.post("/api/match/find", (req, res) => {
   }
  
   const injusticias = detectarInjusticias(messages);
-  const figura = encontrarFigura(injusticias, modo || 2);
+  const esFallback = injusticias.length === 2
+    && injusticias[0] === "control_coercitivo"
+    && injusticias[1] === "discriminacion_genero";
  
-  console.log(`🔎 Match: ${figura.nombre} | Injusticias: ${injusticias.slice(0, 2).join(", ")}`);
+  let figura;
+  let metodo;
+ 
+  if (!esFallback) {
+    figura = encontrarFigura(injusticias, modo || 2);
+    metodo = "injusticias";
+    console.log(`🔎 Match (Auren): ${figura.nombre} | Injusticias: ${injusticias.slice(0, 2).join(", ")}`);
+  } else {
+    const categoria = detectarCategoria(messages);
+    if (categoria) {
+      figura = encontrarFiguraPorCategoria(categoria);
+      metodo = "categoria";
+      console.log(`🔎 Match (Quiz): ${figura.nombre} | Categoría: ${categoria}`);
+    } else {
+      figura = encontrarFigura(injusticias, modo || 2);
+      metodo = "fallback";
+      console.log(`🔎 Match (Fallback): ${figura.nombre}`);
+    }
+  }
  
   res.json({
     figura: {
@@ -812,6 +911,7 @@ app.post("/api/match/find", (req, res) => {
       categoria_campo: figura.categoria_campo,
     },
     injusticias_detectadas: injusticias,
+    metodo,
     language,
   });
 });
