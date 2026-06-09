@@ -15,6 +15,7 @@ import {
   Lock,
   LogOut,
 } from "lucide-react";
+import CheckInSettings from "./CheckInSettings";
 
 const PanicSettings = () => {
   const [code, setCode] = useState("");
@@ -395,6 +396,7 @@ const handleResetExitUrl = () => {
           </div>
         )}
       </div>
+      <CheckInSettings />
     </div>
   );
 };

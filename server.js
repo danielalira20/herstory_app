@@ -8,6 +8,22 @@ dotenv.config();
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import webpush from "web-push";
+import { createClient } from "@supabase/supabase-js";
+ 
+// Supabase backend client
+const supabase = createClient(
+  process.env.SUPABASE_PUSH_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+console.log("Supabase URL:", process.env.SUPABASE_PUSH_URL); 
+ 
+// VAPID setup
+webpush.setVapidDetails(
+  process.env.VAPID_EMAIL,
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -921,6 +937,110 @@ app.post("/api/tts", async (req, res) => {
     res.status(500).json({ error: "TTS service unavailable" });
   }
 });
+
+// Devuelve la public key al frontend
+app.get("/api/push/vapid-public-key", (req, res) => {
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+ 
+// Guardar suscripción (AUR-B12)
+app.post("/api/push/subscribe", async (req, res) => {
+  const { subscription, frequency = "daily" } = req.body;
+  if (!subscription?.endpoint) {
+    return res.status(400).json({ error: "Suscripción inválida" });
+  }
+ 
+  const { error } = await supabase.from("push_subscriptions").upsert({
+    endpoint:  subscription.endpoint,
+    p256dh:    subscription.keys.p256dh,
+    auth:      subscription.keys.auth,
+    frequency,
+    active:    true,
+  }, { onConflict: "endpoint" });
+ 
+  if (error) {
+    console.error("❌ Error guardando suscripción:", error);
+    return res.status(500).json({ error: "Error al guardar" });
+  }
+ 
+  console.log("🔔 Nueva suscripción registrada");
+  res.json({ ok: true });
+});
+ 
+// Eliminar suscripción (AUR-B12 — desactivar)
+app.post("/api/push/unsubscribe", async (req, res) => {
+  const { endpoint } = req.body;
+  if (!endpoint) return res.status(400).json({ error: "Endpoint requerido" });
+ 
+  await supabase
+    .from("push_subscriptions")
+    .update({ active: false })
+    .eq("endpoint", endpoint);
+ 
+  console.log("🔕 Suscripción desactivada");
+  res.json({ ok: true });
+});
+ 
+// Enviar check-in manual (para demo + cron)
+async function enviarCheckin(frecuencia = null) {
+  const query = supabase
+    .from("push_subscriptions")
+    .select("*")
+    .eq("active", true);
+ 
+  if (frecuencia) query.eq("frequency", frecuencia);
+ 
+  const { data: subs, error } = await query;
+  if (error || !subs?.length) return;
+ 
+  const payload = JSON.stringify({
+    title: "Calculadora",
+    body: "¿Todo bien hoy? 🌸",
+    url: "/",
+  });
+ 
+  let enviadas = 0;
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        payload
+      );
+      enviadas++;
+    } catch (err) {
+      if (err.statusCode === 410) {
+        // Suscripción expirada — desactivar
+        await supabase
+          .from("push_subscriptions")
+          .update({ active: false })
+          .eq("endpoint", sub.endpoint);
+      }
+    }
+  }
+  console.log(`📨 Check-in enviado a ${enviadas} usuarias`);
+}
+ 
+// Endpoint manual para el demo (y para el cron)
+app.post("/api/push/send-checkin", async (req, res) => {
+  await enviarCheckin();
+  res.json({ ok: true });
+});
+ 
+// Cron: check-in diario a las 9am hora México (AUR-B12)
+function iniciarCron() {
+  const HORA_CHECKIN = 9; // 9am México (UTC-6 → 15:00 UTC)
+  
+  setInterval(async () => {
+    const hora = new Date().getUTCHours();
+    if (hora === 15) { // 9am México
+      console.log("⏰ Cron: enviando check-in diario");
+      await enviarCheckin("daily");
+    }
+  }, 60 * 60 * 1000); // revisa cada hora
+}
+ 
+iniciarCron();
+ 
 
 app.listen(port, () => {
   console.log(`🚀 HerStoryBot corriendo en http://localhost:${port}`);
