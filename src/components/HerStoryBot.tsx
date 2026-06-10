@@ -630,6 +630,7 @@ useEffect(() => {
 }, [voiceEnabled]);
 
 const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+
 useEffect(() => {
   const load = () => { voicesRef.current = speechSynthesis.getVoices(); };
   load();
@@ -694,6 +695,13 @@ useEffect(() => {
  
   speak();
 }, [messages, voiceEnabled, lang]);
+
+// Escucha evento del check-in para abrir Auren automáticamente
+useEffect(() => {
+  const handler = () => setOpen(true);
+  window.addEventListener("open-auren", handler);
+  return () => window.removeEventListener("open-auren", handler);
+}, []);
  
 
   async function callGemini(userMessage: string) {
@@ -1051,16 +1059,6 @@ function quickExit() {
               <LogOut size={17} className="text-white/80" />
             </button>
           )}
-
-          <button
-            onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
-            title={voiceEnabled
-              ? (lang === "es" ? "Desactivar voz" : "Disable voice")
-              : (lang === "es" ? "Activar voz"    : "Enable voice")}
-            className={`p-1.5 rounded-full transition ${
-              voiceEnabled ? "bg-white/30" : "hover:bg-white/20"
-            }`}
-          ></button>
 
           <button
             onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}

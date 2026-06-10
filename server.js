@@ -996,7 +996,7 @@ async function enviarCheckin(frecuencia = null) {
   const payload = JSON.stringify({
     title: "Calculadora",
     body: "¿Todo bien hoy? 🌸",
-    url: "/",
+    url: "/?checkin=1", 
   });
  
   let enviadas = 0;
@@ -1040,6 +1040,16 @@ function iniciarCron() {
 }
  
 iniciarCron();
+
+// AUR-B13: recibir respuesta del check-in
+app.post("/api/push/checkin-response", async (req, res) => {
+  const { response } = req.body;
+  await supabase
+    .from("checkin_responses")
+    .insert({ response: response || "" });
+  console.log(`💬 Respuesta check-in: "${response || "(vacío)"}"`);
+  res.json({ ok: true });
+});
  
 
 app.listen(port, () => {
