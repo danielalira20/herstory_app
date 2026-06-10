@@ -7,7 +7,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import MujeresDesaparecidas from "./pages/MujeresDesaparecidas";
-import EllaDice from "./pages/EllaDice";
 import Contacto from "./pages/Contacto";
 import Nosotras from "./pages/Nosotras";
 import NotFound from "./pages/NotFound";
@@ -125,7 +124,6 @@ const App = () => {
                 <Route path="/herstory" element={<HerStory />} />
                 <Route path="/mujer/:id" element={<WomanDetail />} />
                 <Route path="/aprende" element={<Aprende />} />
-                <Route path="/ella-dice" element={<EllaDice />} />
                 <Route
                   path="/awareness-guide"
                   element={<AwarenessGuide />}
