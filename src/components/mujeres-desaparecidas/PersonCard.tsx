@@ -11,6 +11,7 @@ interface Person {
   foto?: string;
   caracteristicas: string;
   folio?: string;
+  municipio_desaparicion?: string | null;
 }
 
 interface PersonCardProps {
@@ -45,7 +46,11 @@ const PersonCard = ({ person, onViewDetails, onMensajeAnonimo }: PersonCardProps
           <div className="space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              <span>{person.estado}</span>
+              <span>
+                  {person.municipio_desaparicion 
+                    ? `${person.municipio_desaparicion}, ${person.estado}` 
+                    : person.estado}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />

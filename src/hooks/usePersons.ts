@@ -17,6 +17,7 @@ export interface Person {
   cabello: string;
   caracteristicas: string;
   proyeccionPath?: string | null;
+  municipio_desaparicion?: string | null;
 }
 
 export function usePersons() {
@@ -48,7 +49,8 @@ export function usePersons() {
             color_ojos,
             color_cabello,
             caracteriticas,
-            proyeccion_path
+            proyeccion_path,
+            municipio_desaparicion
           `)
           .order("id", { ascending: false })
           .limit(5000);
@@ -81,6 +83,7 @@ export function usePersons() {
           cabello: item.color_cabello || "No especificado",
           caracteristicas: item.caracteriticas || "No hay información disponible",
           proyeccionPath: item.proyeccion_path || null,
+          municipio_desaparicion: item.municipio_desaparicion || null,
         }));
 
         setPersons(transformed);

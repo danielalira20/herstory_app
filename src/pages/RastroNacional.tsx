@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import MexicoMap from "@/components/mujeres-desaparecidas/MexicoMap";
+//import MexicoMap from "@/components/mujeres-desaparecidas/MexicoMap";
+import MexicoMapNew from "@/components/MexicoMapNew"
 import PersonCard from "@/components/mujeres-desaparecidas/PersonCard";
 import PersonModal from "@/components/mujeres-desaparecidas/PersonModal";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,8 @@ import headerImage from "@/assets/herstory-header.jpg";
 import MensajeAnonimoModal from "@/components/mujeres-desaparecidas/MensajeAnonimoModal"
 
 const RastroNacional = () => {
-  const [selectedState, setSelectedState] = useState<string | null>(null);
+  //const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedEstado, setSelectedEstado] = useState<string | null>(null);
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -31,8 +33,8 @@ const RastroNacional = () => {
   const filteredPersons = useMemo(() => {
     let filtered = persons;
 
-    if (selectedState) {
-      filtered = filtered.filter(person => person.estado === selectedState);
+    if (selectedEstado) {
+      filtered = filtered.filter(person => person.estado === selectedEstado);
     }
 
     if (searchTerm) {
@@ -44,10 +46,10 @@ const RastroNacional = () => {
     }
 
     return filtered;
-  }, [persons, selectedState, searchTerm]);
+  }, [persons, selectedEstado, searchTerm]);
 
-  const handleStateClick = (state: string) => {
-    setSelectedState(selectedState === state ? null : state);
+  const handleEstadoClick = (state: string) => {
+    setSelectedEstado(selectedEstado === state ? null : state);
   };
 
   const handleViewDetails = (person: Person) => {
@@ -56,7 +58,7 @@ const RastroNacional = () => {
   };
 
   const clearFilters = () => {
-    setSelectedState(null);
+    setSelectedEstado(null);
     setSearchTerm("");
   };
 
@@ -106,8 +108,15 @@ const RastroNacional = () => {
           <h2 className="text-3xl font-bold text-center mb-8 text-card-foreground">
             Selecciona un Estado
           </h2>
+          <MexicoMapNew
+            persons={persons}
+            selectedEstado={selectedEstado}
+            onEstadoSelect={setSelectedEstado}
+          />
+          {/*
           <MexicoMap onStateClick={handleStateClick} selectedState={selectedState} />
-        </div>
+        */}
+          </div>
       </section>
 
       {/* Search and Filters */}
@@ -124,7 +133,7 @@ const RastroNacional = () => {
               />
             </div>
             
-            {(selectedState || searchTerm) && (
+            {(selectedEstado || searchTerm) && (
               <Button
                 onClick={clearFilters}
                 variant="outline"
@@ -172,8 +181,8 @@ const RastroNacional = () => {
                   No se encontraron resultados
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  {selectedState
-                    ? `No hay personas desaparecidas registradas en ${selectedState} con los criterios actuales.`
+                  {selectedEstado
+                    ? `No hay personas desaparecidas registradas en ${selectedEstado} con los criterios actuales.`
                     : "Intenta con otros términos de búsqueda o selecciona un estado en el mapa."
                   }
                 </p>

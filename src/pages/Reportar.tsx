@@ -12,6 +12,7 @@ import NavbarWrapper from "@/components/NavbarWrapper"
 import headerImage from "@/assets/herstory-header.jpg"
 import { useReportar } from "@/hooks/useReportar"
 import { supabase } from "@/lib/supabaseClient"
+import ComboboxMunicipio from "@/components/ui/ComboboxMunicipio"
 
 // ─────────────────────────────────────────
 // TIPO COLECTIVO
@@ -290,7 +291,10 @@ const Reportar = () => {
                     <Label htmlFor="Entidad_desaparicion">Estado de desaparición *</Label>
                     <Select
                       value={formData.Entidad_desaparicion}
-                      onValueChange={val => actualizarCampo("Entidad_desaparicion", val)}
+                      onValueChange={val => {
+                          actualizarCampo("Entidad_desaparicion", val)
+                          actualizarCampo("municipio_desaparicion", "")
+                        }}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccionar estado" />
@@ -312,6 +316,21 @@ const Reportar = () => {
                     </Select>
                   </div>
                 </div>
+
+                 {/* Municipio — aparece cuando hay estado seleccionado */}
+                  {formData.Entidad_desaparicion && (
+                    <div>
+                      <Label>Municipio de desaparición</Label>
+                      <ComboboxMunicipio
+                        estado={formData.Entidad_desaparicion}
+                        value={formData.municipio_desaparicion ?? ""}
+                        onChange={val => actualizarCampo("municipio_desaparicion", val)}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Selecciona el municipio donde fue vista por última vez.
+                      </p>
+                    </div>
+                  )}
               </div>
 
               {/* Características físicas */}

@@ -14,6 +14,7 @@ export interface FormularioReporte {
   Nacionalidad: string
   Desaparicion: string        // fecha
   Entidad_desaparicion: string
+  municipio_desaparicion?: string
   folio: string
   estatura: string
   peso_kg: string
@@ -56,6 +57,7 @@ const estadoInicial: FormularioReporte = {
   Nacionalidad: "Mexicana",
   Desaparicion: "",
   Entidad_desaparicion: "",
+  municipio_desaparicion: "",
   folio: "",
   estatura: "",
   peso_kg: "",
@@ -269,6 +271,7 @@ export function useReportar() {
         folio: formData.folio,
         fecha_desaparicion: formData.Desaparicion,
         entidad: formData.Entidad_desaparicion,
+        municipio_desaparicion: formData.municipio_desaparicion || null,
         edad: formData.Edad,
         caracteristicas: formData.caracteriticas,
         estatura: formData.estatura,
