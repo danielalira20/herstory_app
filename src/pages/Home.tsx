@@ -11,8 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
 import headerImage from "@/assets/herstory-header.jpg";
 import NavbarWrapper from "@/components/NavbarWrapper";
-import dataVisualizationImage from "@/assets/data-visualization.jpg";
-import communitySupportImage from "@/assets/community-support.jpg";
+import dataVisualizationImage from "@/assets/data-visualization.webp";
+import communitySupportImage from "@/assets/community-support.webp";
 
 interface FloatingQuote {
   id: number;
