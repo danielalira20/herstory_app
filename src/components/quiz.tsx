@@ -1,6 +1,4 @@
-// Quiz — Conectado al endpoint /api/match/find de Dani (AUR-B09)
-// Formato de mensajes: { role, parts: [{ text }] } (formato Gemini)
-// Respuesta: { figura: { nombre, region, epoca, ... }, injusticias_detectadas }
+// Quiz — Conectado a /api/match/find + insignia "Tu historia comienza"
 
 import { useState, useEffect } from "react";
 import { questions } from "../data/questions";
@@ -15,6 +13,8 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Users } from "lucide-react";
 import MatchReveal from "@/components/MatchReveal";
+import { giveOnboardingBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 
 interface MatchFigura {
   nombre: string;
@@ -50,7 +50,6 @@ const Quiz = ({ onComplete }: QuizProps) => {
     }
   };
 
-  // Construir mensajes en formato Gemini (parts[0].text)
   const buildMessages = () => {
     return answers.map((ans, i) => ({
       role: "user",
@@ -68,7 +67,7 @@ const Quiz = ({ onComplete }: QuizProps) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           messages: buildMessages(),
-          modo: 2, // reflexivo para onboarding
+          modo: 2,
           language: "es",
         }),
       });
@@ -78,8 +77,6 @@ const Quiz = ({ onComplete }: QuizProps) => {
       }
 
       const data = await response.json();
-
-      // La respuesta viene anidada en data.figura
       const figura = data.figura;
 
       if (!figura || !figura.nombre) {
@@ -96,6 +93,11 @@ const Quiz = ({ onComplete }: QuizProps) => {
         localStorage.setItem("herstory-user-profile", userProfileText);
         localStorage.setItem("herstory-match", JSON.stringify(figura));
       }
+
+      // ── Insignia 2: Tu historia comienza ──
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) giveOnboardingBadge(user.id);
+
     } catch (err) {
       console.error("Error al obtener match:", err);
       setError("No pudimos conectar con el servidor. Intenta de nuevo.");
@@ -106,12 +108,10 @@ const Quiz = ({ onComplete }: QuizProps) => {
 
   useEffect(() => {
     if (finished) fetchMatch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [finished]);
 
   const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
 
-  // Revelación cinematográfica del match
   if (matchResult) {
     return (
       <MatchReveal
@@ -167,7 +167,6 @@ const Quiz = ({ onComplete }: QuizProps) => {
         </Card>
       ) : (
         <div className="space-y-6">
-          {/* Loading */}
           {loadingResult && (
             <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card/95 backdrop-blur-md border rounded-2xl p-8 elegant-shadow animate-scale-in">
@@ -186,7 +185,6 @@ const Quiz = ({ onComplete }: QuizProps) => {
             </div>
           )}
 
-          {/* Error */}
           {error && !loadingResult && (
             <Card className="elegant-shadow">
               <CardContent className="p-8 text-center space-y-4">

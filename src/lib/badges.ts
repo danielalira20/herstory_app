@@ -1,169 +1,76 @@
-// lib/badges.ts
+// lib/badges.ts — 6 insignias actualizadas para HerStory
 import { supabase } from "./supabaseClient";
 import { toast } from "@/hooks/use-toast";
 
-export const giveFirstBadge = async (userId: string) => {
+// Función base para asignar cualquier insignia
+const giveBadge = async (
+  userId: string,
+  insigniaId: number,
+  toastTitle: string,
+  toastDescription: string
+) => {
   try {
-    // 1. Verificamos si el usuario ya tiene la insignia asignada
-    const { data: existingBadge, error: checkError } = await supabase
-      .from("usuario_insignia")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("insignia_id", 1) 
-      .maybeSingle();
+    // Verificar si ya la tiene
+  const { data: existing, error: checkError } = await supabase
+  .from("usuario_insignia")
+  .select("id")
+  .eq("user_id", userId)
+  .eq("insignia_id", insigniaId)
+  .limit(1);
 
-    if (checkError) throw checkError;
+if (checkError) throw checkError;
+if (existing && existing.length > 0) return; // Ya la tiene
 
-    // Si ya tiene la insignia → salimos de la función
-    if (existingBadge) {
-      console.log("El usuario ya tiene la insignia asignada.");
-      return;
-    }
-
-    // 2. Insertamos la insignia solo si no la tenía
-    const { data, error } = await supabase
-      .from("usuario_insignia")
-      .insert([
-        {
-          user_id: userId,
-          insignia_id: 1,
-          asignar: true,
-        },
-      ])
-      .select();
-
-    if (error) throw error;
-
-    console.log("Insignia asignada correctamente:", data);
-
-       toast({
-      title: "¡Felicidades! 🎉",
-      description: "Has ganado la insignia por iniciar sesión por primera vez.",
-    });
-  } catch (error) {
-    console.error("Error asignando insignia:", error);
-  }
-};
-
-
-//SEGUNDA INSGNIA
-
-export const giveForumBadge = async (userId: string) => {
-  try {
-    // Verificar si el usuario ya tiene la insignia
-    const { data: existingBadge, error: checkError } = await supabase
-      .from("usuario_insignia")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("insignia_id", 2) 
-      .maybeSingle();
-
-    if (checkError && checkError.code !== "PGRST116") {
-      console.error("Error verificando insignia:", checkError);
-      return;
-    }
-
-    // Si ya tiene la insignia, no hacemos nada
-    if (existingBadge) return;
-
-    // Insertar la nueva insignia
-    const { error: insertError } = await supabase.from("usuario_insignia").insert([
+    // Asignar insignia
+    const { error } = await supabase.from("usuario_insignia").insert([
       {
         user_id: userId,
-        insignia_id: 2, 
+        insignia_id: insigniaId,
         asignar: true,
       },
     ]);
 
-    if (insertError) {
-      console.error("Error asignando insignia 2:", insertError);
-      return;
-    }  toast({
-      title: "¡Felicidades! 🎉",
-      description: "Has ganado la insignia 'Pensamiento crítico y sabiduría'.",
-    });
-
-
-
-  } catch (err) {
-    console.error("Error general al asignar insignia:", err);
-  }
-};
-
-
-///TERCERA INSGNIA 
-export const giveThirdBadge = async (userId: string) => {
-  try {
-    const { data: existingBadge, error } = await supabase
-      .from("usuario_insignia")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("insignia_id", 3)
-      .maybeSingle();
-
     if (error) throw error;
-    if (existingBadge) return;
 
-    await supabase.from("usuario_insignia").insert([{ user_id: userId, insignia_id: 3, asignar: true },]);
-    console.log("Tercera insignia asignada!");
-    toast({
-      title: "¡Felicidades! 🎉",
-      description: "Has ganado la insignia 'Liderazgo y transformación'.",
-    });
-
-  
+    console.log(`✅ Insignia ${insigniaId} asignada`);
+    toast({ title: toastTitle, description: toastDescription });
   } catch (err) {
-    console.error("Error asignando tercera insignia:", err);
+    console.error(`Error asignando insignia ${insigniaId}:`, err);
   }
 };
 
-///CUARTA INSGNIA
-export const giveFourthBadge = async (userId: string) => {
-  try {
-    const { data: existingBadge, error } = await supabase
-      .from("usuario_insignia")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("insignia_id", 4)
-      .maybeSingle();
+// ── 1. Bienvenida — Iniciar sesión por primera vez ──
+// Trigger: en el hook de login/auth
+export const giveFirstBadge = (userId: string) =>
+  giveBadge(userId, 1, "¡Bienvenida! 🎉", "Has ganado la insignia por iniciar sesión por primera vez.");
 
-    if (error) throw error;
-    if (existingBadge) return;
+// ── 2. Tu historia comienza — Completar onboarding + match ──
+// Trigger: en Quiz.tsx cuando onComplete se ejecuta
+export const giveOnboardingBadge = (userId: string) =>
+  giveBadge(userId, 2, "¡Tu historia comienza! ✨", "Descubriste a tu compañera histórica.");
 
-    await supabase.from("usuario_insignia").insert([{ user_id: userId, insignia_id: 4, asignar: true }]);
-    console.log("Cuarta insignia asignada!");
-    toast({
-      title: "¡Felicidades! 🎉",
-      description: "Has ganado la insignia 'Haciendo Conciencia'.",
-    });
+// ── 3. Voz que escucha — Primera conversación con Auren ──
+// Trigger: en HerStoryBot.tsx al enviar el primer mensaje
+export const giveAurenBadge = (userId: string) =>
+  giveBadge(userId, 3, "¡Voz que escucha! 💬", "Tuviste tu primera conversación con Auren.");
 
-  } catch (err) {
-    console.error("Error asignando cuarta insignia:", err);
-  }
-};
+// ── 4. Exploradora — Visitar el museo / ver una figura ──
+// Trigger: en WomanDetail.tsx al abrir el detalle de una mujer
+export const giveExploradoraBadge = (userId: string) =>
+  giveBadge(userId, 4, "¡Exploradora! 🏛️", "Visitaste el museo y conociste a una mujer histórica.");
 
+// ── 5. Jugadora — Completar cualquier trivia o juego ──
+// Trigger: en QuizTrivias.tsx, QuienSoy.tsx, o FraseCelebre.tsx al terminar
+export const giveJugadoraBadge = (userId: string) =>
+  giveBadge(userId, 5, "¡Jugadora! 🎮", "Completaste tu primera trivia o juego.");
 
-//QUINTA INSGNIA
-export const giveFifthBadge = async (userId: string) => {
-  try {
-    const { data: existingBadge, error } = await supabase
-      .from("usuario_insignia")
-      .select("*")
-      .eq("user_id", userId)
-      .eq("insignia_id", 5)
-      .maybeSingle();
+// ── 6. Protegida — Configurar código del botón de pánico ──
+// Trigger: en PanicSettings.tsx al guardar el código
+export const giveProtegidaBadge = (userId: string) =>
+  giveBadge(userId, 6, "¡Protegida! 🛡️", "Configuraste tu código del botón de pánico.");
 
-    if (error) throw error;
-    if (existingBadge) return;
-
-    await supabase.from("usuario_insignia").insert([{ user_id: userId, insignia_id: 5, asignar: true }]);
-    console.log("Quinta insignia asignada!");
-    toast({
-      title: "¡Felicidades! 🎉",
-      description: "Has ganado la insignia 'Mujeres como tú'.",
-    });
-
-  } catch (err) {
-    console.error("Error asignando quinta insignia:", err);
-  }
-};
+// ── Exports legacy (compatibilidad con código existente) ──
+export const giveForumBadge = giveOnboardingBadge;
+export const giveThirdBadge = giveJugadoraBadge;
+export const giveFourthBadge = giveJugadoraBadge;
+export const giveFifthBadge = giveExploradoraBadge;

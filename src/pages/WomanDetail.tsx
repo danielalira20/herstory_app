@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, ExternalLink, Calendar, MapPin, Award, Book } from "lucide-react";
 import { supabaseMuseo } from "@/lib/supabaseMuseo";
 import NavbarWrapper from '@/components/NavbarWrapper';
+import { giveExploradoraBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 
 interface WomanData {
   id: number;
@@ -109,6 +111,11 @@ const WomanDetail = () => {
 
         setOrigin(womanData.origen || null);
         setLinks(linksData || []);
+
+        // Lógica para otorgar la insignia después de cargar la mujer
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) giveExploradoraBadge(user.id);
+
       } catch (error) {
         console.error("Error cargando datos de la mujer:", error);
       } finally {

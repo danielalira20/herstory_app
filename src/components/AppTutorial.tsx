@@ -1,5 +1,5 @@
-// AppTutorial — Walkthrough glassmorphism + paso de salida desde Auren
-// Se muestra una vez después del onboarding
+// AppTutorial — Walkthrough glassmorphism
+// 7 pasos: bienvenida, auren, salida auren, museo, búsqueda, pánico, insignias
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   X,
   LogOut,
+  Award,
 } from "lucide-react";
 
 interface TutorialStep {
@@ -69,6 +70,14 @@ const STEPS: TutorialStep[] = [
       "HerStory tiene un botón de seguridad que transforma todo en una calculadora si alguien revisa tu dispositivo. Sin rastro, sin evidencia. Para activarlo, necesitas configurar tu código secreto personal en tu perfil.",
     highlight:
       "Ve a tu perfil para configurarlo — el botón aparecerá cuando esté listo",
+  },
+  {
+    icon: <Award className="w-7 h-7 text-white" />,
+    iconBg: "bg-gradient-to-br from-amber-400 to-orange-500",
+    title: "Insignias",
+    description:
+      "Cada vez que explores una función de HerStory, ganarás una insignia. Habla con Auren, visita el museo, juega trivias, configura tu botón de pánico... cada paso te acerca a completar tu colección.",
+    highlight: "Revisa tu progreso en tu perfil",
   },
 ];
 
@@ -127,20 +136,23 @@ const AppTutorial = ({ onComplete }: AppTutorialProps) => {
           backdropFilter: "blur(24px) saturate(1.4)",
           WebkitBackdropFilter: "blur(24px) saturate(1.4)",
           border: "1px solid rgba(255, 255, 255, 0.15)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
+          boxShadow:
+            "0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
         }}
       >
         {/* Glow decorativo */}
         <div
           className="absolute -top-20 -right-20 w-40 h-40 rounded-full pointer-events-none"
           style={{
-            background: "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)",
           }}
         />
         <div
           className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full pointer-events-none"
           style={{
-            background: "radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%)",
+            background:
+              "radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, transparent 70%)",
           }}
         />
 
@@ -196,9 +208,7 @@ const AppTutorial = ({ onComplete }: AppTutorialProps) => {
 
               {/* Text */}
               <div className="space-y-3">
-                <h2 className="text-xl font-bold text-white">
-                  {step.title}
-                </h2>
+                <h2 className="text-xl font-bold text-white">{step.title}</h2>
                 <p className="text-sm text-white/60 leading-relaxed">
                   {step.description}
                 </p>
@@ -231,7 +241,8 @@ const AppTutorial = ({ onComplete }: AppTutorialProps) => {
             onClick={handleNext}
             className="flex items-center gap-1 text-sm font-medium text-white px-5 py-2 rounded-full transition-all hover:scale-105"
             style={{
-              background: "linear-gradient(135deg, rgba(168, 85, 247, 0.7), rgba(236, 72, 153, 0.7))",
+              background:
+                "linear-gradient(135deg, rgba(168, 85, 247, 0.7), rgba(236, 72, 153, 0.7))",
               border: "1px solid rgba(255, 255, 255, 0.15)",
               boxShadow: "0 4px 15px rgba(168, 85, 247, 0.3)",
             }}

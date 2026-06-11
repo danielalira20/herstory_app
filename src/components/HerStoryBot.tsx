@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import herstoryLogoBot from '@/assets/chatbot_icon-removebg-preview.png';
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { giveAurenBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 import {
   X,
   Send,
@@ -720,6 +722,16 @@ useEffect(() => {
     ]);
 
     setMessages(prev => [...prev, { id: generateId(), from: "bot", text: botAnswer }]);
+     if (geminiHistory.length === 0) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          giveAurenBadge(user.id);
+        }
+      } catch (errorInsignia) {
+        console.error("Error al asignar insignia:", errorInsignia);
+      }
+    }
 
     // AUR-F01: tarjeta de recursos clicables en Modo 3
     if (data.modo === 3) {
