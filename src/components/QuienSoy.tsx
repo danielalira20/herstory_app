@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { giveJugadoraBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 import {
   HelpCircle,
   Star,
@@ -134,6 +136,9 @@ const QuienSoy = () => {
 
     if (ronda + 1 >= totalRondas) {
       setJuegoTerminado(true);
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) giveJugadoraBadge(user.id);
+      });
     } else {
       setRonda((r) => r + 1);
       setPistaActual(0);

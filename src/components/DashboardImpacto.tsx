@@ -53,7 +53,7 @@ const DashboardImpacto = () => {
   // - Pendiente: usuarias acompañadas (puede venir de auth o de un conteo en Supabase)
   const mockUsuarias = 128;
   const mockConversaciones = 347;
-  const mockGlosario = 215;
+  const mockGlosario = 15;
 
   const metricas = [
     {

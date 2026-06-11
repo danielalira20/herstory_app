@@ -27,21 +27,20 @@ export const BadgeGrid = ({ badges }: BadgeGridProps) => {
   const availableBadges = badges.filter(badge => !badge.earned);
 
   const BadgeCard = ({ badge }: { badge: BadgeItem }) => {
-    
-    return (
-      <Card className={`transition-smooth hover:scale-105 ${
-        badge.earned 
-          ? 'bg-gradient-primary text-primary-foreground badge-glow' 
-          : 'bg-muted/50 opacity-75 hover:opacity-90'
-      }`}>
-        <CardContent className="p-4 text-center">
-          <div className="mb-3 flex justify-center">
-             {badge.img ? (
+  return (
+    <Card className={`transition-smooth hover:scale-105 ${
+      badge.earned 
+        ? 'bg-gradient-primary text-primary-foreground badge-glow' 
+        : 'bg-muted/50 opacity-75 hover:opacity-90'
+    }`}>
+      <CardContent className="p-4 text-center">
+        <div className="mb-3 flex justify-center">
+          {badge.img ? (
             <img
               src={badge.img}
               alt={badge.name}
               className={`w-24 h-24 object-contain ${
-                badge.earned ? "border-white" : "border-gray-400 opacity-60"
+                badge.earned ? "" : "opacity-60"
               }`}
             />
           ) : (
@@ -49,30 +48,26 @@ export const BadgeGrid = ({ badges }: BadgeGridProps) => {
               ❓
             </div>
           )}
-          </div>
-          <h3 className={`font-semibold mb-1 ${
-            badge.earned ? 'text-primary-foreground' : 'text-foreground'
-          }`}>
-            {badge.name}
-          </h3>
-
-          <p className={`text-sm mb-2 ${
-            badge.earned ? 'text-primary-foreground/80' : 'text-muted-foreground'
-          }`}>
-            {badge.description}
-          </p>
-          {badge.earned && badge.earnedDate && (
-            <Badge variant="secondary" className="text-xs bg-white/20 text-primary-foreground">
-              {new Date(badge.earnedDate).toLocaleDateString('es-ES')}
-            </Badge>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
-
-   
-
+        </div>
+        <h3 className={`font-semibold mb-1 ${
+          badge.earned ? 'text-primary-foreground' : 'text-foreground'
+        }`}>
+          {badge.name}
+        </h3>
+        <p className={`text-sm mb-2 ${
+          badge.earned ? 'text-primary-foreground/80' : 'text-muted-foreground'
+        }`}>
+          {badge.description}
+        </p>
+        {badge.earned && badge.earnedDate && (
+          <Badge variant="secondary" className="text-xs bg-white/20 text-primary-foreground">
+            {new Date(badge.earnedDate).toLocaleDateString('es-ES')}
+          </Badge>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
 
   return (
     <div className="space-y-6">

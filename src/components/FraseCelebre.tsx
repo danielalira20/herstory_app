@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote, Star, ChevronRight, RotateCcw, Trophy, Flame } from "lucide-react";
+import { giveJugadoraBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 
 interface Cita {
   frase: string;
@@ -90,6 +92,9 @@ const FraseCelebre = () => {
 
     if (ronda + 1 >= totalRondas) {
       setJuegoTerminado(true);
+      supabase.auth.getUser().then(({ data: { user } }) => {
+        if (user) giveJugadoraBadge(user.id);
+      });
     } else {
       setRonda((r) => r + 1);
       setSeleccion(null);

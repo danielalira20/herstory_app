@@ -1,21 +1,31 @@
+// Quiz — Conectado a /api/match/find + insignia "Tu historia comienza"
+
 import { useState, useEffect } from "react";
 import { questions } from "../data/questions";
-import { useWomen } from "@/hooks/womenData";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Sparkles, Users, Heart, Trophy } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Sparkles, Users } from "lucide-react";
+import MatchReveal from "@/components/MatchReveal";
+import { giveOnboardingBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 
-interface AIResult {
-  name: string;
-  coincidencePercentage: number;
-  explanation: string;
+interface MatchFigura {
+  nombre: string;
+  region: string;
+  epoca: string;
+  injusticias: string[];
+  categoria_campo: string;
   imagen_url?: string;
+  explicacion?: string;
 }
 
-// ONB-F02: prop opcional para modo onboarding
 interface QuizProps {
   onComplete?: () => void;
 }
@@ -24,9 +34,9 @@ const Quiz = ({ onComplete }: QuizProps) => {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<string[]>([]);
   const [finished, setFinished] = useState(false);
-
-  const [aiResult, setAiResult] = useState<AIResult[]>([]);
+  const [matchResult, setMatchResult] = useState<MatchFigura | null>(null);
   const [loadingResult, setLoadingResult] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleAnswer = (option: string) => {
     const newAnswers = [...answers];
@@ -40,68 +50,82 @@ const Quiz = ({ onComplete }: QuizProps) => {
     }
   };
 
-  const userProfileText = answers
-    .map((ans, i) => `Pregunta: ${questions[i].question} Respuesta: ${ans}`)
-    .join("\n");
+  const buildMessages = () => {
+    return answers.map((ans, i) => ({
+      role: "user",
+      parts: [{ text: `${questions[i].question}: ${ans}` }],
+    }));
+  };
 
-  const fetchAIResult = async () => {
+  const fetchMatch = async () => {
     setLoadingResult(true);
+    setError(null);
+
     try {
-      const searchResponse = await fetch("http://localhost:3001/search-women", {
+      const response = await fetch("/api/match/find", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userProfileText }),
+        body: JSON.stringify({
+          messages: buildMessages(),
+          modo: 2,
+          language: "es",
+        }),
       });
 
-      if (!searchResponse.ok) {
-        throw new Error("Error al buscar mujeres similares");
+      if (!response.ok) {
+        throw new Error(`Error del servidor: ${response.status}`);
       }
 
-      const { results } = await searchResponse.json();
+      const data = await response.json();
+      const figura = data.figura;
 
-      const aiResponse = await fetch("http://localhost:3000/api/quiz", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userProfileText, womenData: results }),
-      });
-
-      if (!aiResponse.ok) {
-        throw new Error("Error al generar resultado de IA");
+      if (!figura || !figura.nombre) {
+        throw new Error("No se recibió una figura válida");
       }
 
-      const aiData = await aiResponse.json();
+      setMatchResult(figura);
 
-      const parsed: AIResult[] = aiData.result.map((item: AIResult) => {
-        const match = results.find(
-          (w: { nombre_completo: string; imagen_url?: string }) =>
-            w.nombre_completo.toLowerCase() === item.name.toLowerCase()
-        );
-
-        return {
-          ...item,
-          imagen_url: match?.imagen_url || "/assets/default.png",
-        };
-      });
-
-      setAiResult(parsed);
-
-      // ONB-F02: guardar perfil en localStorage si viene de onboarding
+      // Guardar match y perfil en localStorage
       if (onComplete) {
+        const userProfileText = answers
+          .map((ans, i) => `${questions[i].question}: ${ans}`)
+          .join("\n");
         localStorage.setItem("herstory-user-profile", userProfileText);
+        localStorage.setItem("herstory-match", JSON.stringify(figura));
       }
+
+      // ── Insignia 2: Tu historia comienza ──
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) giveOnboardingBadge(user.id);
+
     } catch (err) {
-      console.error("Error al obtener resultado de IA:", err);
+      console.error("Error al obtener match:", err);
+      setError("No pudimos conectar con el servidor. Intenta de nuevo.");
     } finally {
       setLoadingResult(false);
     }
   };
 
   useEffect(() => {
-    if (finished) fetchAIResult();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (finished) fetchMatch();
   }, [finished]);
 
   const progress = finished ? 100 : ((current + 1) / questions.length) * 100;
+
+  if (matchResult) {
+    return (
+      <MatchReveal
+        figura={matchResult}
+        onContinue={() => {
+          if (onComplete) {
+            onComplete();
+          } else {
+            window.location.reload();
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-3">
@@ -143,98 +167,40 @@ const Quiz = ({ onComplete }: QuizProps) => {
         </Card>
       ) : (
         <div className="space-y-6">
-
-          <Card className="elegant-shadow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-primary" />
-                Tus Respuestas
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {answers.map((ans, i) => (
-                  <div key={i} className="p-3 bg-secondary/10 rounded-lg">
-                    <div className="text-sm text-muted-foreground font-medium">
-                      Pregunta {i + 1}
-                    </div>
-                    <div className="font-medium">{ans}</div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
           {loadingResult && (
             <div className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50">
               <div className="bg-card/95 backdrop-blur-md border rounded-2xl p-8 elegant-shadow animate-scale-in">
                 <div className="text-center space-y-4">
                   <div className="relative">
-                    <div className="w-16 h-16 mx-auto border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <div className="w-16 h-16 mx-auto border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
                   </div>
-                  <p className="text-lg font-medium text-foreground">Cocinando tu perfil...</p>
+                  <p className="text-lg font-medium text-foreground">
+                    Buscando tu conexión histórica...
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Analizando tus respuestas
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {!loadingResult && (
-            aiResult.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-2xl font-bold text-center hero-gradient bg-clip-text text-transparent">
-                  ✨ Tu Mujer Histórica Ideal
-                </h3>
-                {aiResult.map((res, index) => (
-                  <Card key={index} className="elegant-shadow hover:glow-shadow smooth-transition">
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row gap-6 items-center">
-                        <div className="flex-shrink-0">
-                          <img
-                            src={res.imagen_url}
-                            alt={res.name}
-                            className="w-32 h-43 object-cover rounded-lg elegant-shadow"
-                            onError={(e) => {
-                              e.currentTarget.src = '/assets/default.png';
-                            }}
-                          />
-                        </div>
-                        <div className="text-center md:text-left space-y-3 flex-1">
-                          <div className="flex items-center justify-center md:justify-start gap-3">
-                            <h3 className="text-2xl font-bold text-primary">
-                              {res.name}
-                            </h3>
-                            <Badge variant="secondary" className="font-bold text-sm px-2 py-0.5 text-center inline-block">
-                              {res.coincidencePercentage}% Match
-                            </Badge>
-                          </div>
-                          <p className="text-muted-foreground leading-relaxed">
-                            {res.explanation}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )
+          {error && !loadingResult && (
+            <Card className="elegant-shadow">
+              <CardContent className="p-8 text-center space-y-4">
+                <p className="text-muted-foreground">{error}</p>
+                <Button
+                  variant="hero"
+                  onClick={() => {
+                    setError(null);
+                    fetchMatch();
+                  }}
+                >
+                  Reintentar
+                </Button>
+              </CardContent>
+            </Card>
           )}
-
-          <div className="flex justify-center">
-            <Button
-              variant="hero"
-              size="lg"
-              onClick={() => {
-                if (onComplete) {
-                  onComplete();
-                } else {
-                  window.location.reload();
-                }
-              }}
-            >
-              <Sparkles className="h-4 w-4 mr-2" />
-              {onComplete ? "Continuar a HerStory" : "Regresar"}
-            </Button>
-          </div>
         </div>
       )}
     </div>

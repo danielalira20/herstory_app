@@ -1,6 +1,5 @@
 // PanicSettings — Setup obligatorio del botón de pánico
-// No hay código default — la usuaria DEBE configurar el suyo
-// Incluye explicación + términos + checkbox antes de guardar
+// Incluye insignia "Protegida" al guardar el código
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +14,8 @@ import {
   Lock,
   LogOut,
 } from "lucide-react";
+import { giveProtegidaBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 import CheckInSettings from "./CheckInSettings";
 
 const PanicSettings = () => {
@@ -43,7 +44,7 @@ const PanicSettings = () => {
     }
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setError("");
     setSaved(false);
 
@@ -77,6 +78,10 @@ const PanicSettings = () => {
     setSaved(true);
     setCode("");
     setConfirmCode("");
+
+    // ── Insignia 6: Protegida ──
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) giveProtegidaBadge(user.id);
 
     setTimeout(() => setSaved(false), 3000);
   };

@@ -10,9 +10,13 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       "/chat": {
-        target: "http://localhost:5001",
+    target: "http://localhost:5001",
         changeOrigin: true,
         secure: false,
+      },
+      "/api/match": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
       },
       "/api": "http://localhost:3000",
     },
