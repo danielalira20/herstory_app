@@ -1,70 +1,113 @@
-import { useState, useMemo, useEffect } from "react";
-//import MexicoMap from "@/components/mujeres-desaparecidas/MexicoMap";
+import { useState, useMemo, useCallback, useRef, useEffect } from "react"
 import MexicoMapNew from "@/components/MexicoMapNew"
-import PersonCard from "@/components/mujeres-desaparecidas/PersonCard";
-import PersonModal from "@/components/mujeres-desaparecidas/PersonModal";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
-import { mockPersons } from "@/data/mockData";
-import { supabase } from "@/lib/supabaseClient";
-import { usePersons, Person } from "@/hooks/usePersons";
-import NavbarWrapper from "@/components/NavbarWrapper";
-import headerImage from "@/assets/herstory-header.jpg";
+import PersonCard from "@/components/mujeres-desaparecidas/PersonCard"
+import PersonModal from "@/components/mujeres-desaparecidas/PersonModal"
 import MensajeAnonimoModal from "@/components/mujeres-desaparecidas/MensajeAnonimoModal"
+import NavbarWrapper from "@/components/NavbarWrapper"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { usePersons, Person } from "@/hooks/usePersons"
+import headerImage from "@/assets/herstory-header.jpg"
+import { Search, X, MapPin, Info, Users } from "lucide-react"
+
+const ITEMS_POR_PAGINA = 20
 
 const RastroNacional = () => {
-  //const [selectedState, setSelectedState] = useState<string | null>(null);
-  const [selectedEstado, setSelectedEstado] = useState<string | null>(null);
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [people, setPeople] = useState<Person[]>([]);
-
-  const { persons, loading, error } = usePersons();
+  const [selectedEstado, setSelectedEstado] = useState<string | null>(null)
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState("")
   const [personaMensaje, setPersonaMensaje] = useState<Person | null>(null)
   const [isMensajeOpen, setIsMensajeOpen] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(ITEMS_POR_PAGINA)
+  const loaderRef = useRef<HTMLDivElement>(null)
+  const [selectedMunicipio, setSelectedMunicipio] = useState<string | null>(null)
 
-  const handleMensajeAnonimo = (person: Person) => {
-    setPersonaMensaje(person)
-    setIsMensajeOpen(true)
-  }
-  
+
+  const { persons, loading } = usePersons()
+
+  // Reset visible count al cambiar filtros
+  useEffect(() => {
+    setVisibleCount(ITEMS_POR_PAGINA)
+  }, [selectedEstado, searchTerm])
+
+  // Scroll infinito con IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisibleCount(prev => prev + ITEMS_POR_PAGINA)
+        }
+      },
+      { threshold: 0.1 }
+    )
+    if (loaderRef.current) observer.observe(loaderRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   const filteredPersons = useMemo(() => {
-    let filtered = persons;
+  let filtered = persons
+  if (selectedEstado) {
+    filtered = filtered.filter(p => p.estado === selectedEstado)
+  }
+  if (selectedMunicipio) {
+    filtered = filtered.filter(p => p.municipio_desaparicion === selectedMunicipio)
+  }
+  if (searchTerm) {
+    const q = searchTerm.toLowerCase()
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.estado.toLowerCase().includes(q) ||
+      p.caracteristicas.toLowerCase().includes(q)
+    )
+  }
+  return filtered
+}, [persons, selectedEstado, selectedMunicipio, searchTerm])
 
-    if (selectedEstado) {
-      filtered = filtered.filter(person => person.estado === selectedEstado);
-    }
+  const visiblePersons = filteredPersons.slice(0, visibleCount)
+  const hayMas = visibleCount < filteredPersons.length
 
-    if (searchTerm) {
-      filtered = filtered.filter(person =>
-        person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        person.estado.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        person.caracteristicas.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
+  useEffect(() => {
+  if (!loaderRef.current) return
+  
+  const observer = new IntersectionObserver(
+    (entries) => {
+      console.log("Observer triggered:", entries[0].isIntersecting)
+      if (entries[0].isIntersecting) {
+        setVisibleCount(prev => prev + ITEMS_POR_PAGINA)
+      }
+    },
+    { threshold: 0.1, rootMargin: "100px" }
+  )
+  
+  observer.observe(loaderRef.current)
+  return () => observer.disconnect()
+}, [hayMas]) // ← depende de hayMas para re-registrar cuando cambia
 
-    return filtered;
-  }, [persons, selectedEstado, searchTerm]);
+  // Casos con municipio en el estado seleccionado
+  const casosConMunicipio = useMemo(() => {
+    if (!selectedEstado) return 0
+    return persons.filter(p => p.estado === selectedEstado && p.municipio_desaparicion).length
+  }, [persons, selectedEstado])
 
-  const handleEstadoClick = (state: string) => {
-    setSelectedEstado(selectedEstado === state ? null : state);
-  };
+  const totalCasosEstado = useMemo(() => {
+    if (!selectedEstado) return 0
+    return persons.filter(p => p.estado === selectedEstado).length
+  }, [persons, selectedEstado])
 
-  const handleViewDetails = (person: Person) => {
-    setSelectedPerson(person);
-    setIsModalOpen(true);
-  };
+  const handleEstadoSelect = (estado: string | null) => {
+  setSelectedEstado(estado)
+  setSelectedMunicipio(null)
+}
 
   const clearFilters = () => {
-    setSelectedEstado(null);
-    setSearchTerm("");
-  };
-
+    setSelectedEstado(null)
+    setSelectedMunicipio(null)
+    setSearchTerm("")
+  }
   return (
-      <>
-        {/* ── Hero Header ── */}
+    <>
+              {/* ── Hero Header ── */}
       <div className="relative w-full h-64 md:h-72 overflow-hidden">
         <img
           src={headerImage}
@@ -88,128 +131,156 @@ const RastroNacional = () => {
       </div>
 
       <NavbarWrapper />
-      <div className="min-h-screen bg-gradient-subtle">
-        {/* Hero Section */}
-        <section className="py-16 px-4">
-          <div className="max-w-6xl mx-auto text-center">
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-hero bg-clip-text text-transparent">
-            Personas Desaparecidas en México
-          </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Ayuda a encontrar a las personas desaparecidas. Cada rostro cuenta una historia, 
-            cada búsqueda puede hacer la diferencia.
-          </p>
-        </div>
-      </section>
+      <div className="min-h-screen bg-background">
+        <div className="max-w-7xl mx-auto px-4 py-6">
 
-      {/* Map Section */}
-      <section className="py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8 text-card-foreground">
-            Selecciona un Estado
-          </h2>
-          <MexicoMapNew
-            persons={persons}
-            selectedEstado={selectedEstado}
-            onEstadoSelect={setSelectedEstado}
-          />
-          {/*
-          <MexicoMap onStateClick={handleStateClick} selectedState={selectedState} />
-        */}
-          </div>
-      </section>
-
-      {/* Search and Filters */}
-      <section className="py-8 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-8">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* ── Barra búsqueda ── */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="relative flex-1 max-w-lg">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
                 placeholder="Buscar por nombre, estado o características..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                onChange={e => setSearchTerm(e.target.value)}
+                className="pl-10 h-11 rounded-xl"
               />
             </div>
-            
             {(selectedEstado || searchTerm) && (
-              <Button
-                onClick={clearFilters}
-                variant="outline"
-                className="gap-2"
-              >
-                <X className="h-4 w-4" />
-                Limpiar filtros
+              <Button onClick={clearFilters} variant="outline" className="gap-2 h-11 rounded-xl">
+                <X className="h-4 w-4" /> Limpiar
               </Button>
             )}
-          </div>
-
-          <div className="text-center mb-6">
-            <p className="text-muted-foreground">
-              {filteredPersons.length === 0
-                ? "No se encontraron resultados"
-                : `${filteredPersons.length} persona${filteredPersons.length !== 1 ? 's' : ''} encontrada${filteredPersons.length !== 1 ? 's' : ''}`
-              }
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Results Section */}
-      <section className="py-8 px-4 pb-16">
-        <div className="max-w-6xl mx-auto">
-          {filteredPersons.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-             
-              
-                  {filteredPersons.map(person => (
-                    <PersonCard
-                      key={person.id}
-                      person={person}
-                      onViewDetails={handleViewDetails}
-                      onMensajeAnonimo={handleMensajeAnonimo}
-                    />
-                  ))}
-                
-            
+            <div className="ml-auto flex items-center gap-2 text-sm text-muted-foreground">
+              <Users className="h-4 w-4" />
+              <span>
+                {loading ? "Cargando..." : `${filteredPersons.length.toLocaleString("es-MX")} persona${filteredPersons.length !== 1 ? "s" : ""}`}
+              </span>
             </div>
-          ) : (
-            <div className="text-center py-16">
-              <div className="max-w-md mx-auto">
-                <h3 className="text-xl font-semibold mb-2 text-card-foreground">
-                  No se encontraron resultados
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  {selectedEstado
-                    ? `No hay personas desaparecidas registradas en ${selectedEstado} con los criterios actuales.`
-                    : "Intenta con otros términos de búsqueda o selecciona un estado en el mapa."
-                  }
-                </p>
-                <Button onClick={clearFilters} variant="outline">
-                  Ver todas las personas
-                </Button>
+          </div>
+
+          {/* ── Layout dos columnas ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_460px] gap-6 items-start">
+
+            {/* ── Columna izquierda: Mapa ── */}
+            <div className="sticky top-4">
+              <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-widest text-primary mb-0.5">
+                      Mapa nacional
+                    </p>
+                    <h2 className="text-lg font-bold">
+                      {selectedEstado ? selectedEstado : "Selecciona un estado"}
+                    </h2>
+                  </div>
+                  {selectedEstado && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1 rounded-full text-xs"
+                      onClick={() => setSelectedEstado(null)}
+                    >
+                      <X className="h-3 w-3" /> Ver México
+                    </Button>
+                  )}
+                </div>
+
+                <MexicoMapNew
+                  persons={persons}
+                  selectedEstado={selectedEstado}
+                  onEstadoSelect={handleEstadoSelect}
+                  selectedMunicipio={selectedMunicipio}
+                  onMunicipioSelect={setSelectedMunicipio}
+                />
+
+                {/* ── Banner UX municipios sin datos ── */}
+                {selectedEstado && casosConMunicipio === 0 && totalCasosEstado > 0 && (
+                  <div className="mt-3 flex items-start gap-2.5 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 p-3">
+                    <Info className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
+                    <div className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
+                      <span className="font-semibold">Hay {totalCasosEstado} casos en {selectedEstado}</span>, pero aún
+                      no tienen municipio registrado. Los municipios se irán marcando conforme
+                      se actualicen los registros. Puedes ver todos los casos en la lista.
+                    </div>
+                  </div>
+                )}
+
+                {selectedEstado && casosConMunicipio > 0 && (
+                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 text-pink-500" />
+                    <span>
+                      {casosConMunicipio} de {totalCasosEstado} casos tienen municipio registrado
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-          )}
-        </div>
-      </section>
 
-      {/* Modal */}
+            {/* ── Columna derecha: Cards ── */}
+            <div>
+              {loading ? (
+                <div className="flex items-center justify-center h-64 text-muted-foreground text-sm">
+                  Cargando registros...
+                </div>
+              ) : filteredPersons.length === 0 ? (
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/50 px-6 py-16 text-center">
+                  <Search className="h-12 w-12 text-muted-foreground/30 mb-3" />
+                  <h3 className="font-semibold text-lg mb-1">Sin coincidencias</h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-xs">
+                    {selectedEstado
+                      ? `No hay registros en ${selectedEstado} con los criterios actuales.`
+                      : "Intenta con otros términos de búsqueda."}
+                  </p>
+                  <Button onClick={clearFilters} variant="outline" className="rounded-xl">
+                    Ver todos
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {visiblePersons.map(person => (
+                      <PersonCard
+                        key={person.id}
+                        person={person}
+                        onViewDetails={p => { setSelectedPerson(p); setIsModalOpen(true) }}
+                        onMensajeAnonimo={p => { setPersonaMensaje(p); setIsMensajeOpen(true) }}
+                      />
+                    ))}
+                  </div>
+
+                  {/* ── Loader scroll infinito ── */}
+                  {hayMas && (
+                    <div ref={loaderRef} className="flex justify-center py-8">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                        Cargando más...
+                      </div>
+                    </div>
+                  )}
+                  {!hayMas && filteredPersons.length > ITEMS_POR_PAGINA && (
+                    <p className="text-center text-xs text-muted-foreground py-6">
+                      Has visto todos los {filteredPersons.length} registros
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <PersonModal
         person={selectedPerson}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-
       <MensajeAnonimoModal
         person={personaMensaje}
         isOpen={isMensajeOpen}
         onClose={() => setIsMensajeOpen(false)}
       />
-    </div>
-  </>
-  );
-};
+    </>
+  )
+}
 
-export default RastroNacional;
+export default RastroNacional

@@ -18,6 +18,8 @@ interface MexicoMapNewProps {
   persons: Person[]
   selectedEstado: string | null
   onEstadoSelect: (estado: string | null) => void
+  selectedMunicipio?: string | null
+  onMunicipioSelect?: (municipio: string | null) => void
 }
 
 const ESTADO_NOMBRE_MAP: Record<string, string> = {
@@ -142,6 +144,8 @@ export default function MexicoMapNew({
   persons,
   selectedEstado,
   onEstadoSelect,
+selectedMunicipio,
+  onMunicipioSelect,
 }: MexicoMapNewProps) {
 
   const [municipioGeo, setMunicipioGeo] = useState<any>(null)
@@ -323,10 +327,19 @@ export default function MexicoMapNew({
               <path
                 key={cvegeo}
                 d={d}
-                fill={hoveredMunicipio === nombre ? "#ec4899" : getMunicipioColor(nombre)}
+                fill={
+                    selectedMunicipio === nombre ? "#ec4899" :
+                    hoveredMunicipio === nombre ? "#f472b6" :
+                    getMunicipioColor(nombre)
+                }
                 stroke="#7c3aed"
                 strokeWidth={0.8}
                 style={{ cursor: "pointer", outline: "none" }}
+                onClick={() => {
+                    if (onMunicipioSelect) {
+                    onMunicipioSelect(selectedMunicipio === nombre ? null : nombre)
+                    }
+                }}
                 onMouseEnter={(e) => {
                   setHoveredMunicipio(nombre)
                   setTooltip({ x: e.clientX, y: e.clientY, text: casos > 0 ? `${nombre} — ${casos} caso${casos !== 1 ? "s" : ""}` : nombre })

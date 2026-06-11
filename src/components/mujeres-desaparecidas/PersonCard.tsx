@@ -30,8 +30,8 @@ const PersonCard = ({ person, onViewDetails, onMensajeAnonimo }: PersonCardProps
     : "Fecha desconocida";
 
   return (
-    <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
-      <CardContent className="p-0 flex-grow">
+    <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 flex flex-col h-full w-full">
+    <CardContent className="p-0 flex-grow">
         <div className="aspect-square overflow-hidden">
           <img
             src={person.foto || "/assests/default.png"}
@@ -63,7 +63,7 @@ const PersonCard = ({ person, onViewDetails, onMensajeAnonimo }: PersonCardProps
         </div>
       </CardContent>
 
-      <CardFooter className="p-4 pt-0 mt-auto flex gap-2">
+      <CardFooter className="p-4 pb-4 mt-auto flex gap-2 justify-start">
         <Button
           onClick={() => onViewDetails(person)}
           variant="outline"
@@ -71,7 +71,7 @@ const PersonCard = ({ person, onViewDetails, onMensajeAnonimo }: PersonCardProps
           className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs px-2"
         >
           <Eye className="h-3.5 w-3.5 mr-1 shrink-0" />
-          Ver detalles
+        Detalles
         </Button>
         <Button
           onClick={() => onMensajeAnonimo(person)}
@@ -80,7 +80,7 @@ const PersonCard = ({ person, onViewDetails, onMensajeAnonimo }: PersonCardProps
           className="flex-1 border-pink-400 text-pink-600 hover:bg-pink-50 text-xs px-2"
         >
           <MessageCircle className="h-3.5 w-3.5 mr-1 shrink-0" />
-          Mensaje
+        Mensaje
         </Button>
       </CardFooter>
     </Card>
