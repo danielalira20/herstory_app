@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Heart, Sparkles } from "lucide-react";
 import Quiz from "../components/quiz";
-import banner from "@/assets/banner_trivias.png";
+import banner from "@/assets/banner_trivias.webp";
 
 const Onboarding = () => {
   const navigate = useNavigate();
