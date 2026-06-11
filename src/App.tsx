@@ -9,16 +9,8 @@ import HerStoryBot from "./components/HerStoryBot";
 import PanicButton from "./components/PanicButton";
 import AppTutorial from "./components/AppTutorial";
 import CheckInResponse from "./components/CheckInResponse";
-//import AwarenessGuide from "@/pages/AwarenessGuide";
-//import Reportar from "./pages/Reportar";
-//import RastroNacional from "./pages/RastroNacional";
-
-//import Search from "./pages/Search";
-//import Learn from "./pages/Learn";
-//import Guias from "./pages/Guias";
 import GuiasApoyo from "./pages/GuiasApoyo";
 import { SectionProvider } from "./context/SectionContext";
-//import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import Glosario from "./pages/Glosario";
 import GlosarioDetalle from "./pages/GlosarioDetalle";
 
@@ -30,11 +22,6 @@ import {
   useLocation,
 } from "react-router-dom";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
-//import AdminVerificacion from "./pages/AdminVerificacion";
-//import ParaColectivos from "./pages/ParaColectivos";
-//import AdminSolicitudes from "./pages/AdminSolicitudes";
-//import Reconocimiento from "./pages/Reconocimiento";
-//import GuiaColectivos from "./pages/GuiaColectivos";
 
 // ── Eager (críticas — cargan siempre) ────────────────────
 import Landing            from "./pages/Landing";

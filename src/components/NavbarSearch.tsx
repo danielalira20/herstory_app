@@ -37,7 +37,7 @@ const NavbarSearch = () => {
     { label: "Formularios",       href: "/mujeres-desaparecidas", icon: FileText      },
     { label: "Ayuda",             href: "/ayuda",                 icon: Heart         },
     { label: "Reportar",          href: "/reportar",              icon: AlertTriangle },
-    { label: "Para Colectivos",   href: "/para-colectivos",            icon: Users         },
+    { label: "Colectivos",   href: "/para-colectivos",            icon: Users         },
     // TODO [DEL-D01 — JESS, Semana 1]: Eliminar o ajustar según reunión de fin de semana 1.
     //{ label: "Voces Silenciadas", href: "/voces-silenciadas",     icon: Mic           },
   ];
