@@ -200,6 +200,21 @@ function detectarRiesgoAgudo(mensaje) {
   return matched || null;
 }
 
+// AUR-B03: detectar categoría del trigger para logging
+function detectarCategoriaRiesgo(trigger) {
+  const norm = normalizar(trigger);
+  const cats = TRIGGERS.categories;
+  const check = (arr) => arr.some(t => normalizar(t) === norm);
+  if (check([...cats.violencia_fisica_reciente.es,   ...cats.violencia_fisica_reciente.en]))   return "violencia_fisica_reciente";
+  if (check([...cats.armas_y_amenaza_directa.es,     ...cats.armas_y_amenaza_directa.en]))     return "armas_y_amenaza_directa";
+  if (check([...cats.ideacion_suicida.directas.es,   ...cats.ideacion_suicida.directas.en]))   return "ideacion_suicida";
+  if (check([...cats.situaciones_compuestas.embarazo_y_violencia.es,    ...cats.situaciones_compuestas.embarazo_y_violencia.en]))    return "embarazo_y_violencia";
+  if (check([...cats.situaciones_compuestas.ninos_en_peligro.es,        ...cats.situaciones_compuestas.ninos_en_peligro.en]))        return "ninos_en_peligro";
+  if (check([...cats.situaciones_compuestas.encierro_y_control_fisico.es, ...cats.situaciones_compuestas.encierro_y_control_fisico.en])) return "encierro_y_control_fisico";
+  return "emergencia_general";
+}
+
+
 // ============================================================
 // AUR-B07: Clasificador de submodo por palabras clave
 // Corre antes de Gemini para dar contexto prioritario al modo reflexivo
@@ -703,23 +718,35 @@ app.post("/chat", async (req, res) => {
     console.log(`📝 Procesando (${language}):`, lastMessage.parts[0].text);
 
     const triggerDetectado = detectarRiesgoAgudo(lastMessage.parts[0].text);
-    if (triggerDetectado) {
-      console.log(`🚨 Riesgo agudo: "${triggerDetectado}" — omitiendo Gemini`);
-      const respuestaEmergencia = language === "en"
-        ? "What you're telling me is very serious. You matter. Please call the National Domestic Violence Hotline: 1-800-799-7233. Free, confidential, 24/7.\n\nI'm here with you while you decide what you need. You are not alone."
-        :  "Lo que me estás contando es muy serio. Tú importas. Puedes marcar 079 y presionar 1 ahora mismo. Es gratuito, confidencial y atiende las 24 horas.\n\nEstoy aquí contigo mientras decides qué necesitas. No estás sola.";
+if (triggerDetectado) {
+  console.log(`🚨 Riesgo agudo: "${triggerDetectado}" — omitiendo Gemini`);
 
-      return res.json({
-        respuesta: respuestaEmergencia,
-        modo: 3,
-        submodo: null,
-        confianza: "alta",
-        señales: [triggerDetectado],
-        language,
-        fuente: "triggers"
+  // AUR-B03: guardar en Supabase ↓
+  const categoria = detectarCategoriaRiesgo(triggerDetectado);
+  (async () => {
+  const { error } = await supabase.from("logs_triggers").insert({
+    categoria,
+    trigger_matched: triggerDetectado,
       });
-    }
+      if (error) console.error("⚠️ Error logging trigger:", error);
+    })();
 
+  const respuestaEmergencia = language === "en"
+    ? "What you're telling me is very serious..."
+    : "Lo que me estás contando es muy serio...";
+
+  return res.json({
+    respuesta: respuestaEmergencia,
+    modo: 3,
+    submodo: null,
+    confianza: "alta",
+    señales: [triggerDetectado],
+    language,
+    fuente: "triggers"
+  });
+}
+
+  
     // AUR-B07: Clasificador de submodo por palabras clave
     const submodoPrevio = detectarSubmodo(messages);
     console.log(`🔍 Clasificador submodo: ${submodoPrevio}`);
