@@ -35,7 +35,7 @@ const NavbarLearn = () => {
 
   const navItems: NavItem[] = [
     { label: "Museo",      href: "/herstory",        icon: Heart         },
-    { label: "Guías",      href: "/awareness-guide", icon: FileText      },
+    { label: "Guías", href: "/guias", icon: FileText },
     { label: "Directorio", href: "/directorio",      icon: Users         },
     { label: "Glosario",   href: "/glosario",        icon: BookMarked    },
     { label: "Aprende",    href: "/aprende",          icon: Gamepad2      },
