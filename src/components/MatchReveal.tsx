@@ -1,11 +1,10 @@
 // ONB-F03 [FRONT] — Daf — Semana 3
 // Pantalla cinematográfica de revelación del match
-// Busca la imagen de la figura en Supabase (tabla mujeres)
+// figura.imagen_url ya viene buscada desde quiz.tsx
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, MapPin, Clock, Heart } from "lucide-react";
-import { supabaseMuseo } from "@/lib/supabaseMuseo";
 
 const CATEGORIAS_LABEL: Record<string, string> = {
   voces_creadoras: "Voces Creadoras",
@@ -34,29 +33,6 @@ interface MatchRevealProps {
 
 const MatchReveal = ({ figura, onContinue }: MatchRevealProps) => {
   const [phase, setPhase] = useState<"intro" | "reveal" | "details">("intro");
-  const [imagenUrl, setImagenUrl] = useState<string | null>(null);
-
-  // Buscar imagen en Supabase por nombre
-  useEffect(() => {
-    const fetchImagen = async () => {
-      try {
-        const { data } = await supabaseMuseo
-          .from("mujeres")
-          .select("imagen_url")
-          .ilike("nombre_conocido", `%${figura.nombre.split(" ")[0]}%`)
-          .limit(1)
-          .single();
-
-        if (data?.imagen_url) {
-          setImagenUrl(data.imagen_url);
-        }
-      } catch {
-        console.log("No se encontró imagen para", figura.nombre);
-      }
-    };
-
-    fetchImagen();
-  }, [figura.nombre]);
 
   useEffect(() => {
     const t1 = setTimeout(() => setPhase("reveal"), 2000);
@@ -166,7 +142,7 @@ const MatchReveal = ({ figura, onContinue }: MatchRevealProps) => {
               </motion.p>
 
               {/* Foto */}
-              {imagenUrl && (
+              {figura.imagen_url && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -174,7 +150,7 @@ const MatchReveal = ({ figura, onContinue }: MatchRevealProps) => {
                   className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-pink-300/30 shadow-2xl shadow-purple-500/30"
                 >
                   <img
-                    src={imagenUrl}
+                    src={figura.imagen_url}
                     alt={figura.nombre}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -234,10 +210,10 @@ const MatchReveal = ({ figura, onContinue }: MatchRevealProps) => {
                   Tu compañera histórica
                 </p>
 
-                {imagenUrl && (
+                {figura.imagen_url && (
                   <div className="w-28 h-28 mx-auto rounded-full overflow-hidden border-4 border-pink-300/30 shadow-xl">
                     <img
-                      src={imagenUrl}
+                      src={figura.imagen_url}
                       alt={figura.nombre}
                       className="w-full h-full object-cover"
                       onError={(e) => {

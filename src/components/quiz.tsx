@@ -1,4 +1,5 @@
 // Quiz — Conectado a /api/match/find + insignia "Tu historia comienza"
+// Busca imagen_url en Supabase museo y la incluye en el match guardado
 
 import { useState, useEffect } from "react";
 import { questions } from "../data/questions";
@@ -15,6 +16,7 @@ import { Sparkles, Users } from "lucide-react";
 import MatchReveal from "@/components/MatchReveal";
 import { giveOnboardingBadge } from "@/lib/badges";
 import { supabase } from "@/lib/supabaseClient";
+import { supabaseMuseo } from "@/lib/supabaseMuseo";
 
 interface MatchFigura {
   nombre: string;
@@ -57,6 +59,23 @@ const Quiz = ({ onComplete }: QuizProps) => {
     }));
   };
 
+  // Busca la imagen de la figura en Supabase museo por nombre
+  const fetchImagenUrl = async (nombre: string): Promise<string | null> => {
+    try {
+      const primerNombre = nombre.split(" ")[0];
+      const { data } = await supabaseMuseo
+        .from("mujeres")
+        .select("imagen_url")
+        .ilike("nombre_conocido", `%${primerNombre}%`)
+        .limit(1)
+        .single();
+
+      return data?.imagen_url || null;
+    } catch {
+      return null;
+    }
+  };
+
   const fetchMatch = async () => {
     setLoadingResult(true);
     setError(null);
@@ -83,15 +102,25 @@ const Quiz = ({ onComplete }: QuizProps) => {
         throw new Error("No se recibió una figura válida");
       }
 
-      setMatchResult(figura);
+      // Buscar imagen en Supabase museo
+      const imagenUrl = await fetchImagenUrl(figura.nombre);
+      const figuraConImagen = {
+        ...figura,
+        imagen_url: imagenUrl || undefined,
+      };
 
-      // Guardar match y perfil en localStorage
+      setMatchResult(figuraConImagen);
+
+      // Guardar match (con imagen) y perfil en localStorage
       if (onComplete) {
         const userProfileText = answers
           .map((ans, i) => `${questions[i].question}: ${ans}`)
           .join("\n");
         localStorage.setItem("herstory-user-profile", userProfileText);
-        localStorage.setItem("herstory-match", JSON.stringify(figura));
+        localStorage.setItem(
+          "herstory-match",
+          JSON.stringify(figuraConImagen)
+        );
       }
 
       // ── Insignia 2: Tu historia comienza ──
