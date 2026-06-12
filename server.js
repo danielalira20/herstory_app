@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import campoRoutes from './campoRoutes.js';
 
 dotenv.config();
 
@@ -280,6 +281,7 @@ const port = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/campo', campoRoutes);
 
 if (!process.env.GEMINI_API_KEY) {
   console.error("⚠️ ERROR: No se detectó GEMINI_API_KEY");
