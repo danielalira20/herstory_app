@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { AlertTriangle, Phone, Heart, Shield, Users, MessageCircle, MapPin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -191,11 +191,6 @@ const AwarenessGuide = () => {
       {/* Modal */}
       <Dialog open={!!selectedGuide} onOpenChange={(open) => !open && setSelectedGuide(null)}>
         <DialogContent className="sm:max-w-3xl w-full bg-background rounded-2xl shadow-xl p-8 mx-4">
-          <DialogClose asChild>
-            <Button variant="ghost" className="absolute top-4 right-4">
-              <X className="h-5 w-5" />
-            </Button>
-          </DialogClose>
           {selectedGuide && (
             <div className="flex flex-col items-center text-center">
               <div className={`p-4 rounded-full mb-4 ${selectedGuide.urgent ? 'bg-emergency/20' : 'bg-primary/20'}`}>
@@ -258,10 +253,12 @@ const AwarenessGuide = () => {
                 </div>
                 <Separator className="my-6" />
                 <div className="text-center">
-                  <Button variant="awareness" className="gap-2">
-                    <Heart className="h-4 w-4" />
-                    Únete al Movimiento
-                  </Button>
+                  <Link to="/contacto">
+                    <Button variant="awareness" className="gap-2">
+                      <Heart className="h-4 w-4" />
+                      Únete al Movimiento
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -271,23 +268,20 @@ const AwarenessGuide = () => {
 
       {/* Call to Action */}
       <section className="py-16 bg-gradient-to-r from-primary to-awareness text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-6">Juntas Somos Más Fuertes</h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            La prevención y erradicación de la violencia contra las mujeres es responsabilidad de toda la sociedad.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link to="/para-colectivos">
             <Button variant="secondary" size="lg" className="gap-2">
               <Users className="h-5 w-5" />
               Formar Parte del Cambio
             </Button>
+          </Link>
+          <Link to="/guias/apoyo">
             <Button variant="outline" size="lg" className="gap-2 bg-white/10 border-white/30 text-white hover:bg-white/20">
-              Compartir Recursos
+              Ver Recursos
             </Button>
-          </div>
+          </Link>
         </div>
       </section>
-
     </div>
   );
 };
