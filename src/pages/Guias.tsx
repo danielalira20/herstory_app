@@ -1,24 +1,19 @@
 import { Link } from "react-router-dom";
-import NavbarLearn from "@/components/NavbarLearn";
 import { BookOpen, Shield } from "lucide-react";
 import headerImage from "@/assets/guides-book.jpg";
-import WomenSilhouettes from "@/components/WomenSilhouettes";
-
+import NavbarWrapper from "@/components/NavbarWrapper";
 const Guias = () => {
   return (
     <div className="min-h-screen bg-background">
-      <NavbarLearn />
-
-      {/* Hero */}
+      {/* ── Hero Header ── */}
       <div className="relative w-full h-64 md:h-72 overflow-hidden">
         <img
           src={headerImage}
-          alt="Guías"
+          alt="HerStory Header"
           className="w-full h-full object-cover scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-pink-900/70 via-pink-800/60 to-pink-700/50 flex items-center justify-center">
-          <WomenSilhouettes />
-          <div className="relative z-20 text-center text-white space-y-3 px-4">
+        <div className="absolute inset-0 bg-gradient-to-b from-pink-900/60 via-pink-800/50 to-pink-700/40 flex items-center justify-center">
+          <div className="text-center text-white space-y-3">
             <p className="text-xs md:text-sm uppercase tracking-[4px] text-pink-200">
               HerStory · Guías
             </p>
@@ -32,6 +27,8 @@ const Guias = () => {
           </div>
         </div>
       </div>
+
+      <NavbarWrapper />
 
       {/* Hub de secciones */}
       <div className="container max-w-4xl py-16 px-4">
