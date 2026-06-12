@@ -13,6 +13,7 @@ import headerImage from "@/assets/herstory-header.jpg"
 import { useReportar } from "@/hooks/useReportar"
 import { supabase } from "@/lib/supabaseClient"
 import ComboboxMunicipio from "@/components/ui/ComboboxMunicipio"
+import GenerarFicha from "@/components/GenerarFicha"
 
 // ─────────────────────────────────────────
 // TIPO COLECTIVO
@@ -715,6 +716,31 @@ const Reportar = () => {
                   herstoryy2025@gmail.com
                 </a>
               </p>
+
+              <div className="border-t pt-6">
+                  <p className="text-sm font-semibold mb-1">
+                    Genera tu ficha de búsqueda
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Mientras verificamos tu reporte, comparte esta ficha en redes sociales y WhatsApp.
+                  </p>
+                  <GenerarFicha
+                    nombre={formData.Nombre}
+                    primerApellido={formData.Primer_apellido}
+                    segundoApellido={formData.Segundo_apellido}
+                    edad={formData.Edad}
+                    municipio={formData.municipio_desaparicion}
+                    estado={formData.Entidad_desaparicion}
+                    fechaDesaparicion={formData.Desaparicion}
+                    sexo={formData.Sexo}
+                    estatura={formData.estatura}
+                    colorCabello={formData.color_cabello}
+                    colorOjos={formData.color_ojos}
+                    caracteristicas={formData.caracteriticas}
+                    imagenUrl={formData.imagen_url}
+                    telefonoFamiliar={formData.contacto_telefono}
+                  />
+                </div>
 
               <Button onClick={reiniciar} variant="outline">
                 Enviar otro reporte

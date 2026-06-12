@@ -63,6 +63,7 @@
     "express": "^5.1.0",
     "framer-motion": "^12.23.26",
     "gemini-ai": "^2.2.1",
+    "html2canvas": "^1.4.1",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
