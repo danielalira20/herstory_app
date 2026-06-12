@@ -52,6 +52,8 @@ const ParaColectivos     = lazy(() => import("./pages/ParaColectivos"));
 const Reconocimiento     = lazy(() => import("./pages/Reconocimiento"));
 const GuiaColectivos     = lazy(() => import("./pages/GuiaColectivos"));
 
+const AdminLayout = lazy(() => import("./components/Adminlayout"))
+
 const queryClient = new QueryClient();
 
 // Spinner de carga
@@ -145,13 +147,25 @@ const App = () => {
 
                   {/* Panel admin */}
                   <Route
-                    path="/admin/verificacion"
-                    element={<ProtectedAdminRoute><AdminVerificacion /></ProtectedAdminRoute>}
-                  />
-                  <Route
-                    path="/admin/solicitudes"
-                    element={<ProtectedAdminRoute><AdminSolicitudes /></ProtectedAdminRoute>}
-                  />
+  path="/admin/verificacion"
+  element={
+    <ProtectedAdminRoute>
+      <AdminLayout>
+        <AdminVerificacion />
+      </AdminLayout>
+    </ProtectedAdminRoute>
+  }
+/>
+<Route
+  path="/admin/solicitudes"
+  element={
+    <ProtectedAdminRoute>
+      <AdminLayout>
+        <AdminSolicitudes />
+      </AdminLayout>
+    </ProtectedAdminRoute>
+  }
+/>
 
                   {/* Para colectivos */}
                   <Route path="/para-colectivos" element={<ParaColectivos />} />
