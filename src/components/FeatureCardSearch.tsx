@@ -10,7 +10,7 @@ interface FeatureCardSearchProps {
 const FeatureCardSearch = ({ icon: Icon, title, description, delay = '0ms' }: FeatureCardSearchProps) => {
   return (
     <div 
-      className="group relative p-8 rounded-2xl transition-all duration-500 ease-out cursor-pointer opacity-0 animate-fade-in-up hover:translate-y-[-12px] hover:scale-[1.03]"
+      className="group relative p-8 rounded-2xl transition-all duration-500 ease-out cursor-pointer opacity-0 animate-fade-in-up hover:translate-y-[-12px] hover:scale-[1.03] h-full"
       style={{ 
         animationDelay: delay,
         background: 'rgba(255, 255, 255, 0.6)',

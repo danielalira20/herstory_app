@@ -9,19 +9,19 @@ const features = [
     icon: MapPin,
     title: 'Mapa Nacional',
     description: 'Visualiza casos de mujeres desaparecidas en todo el país con datos actualizados en tiempo real.',
-    link: '/mujeres-desaparecidas',
+    link: '/rastro-nacional',
   },
   {
     icon: Database,
     title: 'Rastro Nacional',
     description: 'Base de datos y búsqueda inteligente de casos con filtros avanzados y alertas personalizadas.',
-    link: '/rastro-nacional',
+    link: '/mujeres-desaparecidas',
   },
   {
     icon: Heart,
-    title: 'Voces Silenciadas',
-    description: 'Testimonios reales de familias buscadoras. Historias de resistencia, esperanza y memoria que mantienen viva la búsqueda.',
-    link: '/voces-silenciadas',
+    title: 'Colectivos',
+    description: 'Encuentra el directorio de colectivos verificados por estado, recursos y guías de buenas prácticas.',
+    link: '/colectivos',
   },
   {
     icon: AlertTriangle,
@@ -163,12 +163,12 @@ const Search = () => {
             </div>
             
             {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto items-stretch">
               {features.map((feature, index) => (
                 <Link 
                   key={feature.title}
                   to={feature.link}
-                  className="block"
+                  className="block h-full"
                 >
                   <FeatureCardSearch
                     icon={feature.icon}
