@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import campoRoutes from './campoRoutes.js';
 
 dotenv.config();
 
@@ -9,6 +10,7 @@ import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import webpush from "web-push";
+import acosoRoutes from './acosoRoutes.js';
 import { createClient } from "@supabase/supabase-js";
  
 // Supabase backend client
@@ -358,6 +360,8 @@ const port = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/campo', campoRoutes);
+app.use('/acoso', acosoRoutes);
 
 if (!process.env.GEMINI_API_KEY) {
   console.error("⚠️ ERROR: No se detectó GEMINI_API_KEY");
