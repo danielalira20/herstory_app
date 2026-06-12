@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Star, Award, Crown, Zap } from "lucide-react";
+import { Edit, Star, Award, Crown, Zap, Sparkles, MapPin, Clock } from "lucide-react";
 import { EditProfile } from "./EditProfile";
 import { BadgeGrid } from "./BadgeGrid";
 import PanicSettings from "@/components/PanicSettings";
@@ -11,8 +11,18 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 
+const CATEGORIAS_LABEL: Record<string, string> = {
+  voces_creadoras: "Voces Creadoras",
+  pensamiento_critico: "Pensamiento Crítico y Sabiduría",
+  guardianas_dignidad: "Guardianas de la Dignidad",
+  liderazgo_transformacion: "Liderazgo y Transformación",
+  deporte: "Deporte",
+  naturaleza_planeta: "Naturaleza y Defensa del Planeta",
+  ciencia_salud_tecnologia: "Ciencia, Salud y Tecnología",
+};
+
 export const UserProfile = () => {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [userData, setUserData] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [badges, setBadges] = useState<any[]>([]);
@@ -41,6 +51,35 @@ export const UserProfile = () => {
         profile = newProfile;
       }
 
+      // ── Sincronización del match histórico ──
+      const matchLocal = localStorage.getItem("herstory-match");
+
+      if (matchLocal && !profile.match_figura) {
+        try {
+          const figura = JSON.parse(matchLocal);
+          const { data: updatedProfile } = await supabase
+            .from("profile")
+            .update({ match_figura: figura })
+            .eq("id", user.id)
+            .select()
+            .single();
+
+          if (updatedProfile) profile = updatedProfile;
+          console.log("✨ Match sincronizado a Supabase:", figura.nombre);
+        } catch (err) {
+          console.error("Error sincronizando match:", err);
+        }
+      } else if (profile.match_figura && !matchLocal) {
+        localStorage.setItem(
+          "herstory-match",
+          JSON.stringify(profile.match_figura)
+        );
+        console.log(
+          "✨ Match cargado desde Supabase:",
+          profile.match_figura.nombre
+        );
+      }
+
       setUserData({
         ...profile,
         email: user.email,
@@ -59,7 +98,6 @@ export const UserProfile = () => {
 
       const earnedIds = userBadges?.map((b: any) => b.insignia_id) || [];
 
-      // Mapear para BadgeGrid
       const mappedBadges =
         allBadges?.map((badge: any) => ({
           id: badge.id,
@@ -102,11 +140,12 @@ export const UserProfile = () => {
 
   const earnedBadges = badges.filter((badge) => badge.earned);
   const availableBadges = badges.filter((badge) => !badge.earned);
+  const figura = userData.match_figura;
 
   return (
     <div className="min-h-screen bg-gradient-subtle p-6">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <Button
             variant="secondary"
             onClick={() => navigate("/")}
@@ -114,7 +153,18 @@ export const UserProfile = () => {
           >
             ⬅ Volver al Inicio
           </Button>
-        </div>
+
+          <Button
+            variant="outline"
+            onClick={async () => {
+            await signOut();
+            navigate("/login");
+        }}
+            className="border-2 border-purple-300 text-purple-700 hover:bg-purple-100 hover:text-purple-800 font-semibold px-4 py-2 rounded-xl"
+          >
+            Cerrar sesión
+          </Button>
+    </div>
 
         {/* Header */}
         <div className="text-center mb-8">
@@ -179,6 +229,64 @@ export const UserProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Tu compañera histórica */}
+        {figura && (
+          <Card className="card-elegant overflow-hidden">
+            <div
+              className="p-6"
+              style={{
+                background:
+                  "linear-gradient(135deg, #4c1d95 0%, #7e22ce 50%, #a855f7 100%)",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-pink-200" />
+                <p className="text-xs uppercase tracking-[3px] text-pink-200">
+                  Tu compañera histórica
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4">
+                {figura.imagen_url && (
+                  <img
+                    src={figura.imagen_url}
+                    alt={figura.nombre}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-pink-300/30 shadow-lg flex-shrink-0"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-2xl font-serif font-bold text-white truncate">
+                    {figura.nombre}
+                  </h3>
+                  <p className="text-purple-200/80 font-serif italic text-sm mb-2">
+                    {CATEGORIAS_LABEL[figura.categoria_campo] ||
+                      figura.categoria_campo}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2">
+                    {figura.epoca && (
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 border border-white/10 text-xs text-white/80">
+                        <Clock className="w-3 h-3 text-pink-300" />
+                        {figura.epoca}
+                      </span>
+                    )}
+                    {figura.region && (
+                      <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 border border-white/10 text-xs text-white/80">
+                        <MapPin className="w-3 h-3 text-pink-300" />
+                        {figura.region}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Badges Section */}
         <BadgeGrid badges={badges} />
