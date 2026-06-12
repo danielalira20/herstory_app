@@ -21,7 +21,7 @@ const features = [
     icon: Heart,
     title: 'Colectivos',
     description: 'Encuentra el directorio de colectivos verificados por estado, recursos y guías de buenas prácticas.',
-    link: '/colectivos',
+    link: '/para-colectivos',
   },
   {
     icon: AlertTriangle,

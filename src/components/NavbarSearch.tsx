@@ -34,7 +34,7 @@ const NavbarSearch = () => {
 
   const navItems: NavItem[] = [
     { label: "Mapa",              href: "/rastro-nacional",       icon: Map           },
-    { label: "Formularios",       href: "/mujeres-desaparecidas", icon: FileText      },
+    { label: "Alertas",       href: "/mujeres-desaparecidas", icon: FileText      },
     { label: "Ayuda",             href: "/ayuda",                 icon: Heart         },
     { label: "Reportar",          href: "/reportar",              icon: AlertTriangle },
     { label: "Colectivos",   href: "/para-colectivos",            icon: Users         },

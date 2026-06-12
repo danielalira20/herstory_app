@@ -10,15 +10,30 @@ import {
 } from "lucide-react"
 
 import { lazy, Suspense } from "react"
-const PDFDownloadLink = lazy(() =>
-  import("@react-pdf/renderer").then(m => ({ default: m.PDFDownloadLink }))
-)
-const GuiaPDF = lazy(() =>
-  import("@/components/GuiaPDF").then(m => ({ default: m.GuiaPDF }))
-)
 
 
 
+const PDFBoton = lazy(async () => {
+  const [{ PDFDownloadLink }, { GuiaPDF }] = await Promise.all([
+    import("@react-pdf/renderer"),
+    import("@/components/GuiaPDF")
+  ])
+  return {
+    default: () => (
+      <PDFDownloadLink
+        document={<GuiaPDF />}
+        fileName="HerStory-Guia-Colectivos-2026.pdf"
+        className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all mt-2"
+      >
+        {({ loading }: { loading: boolean }) =>
+          loading
+            ? "Generando PDF..."
+            : <><Download className="h-4 w-4" /> Descargar guía en PDF</>
+        }
+      </PDFDownloadLink>
+    )
+  }
+})
 // ─────────────────────────────────────────
 // Config por sección
 // ─────────────────────────────────────────
@@ -417,17 +432,8 @@ const GuiaColectivos = () => {
                     <Download className="h-4 w-4" /> Preparando PDF...
                   </span>
                 }>
-                  <PDFDownloadLink
-                    document={<GuiaPDF />}
-                    fileName="HerStory-Guia-Colectivos-2026.pdf"
-                    className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-white hover:opacity-90 transition-all mt-2"
-                  >
-                    {({ loading }) =>
-                      loading
-                        ? "Generando PDF..."
-                        : <><Download className="h-4 w-4" /> Descargar guía en PDF</>
-                    }
-                  </PDFDownloadLink>
+                   <PDFBoton />
+                  
                 </Suspense>
             </div>
             <div className="space-y-4 lg:col-span-8">

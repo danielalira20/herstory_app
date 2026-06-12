@@ -4,6 +4,7 @@ import headerImage from "@/assets/herstory-header.jpg"
 import NavbarWrapper from '@/components/NavbarWrapper'
 import { useNavigate } from "react-router-dom"
 
+
 const teamMembers = [
   {
     name: "Daniela Guadalupe Lira Huerta",
@@ -45,28 +46,32 @@ const valores = [
     titulo: "Empatía",
     desc: "Escuchamos con el corazón y comprendemos cada historia.",
     color: "#831843",
-    bg: "#fdf2f8",
+    cardClass: "bg-pink-50 dark:bg-pink-950/30 border-pink-100 dark:border-pink-900/40",
+    iconClass: "bg-pink-100 dark:bg-pink-900/40",
   },
   {
     icon: Users,
     titulo: "Comunidad",
     desc: "Fortalecemos lazos y construimos redes de apoyo.",
     color: "#581c87",
-    bg: "#faf5ff",
+    cardClass: "bg-purple-50 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/40",
+    iconClass: "bg-purple-100 dark:bg-purple-900/40",
   },
   {
     icon: Target,
     titulo: "Propósito",
     desc: "Cada acción tiene un impacto positivo y medible.",
     color: "#7e22ce",
-    bg: "#f5f3ff",
+    cardClass: "bg-violet-50 dark:bg-violet-950/30 border-violet-100 dark:border-violet-900/40",
+    iconClass: "bg-violet-100 dark:bg-violet-900/40",
   },
   {
     icon: Eye,
     titulo: "Transparencia",
     desc: "Operamos con honestidad y responsabilidad.",
     color: "#1e3a5f",
-    bg: "#eff6ff",
+    cardClass: "bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/40",
+    iconClass: "bg-blue-100 dark:bg-blue-900/40",
   },
 ]
 
@@ -177,16 +182,13 @@ const Nosotras = () => {
             Nuestros valores
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {valores.map(({ icon: Icon, titulo, desc, color, bg }) => (
+            
+            {valores.map(({ icon: Icon, titulo, desc, color, cardClass, iconClass }) => (
               <div
                 key={titulo}
-                className="rounded-2xl p-6 flex flex-col gap-4 border border-border/60"
-                style={{ background: bg }}
+                className={`rounded-2xl p-6 flex flex-col gap-4 border ${cardClass}`}
               >
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: color + "18" }}
-                >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconClass}`}>
                   <Icon className="h-5 w-5" style={{ color }} />
                 </div>
                 <div>
