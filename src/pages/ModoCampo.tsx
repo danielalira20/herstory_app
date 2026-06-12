@@ -71,19 +71,57 @@ export default function ModoCampo() {
     form.destination &&
     form.returnTime;
 
-  // ── Llegó segura ──
+    // ── Llegó segura ──
   if (confirmed) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-rose-50 flex items-center justify-center p-6">
+        <NavbarWrapper />
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-sm"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center max-w-sm w-full"
         >
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-4xl">✅</div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-3">Llegaste segura</h2>
-          <p className="text-gray-500 mb-8">Tu contacto recibió la confirmación por WhatsApp.</p>
-          <button onClick={() => setConfirmed(false)} className="text-green-600 text-sm underline underline-offset-4">
+          {/* Icono animado */}
+          <div className="relative mx-auto mb-8 w-28 h-28">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 200, delay: 0.1 }}
+              className="w-28 h-28 bg-gradient-to-br from-purple-500 to-rose-400 rounded-full flex items-center justify-center shadow-xl shadow-purple-200"
+            >
+              <span className="text-5xl">✅</span>
+            </motion.div>
+            {/* Anillo pulsante */}
+            <motion.div
+              animate={{ scale: [1, 1.4, 1], opacity: [0.4, 0, 0.4] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="absolute inset-0 rounded-full border-2 border-purple-300"
+            />
+          </div>
+
+          <h2 className="text-4xl font-bold text-gray-900 mb-3">Llegaste segura</h2>
+          <p className="text-gray-500 text-lg mb-2">Tu contacto ya lo sabe.</p>
+          <p className="text-gray-400 text-sm mb-10">
+            Gracias por cuidarte — tu red estuvo contigo todo el tiempo.
+          </p>
+
+          {/* Card resumen */}
+          <div className="bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl p-5 shadow-md mb-8 text-left space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Destino</span>
+              <span className="text-gray-700 font-medium">{session?.destination || '—'}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Contacto notificado</span>
+              <span className="text-gray-700 font-medium">{session?.contactName || '—'}</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setConfirmed(false)}
+            className="text-purple-500 text-sm underline underline-offset-4 hover:text-purple-700 transition"
+          >
             Volver al inicio
           </button>
         </motion.div>
@@ -94,65 +132,76 @@ export default function ModoCampo() {
   // ── Sesión activa ──
   if (session) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-rose-900 flex items-center justify-center p-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
-        >
-          <div className="flex justify-center mb-8">
-            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-rose-50">
+        <NavbarWrapper />
+
+        <div className="max-w-md mx-auto px-6 pt-12 pb-10">
+          {/* Pill de estado */}
+          <div className="flex justify-center mb-10">
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md border border-rose-200 rounded-full px-5 py-2 shadow-sm">
               <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-400" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500" />
               </span>
-              <span className="text-white/90 text-sm font-medium">Modo Campo activo</span>
+              <span className="text-rose-600 text-sm font-semibold">Modo Campo activo</span>
             </div>
           </div>
 
-          <h1 className="text-4xl font-bold text-white text-center mb-2">Estás protegida</h1>
-          <p className="text-white/50 text-center mb-8">Tu contacto ya fue notificado por WhatsApp</p>
+          {/* Título */}
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Estás protegida</h1>
+            <p className="text-gray-500">Tu contacto ya fue notificado por WhatsApp</p>
+          </div>
 
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 mb-6 space-y-4">
+          {/* Card glass info */}
+          <div className="bg-white/70 backdrop-blur-md border border-white/90 rounded-3xl p-6 shadow-lg shadow-purple-100/40 mb-6 space-y-4">
             {[
               { label: 'Destino', value: session.destination },
               { label: 'Contacto', value: session.contactName },
               {
                 label: 'Regreso estimado',
-                value: new Date(session.estimatedReturn).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
+                value: new Date(session.estimatedReturn).toLocaleTimeString('es-MX', {
+                  hour: '2-digit', minute: '2-digit'
+                })
               },
             ].map((item, i) => (
-              <div key={i} className={`flex justify-between items-center py-3 ${i < 2 ? 'border-b border-white/10' : ''}`}>
-                <span className="text-white/50 text-sm">{item.label}</span>
-                <span className="text-white font-medium text-sm text-right max-w-[60%]">{item.value}</span>
+              <div key={i} className={`flex justify-between items-center ${i < 2 ? 'pb-4 border-b border-gray-100' : ''}`}>
+                <span className="text-gray-400 text-sm">{item.label}</span>
+                <span className="text-gray-800 font-medium text-sm">{item.value}</span>
               </div>
             ))}
             <div className="flex justify-between items-center pt-1">
-              <span className="text-white/50 text-sm">Tiempo restante</span>
-              <span className={`font-bold text-sm ${timeInfo.urgent ? 'text-red-300' : 'text-purple-300'}`}>
+              <span className="text-gray-400 text-sm">Tiempo restante</span>
+              <span className={`font-bold text-sm ${timeInfo.urgent ? 'text-rose-500' : 'text-purple-600'}`}>
                 {timeInfo.text}
               </span>
             </div>
           </div>
 
+          {/* Aviso */}
+          <div className="bg-amber-50 border border-amber-100 rounded-2xl px-5 py-3 mb-6">
+            <p className="text-amber-700 text-xs text-center leading-relaxed">
+              Si no confirmas a tiempo, tu contacto recibirá una alerta automática por WhatsApp.
+            </p>
+          </div>
+
+          {/* Botón */}
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleEnd}
             disabled={loading}
-            className="w-full bg-green-400 hover:bg-green-300 text-green-900 font-bold py-5 rounded-2xl text-lg transition-all disabled:opacity-50 shadow-2xl shadow-green-900/30"
+            className="w-full bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold py-5 rounded-2xl text-lg transition-all disabled:opacity-50 shadow-lg shadow-green-200"
           >
-            {loading ? 'Confirmando...' : '✅  Llegué segura'}
+            {loading ? 'Confirmando...' : '  Llegué segura'}
           </motion.button>
 
-          {error && <p className="text-red-300 text-sm text-center mt-4">{error}</p>}
-          <p className="text-white/30 text-xs text-center mt-6 leading-relaxed">
-            Si no confirmas a tiempo, tu contacto recibirá una alerta automática.
-          </p>
-        </motion.div>
+          {error && <p className="text-red-500 text-sm text-center mt-4">{error}</p>}
+        </div>
       </div>
     );
   }
 
+  
   // ── Formulario ──
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-rose-50">
@@ -224,7 +273,7 @@ export default function ModoCampo() {
             disabled={loading || !formValid}
             className="mt-4 w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-4 rounded-2xl text-base transition-all disabled:opacity-40 shadow-xl"
           >
-            {loading ? 'Activando...' : '🔴  Activar Modo Campo'}
+            {loading ? 'Activando...' : '  Activar Modo Campo'}
           </motion.button>
 
           {error && <p className="text-red-500 text-sm text-center mt-3">{error}</p>}

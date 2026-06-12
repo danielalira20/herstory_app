@@ -56,7 +56,7 @@ router.post('/start', async (req, res) => {
     timeZone: 'America/Mexico_City'
   });
 
-  const phoneClean = '+52' + contactPhone.replace(/\D/g, '').slice(-10);
+  const phoneClean = '+521' + contactPhone.replace(/\D/g, '').slice(-10);
 
   try {
     await twilioClient.messages.create({
@@ -90,7 +90,7 @@ router.post('/end', async (req, res) => {
     .update({ status: 'closed_safe', closed_at: new Date().toISOString() })
     .eq('id', sessionId);
 
-  const phoneClean = '+52' + session.contact_phone.replace(/\D/g, '').slice(-10);
+  const phoneClean = '+521' + session.contact_phone.replace(/\D/g, '').slice(-10);
 
   try {
     await twilioClient.messages.create({
@@ -143,7 +143,7 @@ cron.schedule('*/15 * * * *', async () => {
       timeZone: 'America/Mexico_City'
     });
 
-    const phoneClean = '+52' + session.contact_phone.replace(/\D/g, '').slice(-10);
+    const phoneClean = '+521' + session.contact_phone.replace(/\D/g, '').slice(-10);
 
     try {
       await twilioClient.messages.create({
