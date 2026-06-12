@@ -48,6 +48,7 @@ const ParaColectivos     = lazy(() => import("./pages/ParaColectivos"));
 const Reconocimiento     = lazy(() => import("./pages/Reconocimiento"));
 const GuiaColectivos     = lazy(() => import("./pages/GuiaColectivos"));
 const ModoCampo = lazy(() => import('./pages/ModoCampo'));
+const MapaAcoso = lazy(() => import('./pages/MapaAcoso'));
 
 const queryClient = new QueryClient();
 
@@ -117,6 +118,8 @@ const App = () => {
                   <Route path="/rastro-nacional"       element={<RastroNacional />} />
                   <Route path="/reportar"              element={<Reportar />} />
                   <Route path="/modo-campo"            element={<ModoCampo />} /> 
+                  <Route path="/mapa-acoso" element={<MapaAcoso />} />
+                  
 
                   {/* Páginas de Learn (rosa) */}
                   <Route path="/herstory"       element={<HerStory />} />
