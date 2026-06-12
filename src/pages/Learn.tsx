@@ -24,17 +24,17 @@ const features = [
     link: '/ella-dice',
   },*/
   {
-  Icon: BookOpen,
-  title: "Guías de Apoyo y Concientización",
-  description: "Recursos descargables y guías de concientización sobre derechos, salud, seguridad y empoderamiento para informarte y actuar.",
-  link: '/guias',
-},
-{
-  Icon: BookOpen,
-  title: "Glosario",
-  description: "Diccionario de violencias sutiles y herramientas de empoderamiento. Nombrar lo que vivimos es el primer paso.",
-  link: '/glosario',
-},
+    Icon: BookOpen,
+    title: "Guías de Apoyo y Concientización",
+    description: "Recursos descargables y guías de concientización sobre derechos, salud, seguridad y empoderamiento para informarte y actuar.",
+    link: '/guias',
+  },
+  {
+    Icon: BookOpen,
+    title: "Glosario",
+    description: "Diccionario de violencias sutiles y herramientas de empoderamiento. Nombrar lo que vivimos es el primer paso.",
+    link: '/glosario',
+  },
 ];
 
 const Learn = () => {
@@ -109,7 +109,7 @@ const Learn = () => {
                     Explorar museo
                   </button>
                 </Link>
-                <Link to="/awareness-guide">
+                <Link to="/guias">
                   <button
                     className="px-8 py-4 rounded-xl font-medium transition-all duration-300"
                     style={{
@@ -197,19 +197,18 @@ const Learn = () => {
               <p className="text-pink-600 text-sm mb-4">
                 Juntas podemos recordar y transformar
               </p>
-              <Link to="/nosotras">
-                <button
-                  className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300"
-                  style={{
-                    background: 'rgba(251, 207, 232, 0.3)',
-                    backdropFilter: 'blur(10px)',
-                    border: '1px solid rgba(244, 114, 182, 0.3)',
-                    color: '#9d174d'
-                  }}
-                >
-                  Ver todos los recursos
-                </button>
-              </Link>
+              <button
+                className="px-6 py-3 rounded-xl text-sm font-medium transition-all duration-300"
+                style={{
+                  background: 'rgba(251, 207, 232, 0.3)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(244, 114, 182, 0.3)',
+                  color: '#9d174d'
+                }}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Ir al inicio de la página
+              </button>
             </div>
           </div>
         </section>

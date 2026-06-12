@@ -1,88 +1,65 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { HeroSection } from "@/components/ui/hero-section";
 import { OrganizationCard } from "@/components/ui/organization-card";
-//import { GuideCard } from "@/components/ui/guide-card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { organizations } from "@/data/organizations";
-import { guides } from "@/data/guides";
-import { Users, BookOpen, Heart, Filter } from "lucide-react";
-import supportImage from "@/assets/support-hands.jpg";
-//import guidesImage from "@/assets/guides-book.jpg";
+import { Heart, Filter } from "lucide-react";
+import headerImage from "@/assets/herstory-header.jpg";
+import WomenSilhouettes from "@/components/WomenSilhouettes";
+import NavbarWrapper from "@/components/NavbarWrapper";
 
 const Index = () => {
-  const navigate = useNavigate();
   const [selectedOrgType, setSelectedOrgType] = useState<string | null>(null);
-  const [selectedGuideCategory, setSelectedGuideCategory] = useState<string | null>(null);
 
   const filteredOrganizations = selectedOrgType
     ? organizations.filter(org => org.type === selectedOrgType)
     : organizations;
 
-  
-
   const organizationTypes = [...new Set(organizations.map(org => org.type))];
-  //const guideCategories = [...new Set(guides.map(guide => guide.category))];
-
-  const scrollToSection = (sectionId: string) => {
-    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <div id="hero">
-        <HeroSection
-          title="Conectando con la Ayuda"
-          subtitle="Tu red de apoyo y recursos para el empoderamiento femenino. Encuentra organizaciones aliadas y guías prácticas para situaciones que importan."
-          onExploreClick={() => scrollToSection('organizaciones')}
+
+      {/* Hero */}
+      <div className="relative w-full h-64 md:h-72 overflow-hidden">
+        <img
+          src={headerImage}
+          alt="Ayuda y apoyo"
+          className="w-full h-full object-cover scale-105"
         />
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/60 via-purple-800/50 to-purple-700/40 flex items-center justify-center">
+          <WomenSilhouettes />
+          <div className="relative z-20 text-center text-white space-y-3 px-4">
+            <p className="text-xs md:text-sm uppercase tracking-[4px] text-purple-200">
+              HerStory · Ayuda
+            </p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              Conectando con{" "}
+              <span className="italic font-normal text-purple-200">la ayuda</span>
+            </h1>
+            <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
+              Encuentra organizaciones aliadas y recursos para el empoderamiento femenino.
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Navigation — estilo igual que NavbarSearch */}
-<nav className="sticky top-0 z-50 w-full border-b backdrop-blur supports-[backdrop-filter]:bg-purple-50/60 bg-purple-100/95 dark:bg-background/95 border-purple-200/60 dark:border-purple-900/40">
-  <div className="container mx-auto px-4 py-3">
-    <div className="flex items-center justify-center gap-2">
-      <Button variant="ghost" onClick={() => navigate('/search')}
-        className="flex items-center gap-2 text-purple-800 hover:text-purple-800 dark:hover:text-purple-800 hover:bg-purple-200/50 dark:hover:bg-purple-800/50">
-        <Heart className="h-4 w-4" /> Regresar
-      </Button>
-      <Button variant="ghost" onClick={() => scrollToSection('organizaciones')}
-        className="flex items-center gap-2 text-purple-800 hover:text-purple-800 dark:hover:text-purple-800 hover:bg-purple-200/50 dark:hover:bg-purple-800/50">
-        <Users className="h-4 w-4" /> Organizaciones
-      </Button>
-      <Button variant="ghost" onClick={() => scrollToSection('guias')}
-        className="flex items-center gap-2 text-purple-800 hover:text-purple-800 dark:hover:text-purple-800 hover:bg-purple-200/50 dark:hover:bg-purple-800/50">
-        <BookOpen className="h-4 w-4" /> Guías
-      </Button>
-    </div>
-  </div>
-</nav>
+      <NavbarWrapper />
 
       {/* Organizations Section */}
       <section id="organizaciones" className="py-20">
         <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center mb-12">
-            <div>
-              <h2 className="text-4xl font-bold text-primary mb-6">
-                Organizaciones de Apoyo
-              </h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-                Conecta con fundaciones, colectivos y asociaciones comprometidas con los derechos 
-                de las mujeres. Encuentra el apoyo que necesitas cerca de ti.
-              </p>
-              <div className="flex items-center gap-2 text-primary">
-                <Heart className="h-5 w-5" />
-                <span className="font-medium">{organizations.length} organizaciones disponibles</span>
-              </div>
-            </div>
-            <div className="relative">
-              <img
-                src={supportImage}
-                alt="Manos de apoyo"
-                className="rounded-lg shadow-elegant w-full h-64 object-cover"
-              />
+          <div className="mb-12">
+            <h2 className="text-4xl font-bold text-primary mb-6">
+              Organizaciones de Apoyo
+            </h2>
+            <p className="text-lg text-muted-foreground leading-relaxed mb-6">
+              Conecta con fundaciones, colectivos y asociaciones comprometidas con los derechos
+              de las mujeres. Encuentra el apoyo que necesitas cerca de ti.
+            </p>
+            <div className="flex items-center gap-2 text-primary">
+              <Heart className="h-5 w-5" />
+              <span className="font-medium">{organizations.length} organizaciones disponibles</span>
             </div>
           </div>
 
@@ -117,8 +94,6 @@ const Index = () => {
         </div>
       </section>
 
-      
-
       {/* Emergency Contact Section */}
       <section className="py-20 bg-gradient-hero">
         <div className="container mx-auto px-4 text-center">
@@ -142,6 +117,7 @@ const Index = () => {
           </Card>
         </div>
       </section>
+
     </div>
   );
 };

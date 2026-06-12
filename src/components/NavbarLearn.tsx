@@ -35,7 +35,7 @@ const NavbarLearn = () => {
 
   const navItems: NavItem[] = [
     { label: "Museo",      href: "/herstory",        icon: Heart         },
-    { label: "Guías",      href: "/awareness-guide", icon: FileText      },
+    { label: "Guías",      href: "/guias", icon: FileText      },
     { label: "Glosario",   href: "/glosario",        icon: BookMarked    },
     { label: "MiniJuegos",    href: "/aprende",          icon: Gamepad2      },
     // TODO [DEL-F01 — JESS, Semana 1]: Eliminar este item y quitar su route en App.tsx.

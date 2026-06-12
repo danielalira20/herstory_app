@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Search, BookOpen } from "lucide-react";
 import headerImage from "@/assets/herstory-header.jpg";
 import WomenSilhouettes from "@/components/WomenSilhouettes";
+import NavbarWrapper from "@/components/NavbarWrapper";
 
 const categorias = ["Todas", "Violencia psicológica", "Manipulación", "Violencia", "Discriminación", "Empoderamiento"];
 
@@ -56,32 +57,30 @@ const Glosario = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavbarLearn />
+      {/* ── Hero Header ── */}
+      <div className="relative w-full h-64 md:h-72 overflow-hidden">
+        <img
+          src={headerImage}
+          alt="HerStory Header"
+          className="w-full h-full object-cover scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-pink-900/60 via-pink-800/50 to-pink-700/40 flex items-center justify-center">
+          <div className="text-center text-white space-y-3">
+            <p className="text-xs md:text-sm uppercase tracking-[4px] text-pink-200">
+              HerStory · Glosario
+            </p>
+            <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+              Glosario{" "}
+              <span className="italic font-normal text-pink-200">vivo</span>
+            </h1>
+            <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
+              Nombrar lo que vivimos es el primer paso para entenderlo.
+            </p>
+          </div>
+        </div>
+      </div>
 
-      {/* Hero */}
-      
-<div className="relative w-full h-64 md:h-72 overflow-hidden">
-  <img
-    src={headerImage}
-    alt="Glosario Header"
-    className="w-full h-full object-cover scale-105"
-  />
-  <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 via-purple-800/60 to-purple-700/50 flex items-center justify-center">
-    <WomenSilhouettes />
-    <div className="relative z-20 text-center text-white space-y-3 px-4">
-      <p className="text-xs md:text-sm uppercase tracking-[4px] text-purple-200">
-        HerStory · Glosario
-      </p>
-      <h1 className="text-4xl md:text-5xl font-bold leading-tight">
-        Glosario{" "}
-        <span className="italic font-normal text-purple-200">vivo</span>
-      </h1>
-      <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
-        Nombrar lo que vivimos es el primer paso para entenderlo.
-      </p>
-    </div>
-  </div>
-</div>
+      <NavbarWrapper />
 
       <div className="container max-w-4xl py-10">
 
