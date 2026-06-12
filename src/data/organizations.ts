@@ -2,7 +2,7 @@ export interface Organization {
   id: string;
   name: string;
   description: string;
-  type: "Fundación" | "Colectivo" | "Asociación" | "ONG"| "Gobierno Local";
+  type: "Fundación" | "Asociación" | "ONG"| "Gobierno Local";
   phone?: string;
   email?: string;
   address?: string;
@@ -41,7 +41,7 @@ export const organizations: Organization[] = [
     phone: "(55) 53773000",
     
     address: "Blvd. Adolfo López Mateos 231,Torre A Planta Baja,Col. Tlacopac San Ángel,Álvaro Obregón CP.01760",
-    website: "https://amjac-juzgadoras.org/",
+    website: "https://www.facebook.com/amjuzgadoras/",
     services: ["Congresos", "Talleres", "Apoyo jurídico", "Mediación familiar"]
   },
   {
@@ -66,15 +66,4 @@ export const organizations: Organization[] = [
     website: "https://www.fgjcdmx.gob.mx/",
     services: ["Atención 24h", "Línea de crisis", "Terapia especializada", "Apoyo Juridico"]
   },
-  {
-    id: "6",
-    name: "Colectiva Luchadoras",
-    description: "Organización feminista mexicana fundada en 2012, enfocada en combatir los estereotipos de género y la violencia digital.",
-    type: "Colectivo",
-    
-    email: "hola@luchadoras.org",
-
-    website: "https://luchadoras.mx/",
-    services: ["Autodefensa feminista", "Empoderamiento personal", "Apoyo entre pares"]
-  }
 ];
