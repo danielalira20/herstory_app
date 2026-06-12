@@ -187,12 +187,6 @@ const Nosotras = () => {
                   <p className="text-muted-foreground mb-4 leading-relaxed">
                     {member.description}
                   </p>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      <Mail className="h-4 w-4 mr-2" />
-                      Contactar
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
             ))}
