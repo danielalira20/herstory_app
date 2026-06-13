@@ -26,6 +26,7 @@ interface Person {
   cabello?: string
   folio?: string
   proyeccionPath?: string | null
+  municipio_desaparicion?: string | null;
 }
 
 interface PersonModalProps {
@@ -267,9 +268,11 @@ const PersonModal = ({ person, isOpen, onClose }: PersonModalProps) => {
                 <div className="flex items-center gap-3">
                   <MapPin className="h-5 w-5 text-primary shrink-0" />
                   <div>
-                    <p className="font-medium text-sm">Estado</p>
+                    <p className="font-medium text-sm">Ubicación</p>
                     <p className="text-muted-foreground text-sm">
-                      {person.estado}
+                      {person.municipio_desaparicion
+                        ? `${person.municipio_desaparicion}, ${person.estado}`
+                        : person.estado}
                     </p>
                   </div>
                 </div>

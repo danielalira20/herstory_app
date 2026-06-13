@@ -1,46 +1,87 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Heart, Target, Eye, Users, Mail, Linkedin } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import headerImage from "@/assets/herstory-header.jpg";
-import NavbarWrapper from '@/components/NavbarWrapper';
+import { Heart, Target, Eye, Users, ArrowRight, Code2, Palette } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import headerImage from "@/assets/herstory-header.jpg"
+import NavbarWrapper from '@/components/NavbarWrapper'
+import { useNavigate } from "react-router-dom"
+
+
+const teamMembers = [
+  {
+    name: "Daniela Guadalupe Lira Huerta",
+    role: "Desarrolladora Backend",
+    roleIcon: Code2,
+    description: "Estudiante de la FCC. Le gustan los gatos, Taylor Swift y el diseño. Creadora de Auren y backend del proyecto.",
+    initials: "DL",
+    color: { bg: "#581c87", text: "#F0ABFC" },
+  },
+  {
+    name: "Jasmin Ixcheel Huerta Ramos",
+    role: "Desarrolladora Backend",
+    roleIcon: Code2,
+    description: "Estudiante de la FCC. Le gusta Stray Kids, la coca cola y la programación. Encargada del backend del proyecto.",
+    initials: "JH",
+    color: { bg: "#831843", text: "#FBCFE8" },
+  },
+  {
+    name: "Dafne Cirne Hernández",
+    role: "Diseñadora Frontend",
+    roleIcon: Palette,
+    description: "Estudiante de la FCC. Le gusta el gym, el anime y el desarrollo web. Encargada del frontend del proyecto.",
+    initials: "DC",
+    color: { bg: "#1e1b4b", text: "#C7D2FE" },
+  },
+  {
+    name: "Jessica Nahomi Corona Hernández",
+    role: "Diseñadora Frontend",
+    roleIcon: Palette,
+    description: "Estudiante de la FCC. Le gusta Latin Mafia, Kenia OS y el desarrollo web. Encargada del frontend del proyecto.",
+    initials: "JC",
+    color: { bg: "#134e4a", text: "#99F6E4" },
+  },
+]
+
+const valores = [
+  {
+    icon: Heart,
+    titulo: "Empatía",
+    desc: "Escuchamos con el corazón y comprendemos cada historia.",
+    color: "#831843",
+    cardClass: "bg-pink-50 dark:bg-pink-950/30 border-pink-100 dark:border-pink-900/40",
+    iconClass: "bg-pink-100 dark:bg-pink-900/40",
+  },
+  {
+    icon: Users,
+    titulo: "Comunidad",
+    desc: "Fortalecemos lazos y construimos redes de apoyo.",
+    color: "#581c87",
+    cardClass: "bg-purple-50 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/40",
+    iconClass: "bg-purple-100 dark:bg-purple-900/40",
+  },
+  {
+    icon: Target,
+    titulo: "Propósito",
+    desc: "Cada acción tiene un impacto positivo y medible.",
+    color: "#7e22ce",
+    cardClass: "bg-violet-50 dark:bg-violet-950/30 border-violet-100 dark:border-violet-900/40",
+    iconClass: "bg-violet-100 dark:bg-violet-900/40",
+  },
+  {
+    icon: Eye,
+    titulo: "Transparencia",
+    desc: "Operamos con honestidad y responsabilidad.",
+    color: "#1e3a5f",
+    cardClass: "bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/40",
+    iconClass: "bg-blue-100 dark:bg-blue-900/40",
+  },
+]
 
 const Nosotras = () => {
-  const teamMembers = [
-    {
-      name: "Daniela Guadalupe Lira Huerta",
-      role: "Desarrolladora Backend",
-      description: "Estudiante de la FCC, le gustan los gatos, Taylor Swift y el diseño. Creadora de la identidad visual del proyecto.",
-      initials: "DL",
-      instagram: "ana@herstory.com",
-    },
-    {
-      name: "Jasmin Ixcheel Huerta Ramos",
-      role: "Desarrolladora Backend",
-      description: "Estudiante de la FCC, le gusta Stray Kids, la coca cola y la programación. Encargada de la implementación del backend del proyecto.",
-      initials: "IH",
-      instagram: "carmen@herstory.com",
-    },
-    {
-      name: "Dafne Cirne Hernández",
-      role: "Diseñadora Frontend",
-      description: "Estudiante de la FCC, le gusta el gym, el anime y el desarrollo web. Encargada de la implementación del frontend del proyecto.",
-      initials: "DF",
-      instagram: "maria@herstory.com",
-    },
-    {
-      name: "Jessica Nahomi Corona Hernández",
-      role: "Diseñadora Frontend",
-      description: "Estudiante de la FCC, le gusta Latin Mafia, Kenia OS y el desarrollo web. Encargada de la implementación del frontend del proyecto.",
-      initials: "JC",
-      instagram: "sofia@herstory.com",
-    }
-  ];
+  const navigate = useNavigate()
 
   return (
     <div className="min-h-screen bg-background">
-      {/* ── Hero Header ── */}
+
+              {/* ── Hero Header ── */}
       <div className="relative w-full h-64 md:h-72 overflow-hidden">
         <img
           src={headerImage}
@@ -57,144 +98,199 @@ const Nosotras = () => {
               <span className="italic font-normal text-pink-200">somos</span>
             </h1>
             <p className="text-sm md:text-base text-white/70 max-w-md mx-auto">
-              El equipo detrás de herstory,.
+              el equipo detras de Hersotry
             </p>
           </div>
         </div>
       </div>
 
+
+      {/* ── Barra separadora ── */}
+      <div className="h-1 w-full" style={{ background: "linear-gradient(90deg, #7e22ce, #ec4899, #7e22ce)" }} />
+
       <NavbarWrapper />
 
-      <div className="container py-12">
-        {/* Mission and Vision */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-          <Card className="border-primary/20">
-            <CardHeader>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-3 bg-primary/10 rounded-full">
-                  <Target className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Nuestra Misión</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-  <p className="text-lg leading-relaxed text-muted-foreground">
-    El Museo de Mujeres Olvidadas tiene como misión visibilizar, preservar y honrar la memoria de las mujeres que han sido históricamente silenciadas, invisibilizadas o desaparecidas a causa de la violencia de género y la desigualdad.
-    A través de una plataforma web interactiva, buscamos crear un espacio de denuncia, reflexión y aprendizaje, donde cada usuario pueda:
-  </p>
-  <ul className="about-description list-disc list-inside text-lg leading-relaxed text-muted-foreground">
-    <li>Publicar y consultar casos de mujeres desaparecidas en un foro comunitario.</li>
-    <li>Navegar un mapa interactivo que muestra, estado por estado, las historias de quienes ya no están.</li>
-    <li>Explorar un blog dedicado a mujeres que realizaron aportes significativos en la historia, pero que fueron ignoradas.</li>
-    <li>Acceder a juegos y cuestionarios que fomentan el conocimiento sobre género, derechos humanos, historia y feminismos.</li>
-  </ul>
-  <div className="flex items-center mt-6 space-x-2">
-    <Heart className="h-5 w-5 text-primary" />
-    <span className="text-sm font-medium">Empoderamiento a través de la narrativa</span>
-  </div>
-</CardContent>
+      {/* ── MISIÓN + VISIÓN — fondo claro en light, oscuro en dark ── */}
+      <section className="relative overflow-hidden bg-card border-b border-border">
+        <div className="pointer-events-none absolute -right-20 top-0 h-72 w-72 rounded-full opacity-5" style={{ background: "#ec4899" }} />
+        <div className="mx-auto max-w-7xl px-5 lg:px-8 py-16 md:py-20 grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-border">
 
-          </Card>
+          {/* Misión */}
+          <div className="pb-10 md:pb-0 md:pr-14">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-6 bg-pink-100 dark:bg-pink-950/40">
+              <Target className="h-6 w-6 text-pink-600 dark:text-pink-300" />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-pink-600 dark:text-pink-300">
+              Nuestra misión
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight mb-5">
+              Visibilizar, preservar<br />y honrar la memoria
+            </h2>
+            <p className="text-muted-foreground text-base leading-relaxed mb-5">
+              HerStory nace para sacar del silencio a las mujeres históricamente
+              invisibilizadas. A través de tecnología interactiva, creamos un espacio
+              de denuncia, reflexión y aprendizaje.
+            </p>
+            <ul className="space-y-3">
+              {[
+                "Publicar y consultar casos en un foro comunitario",
+                "Navegar un mapa interactivo de historias por estado",
+                "Explorar un blog sobre mujeres ignoradas por la historia",
+                "Acceder a juegos que fomentan el conocimiento de género",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 text-sm text-muted-foreground leading-relaxed">
+                  <span className="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 bg-pink-500" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <Card className="border-secondary/20">
-            <CardHeader>
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="p-3 bg-secondary/10 rounded-full">
-                  <Eye className="h-6 w-6 text-secondary" />
-                </div>
-                <CardTitle className="text-2xl">Nuestra Visión</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-lg leading-relaxed text-muted-foreground">
-                Ser la plataforma líder en América Latina para el empoderamiento femenino, donde cada mujer 
-                tenga las herramientas, el apoyo y la confianza necesarios para contar su historia, 
-                reclamar su espacio y contribuir a un mundo más equitativo e inclusivo.
+          {/* Visión */}
+          <div className="pt-10 md:pt-0 md:pl-14">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-6 bg-purple-100 dark:bg-purple-950/40">
+              <Eye className="h-6 w-6 text-purple-600 dark:text-purple-300" />
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-widest mb-3 text-purple-600 dark:text-purple-300">
+              Nuestra visión
+            </p>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground leading-tight mb-5">
+              La plataforma líder<br />en América Latina
+            </h2>
+            <p className="text-muted-foreground text-base leading-relaxed mb-8">
+              Ser el referente de empoderamiento femenino digital, donde cada mujer
+              tenga las herramientas, el apoyo y la confianza para contar su historia,
+              reclamar su espacio y contribuir a un mundo más equitativo.
+            </p>
+            {/* Quote de impacto */}
+            <div className="border-l-4 border-purple-500 pl-5">
+              <p className="text-lg text-foreground italic leading-relaxed">
+                "Transformando vidas,<br />cambiando el mundo."
               </p>
-              <div className="flex items-center mt-6 space-x-2">
-                <Users className="h-5 w-5 text-secondary" />
-                <span className="text-sm font-medium">Transformando vidas, cambiando el mundo</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Our Values */}
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-8">Nuestros Valores</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="p-3 bg-primary/10 rounded-full w-fit mx-auto mb-4">
-                  <Heart className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Empatía</h3>
-                <p className="text-sm text-muted-foreground">Escuchamos con el corazón y comprendemos cada historia</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="p-3 bg-secondary/10 rounded-full w-fit mx-auto mb-4">
-                  <Users className="h-6 w-6 text-secondary" />
-                </div>
-                <h3 className="font-semibold mb-2">Comunidad</h3>
-                <p className="text-sm text-muted-foreground">Fortalecemos lazos y construimos redes de apoyo</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="p-3 bg-accent/10 rounded-full w-fit mx-auto mb-4">
-                  <Target className="h-6 w-6 text-accent" />
-                </div>
-                <h3 className="font-semibold mb-2">Propósito</h3>
-                <p className="text-sm text-muted-foreground">Cada acción tiene un impacto positivo y medible</p>
-              </CardContent>
-            </Card>
-            <Card className="text-center">
-              <CardContent className="pt-6">
-                <div className="p-3 bg-primary/10 rounded-full w-fit mx-auto mb-4">
-                  <Eye className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-semibold mb-2">Transparencia</h3>
-                <p className="text-sm text-muted-foreground">Operamos con honestidad y responsabilidad</p>
-              </CardContent>
-            </Card>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Team */}
-        <div>
-          <h2 className="text-3xl font-bold text-center mb-8">El equipo detrás del cambio...</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {teamMembers.map((member, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start space-x-4">
-                    <Avatar className="w-16 h-16">
-                      <AvatarFallback className="bg-primary/10 text-primary text-lg font-semibold">
-                        {member.initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <CardTitle className="text-xl">{member.name}</CardTitle>
-                      <Badge variant="secondary" className="mt-1">
-                        {member.role}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-4 leading-relaxed">
-                    {member.description}
-                  </p>
-                </CardContent>
-              </Card>
+      {/* ── VALORES — franja de color, no cards flotantes ── */}
+      <section className="border-y border-border bg-background">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8 py-16">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 text-center">
+            Lo que nos mueve
+          </p>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
+            Nuestros valores
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {valores.map(({ icon: Icon, titulo, desc, color, cardClass, iconClass }) => (
+              <div
+                key={titulo}
+                className={`rounded-2xl p-6 flex flex-col gap-4 border ${cardClass}`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconClass}`}>
+                  <Icon className="h-5 w-5" style={{ color }} />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">{titulo}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
-        </div>
-        </div>
-  );
-};
+      </section>
 
-export default Nosotras;
+      {/* ── EQUIPO — cards con color por persona ── */}
+      <section className="bg-background">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8 py-16 md:py-20">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2 text-center">
+            Quiénes somos
+          </p>
+          <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
+            El equipo detrás del cambio
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {teamMembers.map((member) => {
+              const RoleIcon = member.roleIcon
+              return (
+                <div
+                  key={member.name}
+                  className="rounded-2xl overflow-hidden border border-border/60 flex flex-col"
+                >
+                  {/* Franja de color superior con avatar e iniciales */}
+                  <div
+                    className="px-6 pt-8 pb-6 flex items-end gap-5"
+                    style={{ background: member.color.bg }}
+                  >
+                    <div
+                      className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-bold shrink-0"
+                      style={{ background: "rgba(255,255,255,0.12)", color: member.color.text }}
+                    >
+                      {member.initials}
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-lg leading-tight">
+                        {member.name}
+                      </p>
+                      <span
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold mt-2 px-3 py-1 rounded-full"
+                        style={{ background: "rgba(255,255,255,0.12)", color: member.color.text }}
+                      >
+                        <RoleIcon className="h-3 w-3" />
+                        {member.role}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Contenido blanco */}
+                  <div className="px-6 py-5 flex flex-col gap-4 bg-card flex-1">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {member.description}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-fit gap-2 rounded-xl"
+                      onClick={() => navigate("/contacto")}
+                    >
+                      Contactar <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA final ── */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, #1B0F33 0%, #4c1d95 55%, #7e22ce 100%)" }}
+      >
+        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+        <div className="mx-auto max-w-7xl px-5 lg:px-8 py-14 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="text-white text-center md:text-left">
+            <h3 className="text-2xl md:text-3xl font-bold mb-2">
+              ¿Tienes algo que decirnos?
+            </h3>
+            <p className="text-white/65 text-base">
+              Estamos abiertas a escuchar, colaborar y crecer juntas.
+            </p>
+          </div>
+          <Button
+            size="lg"
+            className="h-12 gap-2 rounded-xl bg-white px-8 text-base font-semibold text-[#1B0F33] hover:bg-white/90 shrink-0"
+            onClick={() => navigate("/contacto")}
+          >
+            Contáctanos <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </section>
+
+    </div>
+  )
+}
+
+export default Nosotras

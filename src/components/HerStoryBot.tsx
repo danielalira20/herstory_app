@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import herstoryLogoBot from '@/assets/chatbot_icon-removebg-preview.png';
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { giveAurenBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
 import {
   X,
   Send,
@@ -12,6 +14,7 @@ import {
   MicOff,
   Volume2,
   VolumeX,
+  LogOut,
 } from "lucide-react";
 
 
@@ -629,6 +632,7 @@ useEffect(() => {
 }, [voiceEnabled]);
 
 const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
+
 useEffect(() => {
   const load = () => { voicesRef.current = speechSynthesis.getVoices(); };
   load();
@@ -693,6 +697,13 @@ useEffect(() => {
  
   speak();
 }, [messages, voiceEnabled, lang]);
+
+// Escucha evento del check-in para abrir Auren automáticamente
+useEffect(() => {
+  const handler = () => setOpen(true);
+  window.addEventListener("open-auren", handler);
+  return () => window.removeEventListener("open-auren", handler);
+}, []);
  
 
   async function callGemini(userMessage: string) {
@@ -720,6 +731,16 @@ useEffect(() => {
     ]);
 
     setMessages(prev => [...prev, { id: generateId(), from: "bot", text: botAnswer }]);
+     if (geminiHistory.length === 0) {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          giveAurenBadge(user.id);
+        }
+      } catch (errorInsignia) {
+        console.error("Error al asignar insignia:", errorInsignia);
+      }
+    }
 
     // AUR-F01: tarjeta de recursos clicables en Modo 3
     if (data.modo === 3) {
@@ -865,7 +886,7 @@ useEffect(() => {
     setIsListening(false);
     return;
   }
- 
+
   const SpeechRecognition =
     (window as any).SpeechRecognition ||
     (window as any).webkitSpeechRecognition;
@@ -894,6 +915,8 @@ useEffect(() => {
   recognition.start();
   setIsListening(true);
 }
+
+
 
 
   function EmergencyCard() {
@@ -1012,213 +1035,266 @@ function CompanionRevealCard({ figura }: { figura: FiguraType }) {
   );
 }
 
+function quickExit() {
+  const url = localStorage.getItem("herstory-exit-url");
+  if (url) {
+    for (let i = 0; i < 20; i++) {
+      window.history.pushState(null, "", "/");
+    }
+    window.location.replace(url); // replace = no queda HerStory en "atrás"
+  }
+}
+
+
   // ====== Render ======
   return (
     <>
+      {/* ── Botón flotante ── */}
+      {!open && (
       <div className="fixed bottom-4 right-4 z-[1000]">
         <motion.button
-          onClick={() => setOpen((o) => !o)}
-          data-herstorybot-trigger
+          onClick={() => setOpen(o => !o)}
           whileHover={{ scale: 1.1 }}
           animate={{ scale: [1, 1.15, 1] }}
           transition={{ duration: 1.5, repeat: Infinity }}
-          className="rounded-full p-1 shadow-lg bg-gradient-to-r from-purple-500 to-pink-500 ring-4 ring-white/60 overflow-hidden"
+          className="rounded-full p-1 shadow-xl bg-gradient-to-r from-purple-500 to-pink-500 ring-4 ring-white/60 overflow-hidden"
         >
-          <img src={herstoryLogoBot} alt="HerStory Bot" className="w-14 h-14 rounded-full object-cover" />
+          <img src={herstoryLogoBot} alt="Auren" className="w-14 h-14 rounded-full object-cover" />
         </motion.button>
       </div>
-
-      
-      <AnimatePresence>
-  {open && (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 50 }}
-      className={`fixed bottom-20 right-4 z-[999] w-[400px] h-[600px] 
-        ${getModeStyles().container}
-        shadow-2xl rounded-2xl flex flex-col overflow-hidden 
-        border ${getModeStyles().border}
-        transition-all duration-500`}
-    >
-      {/* Header */}
-      <div className={`flex justify-between items-center p-4 ${getModeStyles().header} text-white transition-all duration-500`}>
-        <div>
-          <h2 className="text-lg font-bold">{UI[lang].title}</h2>
-          <p className="text-xs opacity-80 flex items-center gap-1">
-            {getModeStyles().label || UI[lang].subtitle}
-            {getModeStyles().indicator && (
-              <span className="animate-pulse">{getModeStyles().indicator}</span>
-            )}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
-            title={voiceEnabled
-              ? (lang === "es" ? "Desactivar voz" : "Disable voice")
-              : (lang === "es" ? "Activar voz"    : "Enable voice")}
-            className={`p-1.5 rounded-full transition ${
-              voiceEnabled ? "bg-white/30" : "hover:bg-white/20"
-            }`}
-          >
-            {voiceEnabled
-              ? <Volume2 size={17} className="text-white" />
-              : <VolumeX  size={17} className="text-white/60" />}
-          </button>
-          <select
-            value={lang}
-            onChange={(e) => setLang(e.target.value as LangCode)}
-            className="rounded-lg px-2 py-1 text-sm bg-white/20 backdrop-blur-sm text-white focus:outline-none"
-          >
-            {LANGS.map((l) => (
-              <option key={l.code} value={l.code} className="text-gray-800">{l.label}</option>
-            ))}
-          </select>
-          <Languages size={18} className="opacity-80" />
-          <button
-          onClick={() => {
-            setOpen(false);
-            speechSynthesis.cancel();
-            recognitionRef.current?.stop();
-            setIsListening(false);
-            // CAMBIO C ↓
-            if (audioRef.current) {
-              audioRef.current.pause();
-              audioRef.current = null;
-            }
-          }}              
-            className="p-1 rounded-full hover:bg-white/20 transition"
-          >
-            <X />
-          </button>
-        </div>
-      </div>
-
-      {/* Mensajes — igual que antes */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm">
-      {messages.map(m => (
-  <div
-    key={m.id}
-    className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}
-  >
-    {/* Avatar / badge según tipo de mensaje */}
-    {m.from === "bot" && m.tipo !== "companion-reveal" && (
-      m.tipo === "companion-message" ? (
-        // Badge con inicial de la figura (azul)
-        <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-teal-500 shadow-sm text-white text-xs font-bold">
-          {m.meta?.persona?.[0] ?? "✦"}
-        </div>
-      ) : (
-        // Avatar de Auren
-        <img
-          src={herstoryLogoBot}
-          alt="Auren"
-          className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm"
-        />
-      )
-    )}
+      )}
  
-    {/* Contenido del mensaje */}
-    {m.tipo === "companion-reveal" && m.figura ? (
-      <CompanionRevealCard figura={m.figura} />
-    ) : m.tipo === "companion-message" ? (
-      <div className="px-4 py-2 rounded-2xl rounded-bl-sm max-w-[75%] shadow text-sm leading-relaxed bg-blue-100 dark:bg-blue-900/40 text-gray-700 dark:text-gray-200 italic">
-        <MessageText text={m.text} persona={undefined} />
-      </div>
-    ) : m.tipo === "emergency-card" ? (
-      <EmergencyCard />
-    ) : (
-      <div className={`px-4 py-2 rounded-2xl max-w-[75%] shadow text-sm leading-relaxed
-        ${m.from === "bot"
-          ? "bg-purple-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-bl-sm"
-          : "bg-purple-600 dark:bg-purple-500 text-white rounded-br-sm"}`}>
-        <MessageText text={m.text} persona={m.meta?.persona} />
-      </div>
-    )}
-  </div>
-))}
-
-        {typing && (
-          <div className="flex items-end gap-2 justify-start">
-            <img src={herstoryLogoBot} alt="Auren"
-              className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm" />
-            <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-purple-100 dark:bg-gray-700 flex items-center gap-1.5 shadow">
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:0ms]" />
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:150ms]" />
-              <span className="w-2 h-2 rounded-full bg-purple-400 animate-bounce [animation-delay:300ms]" />
+      {/* ── Panel del chat ── */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ type: "spring", stiffness: 320, damping: 32 }}
+            className={`
+              fixed z-[999] flex flex-col overflow-hidden
+              transition-colors duration-500
+              inset-0
+              sm:inset-auto sm:bottom-20 sm:right-4
+              sm:w-[400px] sm:h-[600px] sm:rounded-2xl sm:shadow-2xl
+              sm:border ${getModeStyles().border}
+              /* Glass effect */
+              bg-white/10 backdrop-blur-2xl
+            `}
+          >
+ 
+            {/* ── Header ── */}
+            <div className={`
+              ${getModeStyles().header}
+              px-4 py-3 flex items-center justify-between
+              transition-colors duration-500 flex-shrink-0
+            `}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full overflow-hidden ring-2 ring-white/30 flex-shrink-0 shadow-md">
+                  <img src={herstoryLogoBot} alt="Auren" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h2 className="text-white font-bold text-sm leading-tight">{UI[lang].title}</h2>
+                  <p className="text-white/75 text-xs flex items-center gap-1">
+                    {getModeStyles().label || UI[lang].subtitle}
+                    {getModeStyles().indicator && (
+                      <span className="animate-pulse">{getModeStyles().indicator}</span>
+                    )}
+                  </p>
+                </div>
+              </div>
+ 
+              <div className="flex items-center gap-1">
+                {/* Salida rápida */}
+                {localStorage.getItem("herstory-exit-url") && (
+                  <button
+                    onClick={quickExit}
+                    title={lang === "es" ? "Salida rápida" : "Quick exit"}
+                    className="p-1.5 rounded-full hover:bg-white/20 transition"
+                  >
+                    <LogOut size={16} className="text-white/80" />
+                  </button>
+                )}
+ 
+                {/* Voz */}
+                <button
+                  onClick={() => { speechSynthesis.cancel(); setVoiceEnabled(v => !v); }}
+                  className={`p-1.5 rounded-full transition ${voiceEnabled ? "bg-white/25" : "hover:bg-white/15"}`}
+                >
+                  {voiceEnabled
+                    ? <Volume2 size={16} className="text-white" />
+                    : <VolumeX  size={16} className="text-white/50" />}
+                </button>
+ 
+                {/* Idioma */}
+                <select
+                  value={lang}
+                  onChange={e => setLang(e.target.value as LangCode)}
+                  className="rounded-lg px-2 py-1 text-xs bg-white/15 text-white focus:outline-none"
+                >
+                  {LANGS.map(l => (
+                    <option key={l.code} value={l.code} className="text-gray-800">{l.label}</option>
+                  ))}
+                </select>
+ 
+                {/* Cerrar */}
+                <button
+                  onClick={() => {
+                    setOpen(false);
+                    speechSynthesis.cancel();
+                    recognitionRef.current?.stop();
+                    setIsListening(false);
+                    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+                  }}
+                  className="p-1.5 rounded-full hover:bg-white/20 transition ml-0.5"
+                >
+                  <X size={18} className="text-white" />
+                </button>
+              </div>
             </div>
-          </div>
+ 
+            {/* ── Mensajes ── */}
+            <div className="flex-1 overflow-y-auto bg-white/70 backdrop-blur-sm px-4 py-4 space-y-3">
+              {messages.map(m => (
+                <div
+                  key={m.id}
+                  className={`flex items-end gap-2 ${m.from === "bot" ? "justify-start" : "justify-end"}`}
+                >
+                  {/* Avatar */}
+                  {m.from === "bot" && m.tipo !== "companion-reveal" && (
+                    m.tipo === "companion-message" ? (
+                      <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-400 to-teal-400 text-white text-xs font-bold shadow-sm">
+                        {m.meta?.persona?.[0] ?? "✦"}
+                      </div>
+                    ) : (
+                      <img
+                        src={herstoryLogoBot}
+                        alt="Auren"
+                        className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm"
+                      />
+                    )
+                  )}
+ 
+                  {/* Contenido del mensaje */}
+                  {m.tipo === "companion-reveal" && m.figura ? (
+                    <CompanionRevealCard figura={m.figura} />
+                  ) : m.tipo === "companion-message" ? (
+                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm max-w-[78%] text-sm leading-relaxed bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 italic border border-blue-100 dark:border-blue-800 shadow-sm">
+                      <MessageText text={m.text} />
+                    </div>
+                  ) : m.tipo === "emergency-card" ? (
+                    <EmergencyCard />
+                  ) : m.from === "bot" ? (
+                    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm max-w-[78%] text-sm leading-relaxed bg-purple-50 dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-purple-100 dark:border-gray-700 shadow-sm">
+                      <MessageText text={m.text} persona={m.meta?.persona} />
+                    </div>
+                  ) : (
+                    <div className="px-3.5 py-2.5 rounded-2xl rounded-br-sm max-w-[78%] text-sm leading-relaxed bg-gradient-to-br from-purple-500 to-pink-400 text-white shadow-sm">
+                      <MessageText text={m.text} />
+                    </div>
+                  )}
+                </div>
+              ))}
+ 
+              {/* Typing */}
+              {typing && (
+                <div className="flex items-end gap-2 justify-start">
+                  <img src={herstoryLogoBot} alt="Auren" className="w-7 h-7 rounded-full object-cover flex-shrink-0 shadow-sm" />
+                  <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-purple-50 dark:bg-gray-800 border border-purple-100 dark:border-gray-700 flex items-center gap-1.5 shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:0ms]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:150ms]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce [animation-delay:300ms]" />
+                  </div>
+                </div>
+              )}
+              <div ref={bottomRef} />
+            </div>
+ 
+            {/* ── Chips / Atajos ── */}
+            <div className="bg-white/60 backdrop-blur-sm px-4 pt-2.5 pb-1.5 border-t border-white/30 flex-shrink-0">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1.5">
+                {UI[lang].quickActions}
+              </p>
+              <div className="flex gap-1.5 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {[
+                  { key: "inspire",    label: UI[lang].chips.inspire,    action: () => handleSend("inspiración") },
+                  { key: "comfort",    label: UI[lang].chips.comfort,    action: () => handleSend("consuelo") },
+                  { key: "curiosity",  label: UI[lang].chips.curiosity,  action: () => handleSend("curiosidad") },
+                  { key: "pause",      label: UI[lang].chips.pause,      action: () => handleSend("pausa") },
+                  { key: "quote",      label: UI[lang].chips.quote,      action: () => handleSend("frase célebre") },
+                  { key: "guide",      label: UI[lang].chips.guide,      action: () => handleSend("guía") },
+                  { key: "recBook",    label: UI[lang].chips.recBook,    action: () => handleSend("libro") },
+                  { key: "recFilm",    label: UI[lang].chips.recFilm,    action: () => handleSend("película") },
+                  { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
+                ].map(chip => (
+                  <button
+                    key={chip.key}
+                    onClick={chip.action}
+                    className="flex-shrink-0 rounded-full bg-purple-50 dark:bg-gray-800 hover:bg-purple-100 dark:hover:bg-gray-700 text-purple-600 dark:text-purple-300 px-3 py-1 text-xs font-medium transition whitespace-nowrap border border-purple-100 dark:border-gray-700"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+ 
+            {/* ── Input ── */}
+            <div className="bg-white/60 backdrop-blur-sm px-3 py-3 border-t border-white/30 flex items-center gap-2 flex-shrink-0">
+              <input
+                type="text"
+                className={`
+                  flex-1 rounded-full px-4 py-2.5 text-sm
+                  bg-gray-50 dark:bg-gray-800
+                  border border-gray-200 dark:border-gray-700
+                  text-gray-900 dark:text-gray-100
+                  placeholder:text-gray-400 dark:placeholder:text-gray-500
+                  focus:outline-none focus:ring-2 focus:ring-purple-300 dark:focus:ring-purple-700
+                  transition
+                  ${typing ? "opacity-50 cursor-not-allowed" : ""}
+                `}
+                placeholder={typing
+                  ? (lang === "es" ? "Auren está escribiendo…" : "Auren is typing…")
+                  : UI[lang].inputPlaceholder}
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !typing) handleSend(); }}
+                disabled={typing}
+                maxLength={500}
+              />
+ 
+              {/* Mic */}
+              <button
+                onClick={toggleMic}
+                disabled={typing}
+                className={`
+                  p-2.5 rounded-full transition flex-shrink-0 shadow-sm
+                  ${isListening
+                    ? "bg-red-500 text-white animate-pulse"
+                    : "bg-purple-100 dark:bg-gray-700 text-purple-500 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-gray-600"}
+                  ${typing ? "opacity-40 cursor-not-allowed" : ""}
+                `}
+              >
+                {isListening ? <MicOff size={17} /> : <Mic size={17} />}
+              </button>
+ 
+              {/* Send */}
+              <button
+                onClick={() => handleSend()}
+                disabled={typing || !input.trim()}
+                className={`
+                  p-2.5 rounded-full flex-shrink-0 transition shadow-sm
+                  bg-gradient-to-r from-purple-500 to-pink-400 text-white
+                  ${(typing || !input.trim()) ? "opacity-40 cursor-not-allowed" : "hover:shadow-md active:scale-95"}
+                `}
+              >
+                <Send size={17} />
+              </button>
+            </div>
+ 
+          </motion.div>
         )}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Chips — igual que antes */}
-      <div className="mb-2 px-3">
-        <div className="text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">{UI[lang].quickActions}</div>
-        <div className="flex flex-wrap gap-2">
-          {[
-            { key: "inspire", label: UI[lang].chips.inspire, action: () => handleSend("inspiración") },
-            { key: "comfort", label: UI[lang].chips.comfort, action: () => handleSend("consuelo") },
-            { key: "curiosity", label: UI[lang].chips.curiosity, action: () => handleSend("curiosidad") },
-            { key: "pause", label: UI[lang].chips.pause, action: () => handleSend("pausa") },
-            { key: "quote", label: UI[lang].chips.quote, action: () => handleSend("frase célebre") },
-            { key: "guide", label: UI[lang].chips.guide, action: () => handleSend("guía") },
-            { key: "recBook", label: UI[lang].chips.recBook, action: () => handleSend("libro") },
-            { key: "recFilm", label: UI[lang].chips.recFilm, action: () => handleSend("película") },
-            { key: "recExhibit", label: UI[lang].chips.recExhibit, action: () => handleSend("exposición") },
-          ].map(chip => (
-            <button key={chip.key} onClick={chip.action}
-              className="rounded-full bg-purple-100 dark:bg-gray-700 hover:bg-purple-200 dark:hover:bg-gray-600 text-purple-700 dark:text-purple-300 px-3 py-1 text-xs transition shadow-sm">
-              {chip.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Input — igual que antes */}
-      <div className="p-3 border-t border-purple-200 dark:border-gray-600 bg-white/80 dark:bg-gray-800/80 flex space-x-2">
-        <input
-          type="text"
-          className={`flex-1 border border-purple-300 dark:border-gray-600 bg-white dark:bg-gray-700
-            text-gray-900 dark:text-gray-100 rounded-lg px-3 py-2 text-sm
-            focus:ring-2 focus:ring-purple-400 focus:outline-none transition
-            ${typing ? "opacity-50 cursor-not-allowed" : ""}`}
-          placeholder={typing
-            ? (lang === "es" ? "Auren está escribiendo…" : "Auren is typing…")
-            : UI[lang].inputPlaceholder}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter" && !typing) handleSend(); }}
-          disabled={typing}
-          maxLength={500}
-        />
-        <button
-          onClick={toggleMic}
-          disabled={typing}
-          title={isListening
-            ? (lang === "es" ? "Detener grabación" : "Stop recording")
-            : (lang === "es" ? "Hablar"            : "Speak")}
-          className={`p-2 rounded-lg transition shadow-sm ${
-            isListening
-              ? "bg-red-500 text-white animate-pulse"
-              : "bg-purple-100 dark:bg-gray-700 text-purple-600 dark:text-purple-300 hover:bg-purple-200"
-          } ${typing ? "opacity-40 cursor-not-allowed" : ""}`}
-        >
-          {isListening ? <MicOff size={18} /> : <Mic size={18} />}
-        </button>
-        <button
-          onClick={() => handleSend()}
-          disabled={typing || !input.trim()}
-          className={`p-2 rounded-lg shadow-md transition bg-gradient-to-r from-purple-600 to-pink-500 text-white
-            ${(typing || !input.trim()) ? "opacity-40 cursor-not-allowed" : "hover:opacity-90 active:scale-95"}`}
-        >
-          <Send size={18} />
-        </button>
-      </div>
-    </motion.div>
-  )}
-    </AnimatePresence>
+      </AnimatePresence>
     </>
   );
 }

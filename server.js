@@ -2,12 +2,30 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import campoRoutes from './campoRoutes.js';
 
 dotenv.config();
 
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import webpush from "web-push";
+import acosoRoutes from './acosoRoutes.js';
+import { createClient } from "@supabase/supabase-js";
+ 
+// Supabase backend client
+const supabase = createClient(
+  process.env.SUPABASE_PUSH_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+console.log("Supabase URL:", process.env.SUPABASE_PUSH_URL); 
+ 
+// VAPID setup
+webpush.setVapidDetails(
+  process.env.VAPID_EMAIL,
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -100,6 +118,84 @@ function detectarInjusticias(messages) {
     ? detectadas
     : ["control_coercitivo", "discriminacion_genero"];
 }
+
+// ── Detector de categoría por respuestas del quiz (NUEVO) ───
+const CATEGORIA_SIGNALS = {
+  voces_creadoras: [
+    "pintar", "escribir", "creatividad", "pintar un cuadro",
+    "arte o literatura", "artistico y cultural", "mas arte y cultura",
+    "creativa", "renacimiento", "inspirar a otros", "pintar o escribir"
+  ],
+  pensamiento_critico: [
+    "investigar nuevas ideas", "conocimiento", "antiguedad",
+    "de forma independiente", "pensar diferente"
+  ],
+  guardianas_dignidad: [
+    "justicia", "defender causas", "en equipo",
+    "social y humanitario", "mas justicia social", "empatica",
+    "acceso a educacion", "discriminacion racial",
+    "que nadie sea silenciada", "luchar contra"
+  ],
+  liderazgo_transformacion: [
+    "organizar eventos", "liderazgo", "siglo xxi",
+    "politica o liderazgo", "liderando proyectos", "persistente"
+  ],
+  deporte: [
+    "hacer deporte", "deporte", "correr", "competir", "atleta"
+  ],
+  naturaleza_planeta: [
+    "salir a la naturaleza", "defensa del medio ambiente",
+    "mas cuidado ambiental", "defender la tierra", "naturaleza", "comunidades"
+  ],
+  ciencia_salud_tecnologia: [
+    "resolver problemas matematicos", "leer sobre ciencia",
+    "revolucion cientifica", "crear descubrimientos",
+    "innovar tecnologias", "medicina o biologia",
+    "ingenieria o tecnologia", "cientifico y tecnologico",
+    "mas ciencia e innovacion", "analitica", "experimentando cosas nuevas"
+  ],
+};
+
+function detectarCategoria(messages) {
+  const texto = messages
+    .filter(m => m.role === "user")
+    .map(m => normalizar(m.parts?.[0]?.text || m.content || ""))
+    .join(" ");
+
+  const scores = {};
+  Object.entries(CATEGORIA_SIGNALS).forEach(([cat, keywords]) => {
+    scores[cat] = keywords.filter(kw => texto.includes(normalizar(kw))).length;
+  });
+
+  const ranking = Object.entries(scores)
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1]);
+
+  return ranking.length > 0 ? ranking[0][0] : null;
+}
+
+function encontrarFiguraPorCategoria(categoria) {
+  const figuras = FIGURAS.figuras;
+  const candidatas = figuras.filter(f => f.categoria_campo === categoria);
+
+  if (candidatas.length === 0) {
+    return figuras.find(f => f.nombre === "Sor Juana Inés de la Cruz");
+  }
+
+  const mexicanas = candidatas.filter(f =>
+    f.region.includes("México") || f.region.includes("Oaxaca") ||
+    f.region.includes("Chiapas") || f.region.includes("Yucatán")
+  );
+  const latam = candidatas.filter(f =>
+    REGIONES_LATAM.some(r => f.region.includes(r))
+  );
+
+  const pool = mexicanas.length > 0 ? mexicanas
+    : latam.length > 0 ? latam
+    : candidatas;
+
+  return pool[Math.floor(Math.random() * pool.length)];
+}
  
 // ── Algoritmo de match ──────────────────────────────────────
 const REGIONES_LATAM = [
@@ -184,6 +280,21 @@ function detectarRiesgoAgudo(mensaje) {
   return matched || null;
 }
 
+// AUR-B03: detectar categoría del trigger para logging
+function detectarCategoriaRiesgo(trigger) {
+  const norm = normalizar(trigger);
+  const cats = TRIGGERS.categories;
+  const check = (arr) => arr.some(t => normalizar(t) === norm);
+  if (check([...cats.violencia_fisica_reciente.es,   ...cats.violencia_fisica_reciente.en]))   return "violencia_fisica_reciente";
+  if (check([...cats.armas_y_amenaza_directa.es,     ...cats.armas_y_amenaza_directa.en]))     return "armas_y_amenaza_directa";
+  if (check([...cats.ideacion_suicida.directas.es,   ...cats.ideacion_suicida.directas.en]))   return "ideacion_suicida";
+  if (check([...cats.situaciones_compuestas.embarazo_y_violencia.es,    ...cats.situaciones_compuestas.embarazo_y_violencia.en]))    return "embarazo_y_violencia";
+  if (check([...cats.situaciones_compuestas.ninos_en_peligro.es,        ...cats.situaciones_compuestas.ninos_en_peligro.en]))        return "ninos_en_peligro";
+  if (check([...cats.situaciones_compuestas.encierro_y_control_fisico.es, ...cats.situaciones_compuestas.encierro_y_control_fisico.en])) return "encierro_y_control_fisico";
+  return "emergencia_general";
+}
+
+
 // ============================================================
 // AUR-B07: Clasificador de submodo por palabras clave
 // Corre antes de Gemini para dar contexto prioritario al modo reflexivo
@@ -249,6 +360,8 @@ const port = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/campo', campoRoutes);
+app.use('/acoso', acosoRoutes);
 
 if (!process.env.GEMINI_API_KEY) {
   console.error("⚠️ ERROR: No se detectó GEMINI_API_KEY");
@@ -687,23 +800,35 @@ app.post("/chat", async (req, res) => {
     console.log(`📝 Procesando (${language}):`, lastMessage.parts[0].text);
 
     const triggerDetectado = detectarRiesgoAgudo(lastMessage.parts[0].text);
-    if (triggerDetectado) {
-      console.log(`🚨 Riesgo agudo: "${triggerDetectado}" — omitiendo Gemini`);
-      const respuestaEmergencia = language === "en"
-        ? "What you're telling me is very serious. You matter. Please call the National Domestic Violence Hotline: 1-800-799-7233. Free, confidential, 24/7.\n\nI'm here with you while you decide what you need. You are not alone."
-        :  "Lo que me estás contando es muy serio. Tú importas. Puedes marcar 079 y presionar 1 ahora mismo. Es gratuito, confidencial y atiende las 24 horas.\n\nEstoy aquí contigo mientras decides qué necesitas. No estás sola.";
+if (triggerDetectado) {
+  console.log(`🚨 Riesgo agudo: "${triggerDetectado}" — omitiendo Gemini`);
 
-      return res.json({
-        respuesta: respuestaEmergencia,
-        modo: 3,
-        submodo: null,
-        confianza: "alta",
-        señales: [triggerDetectado],
-        language,
-        fuente: "triggers"
+  // AUR-B03: guardar en Supabase ↓
+  const categoria = detectarCategoriaRiesgo(triggerDetectado);
+  (async () => {
+  const { error } = await supabase.from("logs_triggers").insert({
+    categoria,
+    trigger_matched: triggerDetectado,
       });
-    }
+      if (error) console.error("⚠️ Error logging trigger:", error);
+    })();
 
+  const respuestaEmergencia = language === "en"
+    ? "What you're telling me is very serious..."
+    : "Lo que me estás contando es muy serio...";
+
+  return res.json({
+    respuesta: respuestaEmergencia,
+    modo: 3,
+    submodo: null,
+    confianza: "alta",
+    señales: [triggerDetectado],
+    language,
+    fuente: "triggers"
+  });
+}
+
+  
     // AUR-B07: Clasificador de submodo por palabras clave
     const submodoPrevio = detectarSubmodo(messages);
     console.log(`🔍 Clasificador submodo: ${submodoPrevio}`);
@@ -789,7 +914,8 @@ res.json({
   }
 });
 
-// ── AUR-B09: Endpoint match/find ───────────────────────────
+// ── AUR-B09: Endpoint match/find (ACTUALIZADO) ─────────────
+// Quiz → match por categoria_campo | Auren → match por injusticias
 app.post("/api/match/find", (req, res) => {
   const { messages, modo, language } = req.body;
  
@@ -798,9 +924,29 @@ app.post("/api/match/find", (req, res) => {
   }
  
   const injusticias = detectarInjusticias(messages);
-  const figura = encontrarFigura(injusticias, modo || 2);
+  const esFallback = injusticias.length === 2
+    && injusticias[0] === "control_coercitivo"
+    && injusticias[1] === "discriminacion_genero";
  
-  console.log(`🔎 Match: ${figura.nombre} | Injusticias: ${injusticias.slice(0, 2).join(", ")}`);
+  let figura;
+  let metodo;
+ 
+  if (!esFallback) {
+    figura = encontrarFigura(injusticias, modo || 2);
+    metodo = "injusticias";
+    console.log(`🔎 Match (Auren): ${figura.nombre} | Injusticias: ${injusticias.slice(0, 2).join(", ")}`);
+  } else {
+    const categoria = detectarCategoria(messages);
+    if (categoria) {
+      figura = encontrarFiguraPorCategoria(categoria);
+      metodo = "categoria";
+      console.log(`🔎 Match (Quiz): ${figura.nombre} | Categoría: ${categoria}`);
+    } else {
+      figura = encontrarFigura(injusticias, modo || 2);
+      metodo = "fallback";
+      console.log(`🔎 Match (Fallback): ${figura.nombre}`);
+    }
+  }
  
   res.json({
     figura: {
@@ -812,6 +958,7 @@ app.post("/api/match/find", (req, res) => {
       categoria_campo: figura.categoria_campo,
     },
     injusticias_detectadas: injusticias,
+    metodo,
     language,
   });
 });
@@ -921,6 +1068,120 @@ app.post("/api/tts", async (req, res) => {
     res.status(500).json({ error: "TTS service unavailable" });
   }
 });
+
+// Devuelve la public key al frontend
+app.get("/api/push/vapid-public-key", (req, res) => {
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+ 
+// Guardar suscripción (AUR-B12)
+app.post("/api/push/subscribe", async (req, res) => {
+  const { subscription, frequency = "daily" } = req.body;
+  if (!subscription?.endpoint) {
+    return res.status(400).json({ error: "Suscripción inválida" });
+  }
+ 
+  const { error } = await supabase.from("push_subscriptions").upsert({
+    endpoint:  subscription.endpoint,
+    p256dh:    subscription.keys.p256dh,
+    auth:      subscription.keys.auth,
+    frequency,
+    active:    true,
+  }, { onConflict: "endpoint" });
+ 
+  if (error) {
+    console.error("❌ Error guardando suscripción:", error);
+    return res.status(500).json({ error: "Error al guardar" });
+  }
+ 
+  console.log("🔔 Nueva suscripción registrada");
+  res.json({ ok: true });
+});
+ 
+// Eliminar suscripción (AUR-B12 — desactivar)
+app.post("/api/push/unsubscribe", async (req, res) => {
+  const { endpoint } = req.body;
+  if (!endpoint) return res.status(400).json({ error: "Endpoint requerido" });
+ 
+  await supabase
+    .from("push_subscriptions")
+    .update({ active: false })
+    .eq("endpoint", endpoint);
+ 
+  console.log("🔕 Suscripción desactivada");
+  res.json({ ok: true });
+});
+ 
+// Enviar check-in manual (para demo + cron)
+async function enviarCheckin(frecuencia = null) {
+  const query = supabase
+    .from("push_subscriptions")
+    .select("*")
+    .eq("active", true);
+ 
+  if (frecuencia) query.eq("frequency", frecuencia);
+ 
+  const { data: subs, error } = await query;
+  if (error || !subs?.length) return;
+ 
+  const payload = JSON.stringify({
+    title: "Calculadora",
+    body: "¿Todo bien hoy? 🌸",
+    url: "/?checkin=1", 
+  });
+ 
+  let enviadas = 0;
+  for (const sub of subs) {
+    try {
+      await webpush.sendNotification(
+        { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+        payload
+      );
+      enviadas++;
+    } catch (err) {
+      if (err.statusCode === 410) {
+        // Suscripción expirada — desactivar
+        await supabase
+          .from("push_subscriptions")
+          .update({ active: false })
+          .eq("endpoint", sub.endpoint);
+      }
+    }
+  }
+  console.log(`📨 Check-in enviado a ${enviadas} usuarias`);
+}
+ 
+// Endpoint manual para el demo (y para el cron)
+app.post("/api/push/send-checkin", async (req, res) => {
+  await enviarCheckin();
+  res.json({ ok: true });
+});
+ 
+// Cron: check-in diario a las 9am hora México (AUR-B12)
+function iniciarCron() {
+  const HORA_CHECKIN = 9; // 9am México (UTC-6 → 15:00 UTC)
+  
+  setInterval(async () => {
+    const hora = new Date().getUTCHours();
+    if (hora === 15) { // 9am México
+      console.log("⏰ Cron: enviando check-in diario");
+      await enviarCheckin("daily");
+    }
+  }, 60 * 60 * 1000); // revisa cada hora
+}
+ 
+iniciarCron();
+
+// AUR-B13: recibir respuesta del check-in
+app.post("/api/push/checkin-response", async (req, res) => {
+  const { response } = req.body;
+  await supabase
+    .from("checkin_responses")
+    .insert({ response: response || "" });
+  console.log(`💬 Respuesta check-in: "${response || "(vacío)"}"`);
+  res.json({ ok: true });
+});
+ 
 
 app.listen(port, () => {
   console.log(`🚀 HerStoryBot corriendo en http://localhost:${port}`);

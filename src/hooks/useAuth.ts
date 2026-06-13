@@ -7,22 +7,21 @@ export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
-    // Verificar si ya hay sesión activa
     const getSession = async () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      await new Promise(r => setTimeout(r, 1500)); // ← quitar después de probar
       setLoading(false);
     };
 
     getSession();
 
-    // Escuchar cambios en el estado de la sesión
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      setLoading(false); // ← agregado
     });
 
     return () => {
@@ -30,5 +29,9 @@ export const useAuth = () => {
     };
   }, []);
 
-  return { session, user, loading };
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  return { session, user, loading, signOut };
 };

@@ -19,6 +19,9 @@ export interface Person {
   peso?: string;
   ojos?: string;
   cabello?: string;
+  folio?: string;
+  proyeccionPath?: string | null;
+  municipio_desaparicion?: string | null;  // ← nuevo
 }
 
 export const mockPersons: Person[] = [

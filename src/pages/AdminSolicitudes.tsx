@@ -155,7 +155,6 @@ const AdminSolicitudes = () => {
   // ─────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background">
-      <NavbarWrapper />
 
       <div className="container py-8">
 

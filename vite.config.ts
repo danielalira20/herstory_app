@@ -10,9 +10,13 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       "/chat": {
-        target: "http://localhost:5001",
+    target: "http://localhost:5001",
         changeOrigin: true,
         secure: false,
+      },
+      "/api/match": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
       },
       "/api": "http://localhost:3000",
     },
@@ -21,8 +25,11 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
+      strategies: "injectManifest",   
+      srcDir: "src",
+      filename: "sw.ts",
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "icons/*.svg"],
+      includeAssets: ["favicon.ico", "icons/*.svg", "icons/*.png"],
       manifest: {
         name: "Calculadora",
         short_name: "Calc",
@@ -34,43 +41,20 @@ export default defineConfig(({ mode }) => ({
         start_url: "/calc",
         scope: "/",
         icons: [
-          {
-            src: "/icons/calc-192.svg",
-            sizes: "192x192",
-            type: "image/svg+xml",
-            purpose: "any maskable",
-          },
-          {
-            src: "/icons/calc-512.svg",
-            sizes: "512x512",
-            type: "image/svg+xml",
-            purpose: "any maskable",
-          },
+          { src: "/icons/calc-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/icons/calc-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
         ],
       },
-      workbox: {
-        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-        globPatterns: ["**/*.{js,css,html,ico,svg,png,jpeg,jpg,woff2}"],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "google-fonts-cache",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: "CacheFirst",
-            options: {
-              cacheName: "gstatic-fonts-cache",
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-            },
-          },
-        ],
-      },
-    }),
+  injectManifest: {
+    maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+    globPatterns: ["**/*.{js,css,html,ico,svg,png,jpeg,jpg,woff2}"],
+  },
+  devOptions: {
+  enabled: true,
+  type: "module",
+},
+
+}),
   ].filter(Boolean),
   resolve: {
     alias: {

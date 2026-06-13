@@ -14,6 +14,7 @@ export interface FormularioReporte {
   Nacionalidad: string
   Desaparicion: string        // fecha
   Entidad_desaparicion: string
+  municipio_desaparicion?: string
   folio: string
   estatura: string
   peso_kg: string
@@ -56,6 +57,7 @@ const estadoInicial: FormularioReporte = {
   Nacionalidad: "Mexicana",
   Desaparicion: "",
   Entidad_desaparicion: "",
+  municipio_desaparicion: "",
   folio: "",
   estatura: "",
   peso_kg: "",
@@ -250,29 +252,39 @@ export function useReportar() {
     }
     }
 
-  // ── Enviar email de confirmación vía Formspree ──
   const enviarEmailConfirmacion = async () => {
-    try {
-      await fetch("https://formspree.io/f/mnnbzagw", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          _replyto: formData.contacto_email,
-          _subject: `Reporte recibido - ${formData.Nombre} ${formData.Primer_apellido}`,
-          nombre_familiar: formData.contacto_nombre,
-          nombre_desaparecida: `${formData.Nombre} ${formData.Primer_apellido} ${formData.Segundo_apellido}`,
-          email_contacto: formData.contacto_email,
-          telefono_contacto: formData.contacto_telefono,
-          mensaje: `Hemos recibido el reporte de ${formData.Nombre} ${formData.Primer_apellido}. 
-Nuestro equipo lo revisará en las próximas 24-48 horas.
-Si tienes dudas escríbenos a herstoryy2025@gmail.com`
-        })
+  try {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+    await fetch(`${supabaseUrl}/functions/v1/dynamic-handler`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${supabaseAnonKey}`,
+        "apikey": supabaseAnonKey,
+      },
+      body: JSON.stringify({
+        contacto_email: formData.contacto_email,
+        contacto_nombre: formData.contacto_nombre,
+        nombre_desaparecida: `${formData.Nombre} ${formData.Primer_apellido} ${formData.Segundo_apellido}`.trim(),
+        folio: formData.folio,
+        fecha_desaparicion: formData.Desaparicion,
+        entidad: formData.Entidad_desaparicion,
+        municipio_desaparicion: formData.municipio_desaparicion || null,
+        edad: formData.Edad,
+        caracteristicas: formData.caracteriticas,
+        estatura: formData.estatura,
+        peso: formData.peso_kg,
+        color_ojos: formData.color_ojos,
+        color_cabello: formData.color_cabello,
+        imagen_url: formData.imagen_url || null,
       })
-    } catch (err) {
-      // El email es secundario, no bloqueamos el flujo si falla
-      console.error("Error enviando email:", err)
-    }
+    })
+  } catch (err) {
+    console.error("Error enviando email:", err)
   }
+}
 
   // ── Enviar formulario completo ──
   const enviarReporte = async (): Promise<boolean> => {

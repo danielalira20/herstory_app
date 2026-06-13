@@ -1,6 +1,5 @@
 // PanicSettings — Setup obligatorio del botón de pánico
-// No hay código default — la usuaria DEBE configurar el suyo
-// Incluye explicación + términos + checkbox antes de guardar
+// Incluye insignia "Protegida" al guardar el código
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -13,7 +12,11 @@ import {
   AlertTriangle,
   CheckCircle,
   Lock,
+  LogOut,
 } from "lucide-react";
+import { giveProtegidaBadge } from "@/lib/badges";
+import { supabase } from "@/lib/supabaseClient";
+import CheckInSettings from "./CheckInSettings";
 
 const PanicSettings = () => {
   const [code, setCode] = useState("");
@@ -23,15 +26,25 @@ const PanicSettings = () => {
   const [accepted, setAccepted] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  const [exitUrl, setExitUrl]         = useState("");
+  const [exitUrlSaved, setExitUrlSaved] = useState(false);
+  const [exitUrlError, setExitUrlError] = useState("");
+  const [hasExitUrl, setHasExitUrl]   = useState(false);
+
 
   useEffect(() => {
     const existing = localStorage.getItem("herstory-panic-code");
     if (existing) {
       setHasCustomCode(true);
     }
+    const savedUrl = localStorage.getItem("herstory-exit-url");
+    if (savedUrl) {
+      setExitUrl(savedUrl);
+      setHasExitUrl(true);
+    }
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setError("");
     setSaved(false);
 
@@ -66,6 +79,10 @@ const PanicSettings = () => {
     setCode("");
     setConfirmCode("");
 
+    // ── Insignia 6: Protegida ──
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) giveProtegidaBadge(user.id);
+
     setTimeout(() => setSaved(false), 3000);
   };
 
@@ -77,6 +94,36 @@ const PanicSettings = () => {
     setConfirmCode("");
     setSaved(false);
   };
+
+  const handleSaveExitUrl = () => {
+  setExitUrlError("");
+  const raw = exitUrl.trim();
+  if (!raw) { setExitUrlError("Ingresa una URL"); return; }
+ 
+  let url = raw;
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = "https://" + url;
+  }
+ 
+  try {
+    new URL(url);
+    localStorage.setItem("herstory-exit-url", url);
+    setExitUrl(url);
+    setHasExitUrl(true);
+    setExitUrlSaved(true);
+    setTimeout(() => setExitUrlSaved(false), 3000);
+  } catch {
+    setExitUrlError("URL no válida. Ejemplo: google.com");
+  }
+};
+ 
+const handleResetExitUrl = () => {
+  localStorage.removeItem("herstory-exit-url");
+  setExitUrl("");
+  setHasExitUrl(false);
+  setExitUrlSaved(false);
+};
+
 
   return (
     <div className="rounded-2xl border border-purple-200 dark:border-purple-800/50 bg-purple-50/50 dark:bg-purple-950/20 p-6 space-y-5">
@@ -280,6 +327,81 @@ const PanicSettings = () => {
           </button>
         </div>
       )}
+      <div className="rounded-2xl border border-rose-200 dark:border-rose-800/50 bg-rose-50/50 dark:bg-rose-950/20 p-6 space-y-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center">
+            <LogOut className="w-5 h-5 text-rose-500 dark:text-rose-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">Salida rápida</h3>
+            <p className="text-xs text-muted-foreground">
+              {hasExitUrl ? "Destino configurado" : "Configura a dónde salir en caso de emergencia"}
+            </p>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Cuando actives la salida rápida desde Auren, tu navegador irá
+          directamente a este sitio, reemplazando HerStory en el historial.
+        </p>
+
+        {hasExitUrl ? (
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800/30">
+              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+              <p className="text-xs text-green-700 dark:text-green-400 font-mono truncate">{exitUrl}</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setHasExitUrl(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-medium border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+              >
+                Cambiar URL
+              </button>
+              <button
+                onClick={handleResetExitUrl}
+                className="py-2.5 px-4 rounded-xl text-sm text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+              >
+                Eliminar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <input
+              type="url"
+              placeholder="google.com o https://weather.com"
+              value={exitUrl}
+              onChange={(e) => { setExitUrl(e.target.value); setExitUrlError(""); }}
+              className="w-full px-4 py-3 rounded-xl border border-rose-200 dark:border-rose-800 bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-rose-400"
+            />
+            <AnimatePresence>
+              {exitUrlError && (
+                <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  className="text-xs text-red-500 dark:text-red-400">
+                  {exitUrlError}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <AnimatePresence>
+              {exitUrlSaved && (
+                <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400">
+                  <Check className="w-3 h-3" /> URL de salida guardada
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <button
+              onClick={handleSaveExitUrl}
+              disabled={!exitUrl.trim()}
+              className="w-full py-3 rounded-xl text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Guardar URL de salida
+            </button>
+          </div>
+        )}
+      </div>
+      <CheckInSettings />
     </div>
   );
 };

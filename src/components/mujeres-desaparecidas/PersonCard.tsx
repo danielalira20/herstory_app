@@ -1,6 +1,6 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Eye, MapPin, Calendar } from "lucide-react";
+import { Eye, MapPin, Calendar, MessageCircle } from "lucide-react";
 
 interface Person {
   id: string;
@@ -10,14 +10,17 @@ interface Person {
   fechaDesaparicion: string;
   foto?: string;
   caracteristicas: string;
+  folio?: string;
+  municipio_desaparicion?: string | null;
 }
 
 interface PersonCardProps {
   person: Person;
   onViewDetails: (person: Person) => void;
+  onMensajeAnonimo: (person: Person) => void;
 }
 
-const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
+const PersonCard = ({ person, onViewDetails, onMensajeAnonimo }: PersonCardProps) => {
   const formattedDate = person.fechaDesaparicion
     ? new Date(person.fechaDesaparicion).toLocaleDateString("es-MX", {
         year: "numeric",
@@ -27,11 +30,10 @@ const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
     : "Fecha desconocida";
 
   return (
-    <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
-      {/* Contenido principal */}
-      <CardContent className="p-0 flex-grow">
+    <Card className="bg-gradient-card shadow-card hover:shadow-hover transition-all duration-300 flex flex-col h-full w-full">
+    <CardContent className="p-0 flex-grow">
         <div className="aspect-square overflow-hidden">
-          <img 
+          <img
             src={person.foto || "/assests/default.png"}
             alt={`Foto de ${person.name}`}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
@@ -44,7 +46,11 @@ const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
           <div className="space-y-2 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" />
-              <span>{person.estado}</span>
+              <span>
+                  {person.municipio_desaparicion 
+                    ? `${person.municipio_desaparicion}, ${person.estado}` 
+                    : person.estado}
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
@@ -57,16 +63,24 @@ const PersonCard = ({ person, onViewDetails }: PersonCardProps) => {
         </div>
       </CardContent>
 
-      {/* Botón fijo abajo */}
-      <CardFooter className="p-4 pt-0 mt-auto">
-        <Button 
+      <CardFooter className="p-4 pb-4 mt-auto flex gap-2 justify-start">
+        <Button
           onClick={() => onViewDetails(person)}
           variant="outline"
           size="sm"
-          className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+          className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground text-xs px-2"
         >
-          <Eye className="h-4 w-4 mr-2" />
-          Ver más detalles
+          <Eye className="h-3.5 w-3.5 mr-1 shrink-0" />
+        Detalles
+        </Button>
+        <Button
+          onClick={() => onMensajeAnonimo(person)}
+          variant="outline"
+          size="sm"
+          className="flex-1 border-pink-400 text-pink-600 hover:bg-pink-50 text-xs px-2"
+        >
+          <MessageCircle className="h-3.5 w-3.5 mr-1 shrink-0" />
+        Mensaje
         </Button>
       </CardFooter>
     </Card>
