@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useId} from 'react';
 import { motion } from 'framer-motion';
 
 export default function AcosoMap({ heatData = {}, onStateClick, selectedState }: {
@@ -8,6 +8,11 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
 }) {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState({ x: 0, y: 0, name: '', count: 0 });
+  const [magnifier, setMagnifier] = useState({ x: 0, y: 0, svgX: 0, svgY: 0, visible: false });
+  const svgRef = useRef<SVGSVGElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const rawId = useId().replace(/[^a-zA-Z0-9]/g, '');
+  const pathsGroupId = `mapPaths${rawId}`;
 
   const maxCount = Math.max(...Object.values(heatData), 1);
 
@@ -51,17 +56,74 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
     setTooltip(t => ({ ...t, x: e.clientX - svg.left, y: e.clientY - svg.top }));
   };
 
+  const getSvgCoords = (clientX: number, clientY: number) => {
+  const svg = svgRef.current;
+  if (!svg) return { x: 0, y: 0 };
+  const rect = svg.getBoundingClientRect();
+  return {
+    x: ((clientX - rect.left) / rect.width) * 1000,
+    y: ((clientY - rect.top) / rect.height) * 600,
+  };
+};
+
+const updateMagnifier = (clientX: number, clientY: number) => {
+  const { x, y } = getSvgCoords(clientX, clientY);
+  setMagnifier({ x: clientX, y: clientY, svgX: x, svgY: y, visible: true });
+  const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
+  const name = el?.closest('[data-state]')?.getAttribute('data-state');
+  if (name) {
+    setHoveredState(name);
+    setTooltip({ x, y, name: DISPLAY[name] || name, count: heatData[name] || 0 });
+  }
+};
+
+const handleTouchStart = (e: React.TouchEvent<SVGSVGElement>) => {
+  const t = e.touches[0];
+  touchStartRef.current = { x: t.clientX, y: t.clientY };
+  updateMagnifier(t.clientX, t.clientY);
+};
+
+const handleTouchMove = (e: React.TouchEvent<SVGSVGElement>) => {
+  e.preventDefault();
+  const t = e.touches[0];
+  updateMagnifier(t.clientX, t.clientY);
+};
+
+const handleTouchEnd = (e: React.TouchEvent<SVGSVGElement>) => {
+  const start = touchStartRef.current;
+  const t = e.changedTouches[0];
+  if (start) {
+    const dist = Math.hypot(t.clientX - start.x, t.clientY - start.y);
+    if (dist < 10) {
+      const el = document.elementFromPoint(t.clientX, t.clientY) as HTMLElement | null;
+      const name = el?.closest('[data-state]')?.getAttribute('data-state');
+      if (name) onStateClick?.(name);
+    }
+  }
+  touchStartRef.current = null;
+  setMagnifier(m => ({ ...m, visible: false }));
+  setHoveredState(null);
+};
+
   return (
-    <svg viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-auto" style={{ filter: 'drop-shadow(0 4px 24px rgba(109,40,217,0.08))' }}>
+    <>
+    <svg ref={svgRef} viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-auto"
+      style={{ filter: 'drop-shadow(0 4px 24px rgba(109,40,217,0.08))', touchAction: 'none' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}>
+
       {/* Baja California */}
+      <g id={pathsGroupId}>
       <path
         d="M147.3 35.9l-0.3 0.3-0.6 0.1-1.5-0.1-0.6 0.3-0.6 0.6-0.4 0.9-0.2 0.7-0.1 0.6 0 0.6 0 0.6-0.3 0.8-0.5 0.6-0.6 0.4-0.5 0.7-0.1 0.5 0.2 0.2 0.8 1 0.6 1 0.5 1 0.3 1.4-0.1 0.7-0.3 0.5-0.3 0.5 0.1 0.5 0.1 0.2 0.2 0.1 0.3 0.2 0.2 0.2 0.2 0.4 0.2 0.4 0.1 0.4 0 0.5-0.1 0.9 0 0.8 0 0.8 0.1 0.7-0.7-0.3-0.3-0.1-0.4 0-0.3-0.1-0.4-0.3-0.2-0.1-0.1-0.2 0-0.4-0.1-0.4-0.3-0.2-0.1 0.2 0 0.4 0.1 0.4 0.4 0.8 0.1 0.1 0.3 0.2 0.2 0.1 0.8 0.2 0.5 0.2 0.4 0.4 0.4 0.3 0.2 0.5 0.7 0.1 0.6 0.6 0.4 0.6 0.2 0.5 0.4 0.2 0.2 0.4 0.3 2.3 0.3 0.7 0.4 0.7 0.4 0.8-0.3 0.6-1 1.2-0.5 1.2-0.3 1.3 0 4.7-0.7 2 0.1 1.9-0.3 3-0.1 0.7 0.1 1.4 0.6 1 0.7 0.8 0.7 0.5 0 0.3-0.5 0.5 0 0.7 0.3 0.6 0.5 0.4 1.9 0.9 0.5 0.3 0.1 0.2 0 0.2 0.2 0.4 0 1.1 0 0.3 0.1 0.6-0.1 0.4 0.2 0.3 0.2 0.5-0.1 1.6 0.1 0.4 0.2 0.6-0.1 0.2-0.4 0.9 0.3 0.8 0.1 0.5-0.2 1.1 0.4 1.1 0.7 1 0.3 0.7 0.1 0.4 0 0.3 0 0.3 0.2 0.4 0.3 0.6 0 0.5-0.2 0.5 0 0.8 0.2 0.5-0.1 1-0.2 0.7 0.1 0.3-0.2 1.7-0.2 0.6-0.1 0.3 0.1 0.3 0.3 0.5-0.1 0.4-0.2 0.8-0.1 0.5-0.3 0.4 0.1 0.6 0.2 0.2 0.3 0.7 0.4 0.3 0 0.4 0.1 0.5 0.6 0.3 0.2 0.7 0.5 0.5 0 0.7 0.6 1.2 0.4 0.8 0.4 0.8 1.5 0.7 0.2 0.9 0.4 0.3 0.9 0.1 0.3 0.5 0.2 0.4-0.1 0.8 0.3 0.8 0.2 0.2-0.2 0-0.2 0.2 0 0.2 0.3 0.1 0.1 0.2 0 0.3 0.1 0.4 0.3 0.3 0.3 0.1 0.2 0 0.3 0.1 0.2 0.3 0 0.3 0.2 0.2 0.5 0.1 0.5 0 0.2 0 0.3-0.2 0-0.2 0.1-0.1-0.2 0-0.1-0.2 0.1-0.1 0.2 0 0-0.1 0.1-0.1 0.1 0 0.1 0 0.1 0 0.1 0.1 0.1 0.1 0.1 0 0.1 0.2 0.1-0.1 0.3 0 0.2 0.1 0.2 0.3 0.2 0 0 0.1 0.4 0.1 0.1 0.2 0.1 0.4 0.1 0.1 0.2 0.1 0.1 0.2 0.1 0 0.1 0.2 0.1 0.1 0.2 0.1 0.1 0.1 0.2 0.2 0 0.1 0.2-0.1 0.1 0 0.2 0.1 0 0.2 0.3 0.2 0 0.2 0.1 0 0.3 0.3 0.1 0.2 0.1 0.1 0.4 0.2 0.2 0.2 0.2 0 0.6 0.4 0.1 0.4 0 0.2 0.2 0.2 0.1 0.3 0.4 0.1 0.1 0 0.1 0.2 0.1 0.1 0 0.1 0.2 0.1 0.3 0 0.3 0 0.4 0.3 0.2 0.4 0.3 0.3 0.2 0.2 0.1 0.1 0.3 0.5 0.4 0.1 0.2 0.3 0.3 0.4 0.4 0.4 0.5 0.3 0.4 0.5 0.5 0.1 0.3 0.1 0.2 0.2 0 0.5 0.2 0.2 0.3 0 0.3 0.2 0.2 0.2 0.3 0.1 0.4 0.2 2.6 3 1 0.8 0.3 0.3 0.1 0.6 0.2 0.2 0.1 0.2-0.5 0.4-0.2 0.4-0.3 0.3 0.1 0.4 0.2 0.2 0.3 0.1-0.1 0.5 0.2 0.3 0.1 0 0.1 0.1 0.1 0.3 0.3 0 0.1 0 0 0.3 0.2 0.4 0.3 0.4 0.3 0.1 0.3 0.3 0.2 0.8 0.5 0.9 0.3 0.4-0.1 0.4-0.3 0.1-0.2 0.3-0.1 0.1-0.1 0.4 0 0.4 0.4 0.2 0.1 0.6 0 0.6-0.3 0.1 0 0.2 0.3 0.5 0.2 0.4 0.1 0.5 0.3 0.2 0 0.3 0.6 0.1 0.7-0.2 0.1-0.1-0.1-0.2 0.2-0.4-0.3-0.2-0.1-0.3 0.2-0.1-0.1-0.2 0.1-0.2 0.2-0.1 0.3 0.1 0.4 0.1 0.2-0.3 0.2-0.3 0.2 0.4 0 0.5 0.4 0.4 0.2-0.2 0-0.2 0.5-0.2 0.2 0.1-0.1 0.2-0.1 0.1-0.1 0.5 0.7 0.2 0 0.1-0.3 0.1 0 0.2 0.2 0.3 0.1 0.2 0.3 0.2-0.2 0.1-0.1 0.4 0 0.4-0.1 0.3 0.2 0.4 0.4 0.2-0.1 0.6 0.6 0 0.7-0.1 0.2-0.2 0.3-0.3 0.2-0.3 0.5-0.2 0.2-0.2 0.8 0.1 0.4 0.4 0.1 0.2 0.1 0.5 0.3 0.1 0.1 0.2-0.1 0.4 0.3 0.3 0 0.4-0.1 0.5 0.4 0.9 0.1 0.1 0.2 0.7 0.4 1.1 0.7 0.6 0.1 0.4-0.1 0.8 0.3 0.8 0.1 0.5 0.2 0.6-0.1 0.6 0.3 0.7 0.6 0.4 0.1 0.2 0.5 0.3 0.6 0.1 0.1 0.3 1 0.3 0.9 0 1.2-0.3 0.8-0.3 0.5 0.4-0.1 0.2 0.3 0.2 0 0.2-0.1 0.2 0 0.1 0.4 0.1 0.1-0.1 0.2-0.2 0.3 0 0 0.4 0 0.2-0.2 0.2-0.2 0.4 0.2 0.2 0.1 0.5-0.1 0.5-0.5 1.2-0.1 0.8 0.1 0.2-0.1 0.6 0.3 0.3 0.3 0.4 0.4 0.3 0 0.3 1 1 0.1 0.3 0.3 0 0.1 0.2-0.2 0.2-0.1 0.2-0.1 0.5-0.1 0.2-0.1 0.4-0.1 1 0.3 1.1 0.1 0.1 0.2 0.1 0 0.4-0.2 0.3-0.2 0.4 0 0.4 0.1 0.5 0.4 0.5 0.5 0 0.2 0.1-5 0-5.1 0-5.2 0-5.2 0-5.1-0.1-5.2 0-5.2 0.1-1.3 0 0.2-0.3 0.4-0.6 0.1-0.3-0.3-0.1-0.3-0.1-0.3-0.4-0.5-0.1-0.4 0.1 0-0.5 0-0.9-0.2-0.4-0.2-0.3 0.1-0.2 0.1-0.3 0.5-0.7 0.3-0.6 0.3-0.6 0.3-0.4-0.1-0.2-0.1-0.4-0.1-0.5-0.3-0.2-0.3 0-0.3 0.2-0.3-0.1-0.2-0.3-0.2-0.1 0.2-0.5 0.2-0.5 0.3-0.7 0.5-1.2 0.6-2 0.4-0.9 0.1-0.8-0.2-0.6-0.4-0.1-0.2-0.3 0.1-0.5 0-0.5-0.3-0.2-0.1-0.3-0.1-0.3-0.3-0.3-0.4-0.3-0.5-0.1-0.6 0.1-0.3-0.2 0-0.5 0.1-0.6 0-0.8-0.3-0.7-0.3-0.4-0.2-0.1-0.7 0-0.8 0.1-0.3 0.2-0.7-0.2-0.1-0.5 0.1 0 0-0.3-0.1-0.4-0.7-0.3-0.4-0.7-1-0.2 0-0.5 0-0.5-0.4-0.5 0-0.6-0.3-0.6-0.6 0.3-0.4-1.1 0.1-0.7-0.5-0.6-0.5 0-0.1-0.5-0.5-0.5-0.5-0.7-0.7-0.1-0.4 0.1-0.2 0.2-0.2 0-0.4-0.3-0.2-0.6-0.2-0.6-0.1-0.3-0.4 0-0.5 0.5-0.4-1.1 0.1-1.1-0.2-0.5-0.3-0.5-0.1-0.6-0.3-0.5-0.8-0.3-0.8-0.3-0.5 0.6-0.5-0.7-0.1-0.8-0.2-0.4-0.2-0.7-0.1-0.4-0.2-0.2-1-0.1-1.2-1.2-0.7-0.9-0.8-0.9-1.3-1.5-1.3-1.5-3.8-1.4-2.4-0.3-1.3-2-1.5-1.3-2.5-0.9-1.5-1.3-0.8-0.8-0.7-0.2-0.7 0.5-0.5-0.5-0.5-0.3-0.4-0.6-0.7-0.5-0.6-0.8-0.8-0.1-2.2-2 0.1-0.7 0.2-0.8 0.1-1-0.2-0.7-0.1-0.5-0.1-1-0.6-0.7-0.3-0.5-0.4-0.4-0.5-0.2-1.3-0.1-0.1-0.4 0.6-2.3 0.2-1.8-0.2-1.1-0.1-0.2-0.3-0.4 0-0.3 0-0.4 0.2-1.1-0.1-1.4-0.2-1.5-0.5-1.1-0.4-1-0.8-0.7-0.9-0.6-1-0.5-1.2 0 0.8-0.7 0.3-0.4 0.1-0.5-0.2-0.5-0.4-0.5-0.6-0.4-0.4-0.2 0.2 0.5 0.3 0.4 0.2 0.4 0.1 0.5-0.3 0.3-0.4 0.1-0.1-0.3-0.4-0.3-0.2 0.2-0.2 0.3 0 0.3 0.3 0.1 0.3 0.4 0.1 0.7 0.3 1-0.7 0-0.2-1.1-0.5-1.6-0.6-1.3 0.6-4.9-0.2-3.5-0.5-1.7-0.1-0.7-0.3-0.3-1.1-0.2-1.3-1.3-0.7-0.1-0.7-1-0.5-0.8-0.2-0.4-0.7-1-0.5-0.3-1.2 0.4-0.8-0.1-0.1-1.1 0.4-1.3 0.2-2.1 0.3-2-0.9-2.3-3.3-4-1.2-2.3-0.3-0.5-0.2-0.1-0.5-0.6-0.2-0.2-0.4-0.2-0.6-0.5-0.4-0.1-0.3-0.2-0.1-0.2 0-0.3-0.2-0.3-1.1-0.9-0.2-0.3-0.6-0.5-0.2-0.5 0.1-0.4-0.1 0 0.4-0.1 0.7 0.1-0.6-0.8 0.1-0.5 0.1-0.5 0.3-0.9-0.3-0.7-0.3-0.6-0.2-0.2-0.5-0.2-0.7-0.1-0.7-0.9-0.3-0.5 1.2 0.3 0.9 0.6 0.5 0.1 0.5-0.4 0.4-0.6 0.3-0.6 0.2-1 0-0.7 0-0.7-0.2-0.5-1.1-0.2-0.6-0.2-0.5-0.7-0.7-0.4-0.5-0.1-0.5-0.2 0-0.8-0.1-1.1-0.3-0.4-1 0-1.1-0.3-0.7-0.9-0.3-0.7-0.1-1.2-0.2-2.1-0.5-1.6-0.5-1.4-0.3-0.5-0.5-0.4-0.5-0.3-1.2-0.3-0.5-0.4-1.4-3.2-0.4-1.2-0.5-1.1-0.4-0.6 0-0.6-0.1-0.6 0-0.8 0-0.3 0-0.3 2.3-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.1 2.1-0.2 2.2-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.1 2.1-0.2 2.2-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.1 2.2-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 2.1-0.2 1.2-0.1 0 0.1-0.2 0.8-0.3 0.6-0.3 0.6-0.2 0.2-0.7 0.6-0.1 0.3-0.5 0.9 0.3 0.7-0.1 0.7-0.4 1.4-0.3 0.4z m-10.7 138.5l0.3 0.8 0.3 0.2-0.1 0.4 0.2 0.4 0.2 0.8-0.3 0.9 0 0.7 0.4 0.6 0.1 0.7-0.1 0.7 0.1 0.3-0.2 0.4-0.4 0.1 0 0.3-0.3 0.3 0.1 0.4-0.1 0.3 0.1 0.5-0.1 0.5 0.2 0.5-0.1 0.2 0 0.2-0.2-0.1-0.1-0.1-0.4-0.1-0.3 0.2-0.3 0.1-0.2-0.3-0.3 0.1-0.2-0.2-0.3-1-0.5-0.6-0.7-0.2-0.5 0.3-0.4 0-0.3 0.5-0.3-0.4 0.2-1.1 0.5-0.3 1.7-2.1 1-1.4-0.5-1-0.2-1.1 0.2-1 0.2-1 0.4-0.4 0.6-0.2 0.7 0.5-0.1 0.7z m66-11l1 0.2 1.6 1.1 0.4 0.5 0.2 0.2 0.1 0.2 0.5 0.2 0.1 0.3 0.2 0.1-0.3 0.3-0.3 0.2-0.2-0.2-0.1-0.1-0.2 0-0.2-0.8-0.4-0.3-0.5-0.2-0.4-0.5-0.7-0.1 0-0.2-0.1-0.2-0.2-0.2-0.2-0.3-0.3-0.2z m8.1-1.6l0.3-0.1 0.2-0.1 0.7 0.1 0.4-0.2 0.3 0.2 0 0.4 0.1 0.2-0.1 0.3 0 0.5-0.2 0.5-0.5 0.1-0.7-0.2-0.3 0.2 0.1-0.3-0.3-0.9 0-0.7z m-15.1-11.1l0.4 0.1 0.2 0.2 0.4 0.1-0.4 0.9 0.1 0.4 0 0.9-0.3 0-0.3-0.5-0.3-0.1-0.4-0.5-0.9-0.3-0.2-0.6-0.5-0.3-0.4-0.1-0.4-0.4-0.2-0.4-0.2-0.2-0.2-0.5-0.3-0.4-0.5-0.6-0.3-0.3-0.3-0.1-0.2-0.3-0.4-0.2-0.6-0.3-0.2-0.5-0.7-0.4-0.6-0.4-0.7-1.1 0.1-0.3-0.2-0.4-0.4-0.5-0.5 0.1-0.5 0-0.4-0.3-0.2-0.4 0-0.6-0.2-0.3-0.4-0.3-0.2-0.5-0.2-0.1-0.1-0.4-0.5-0.4 0-0.3-0.3-0.4-0.5-0.3-0.2-0.8 0.2-0.8 0.4-0.7 0.3-1-0.2-0.5 0-0.5 0.3-0.2 0 0.2 0.3 0.2 0.4-0.2 0.3-0.2 0-0.2 0.4 0 0 0.4 0.3 0.1 0.7 0.1 0.4 0.4 0.9 0.9 0.3 0.9 0.7 0.2 0.1 0.3 0.2 0.3 0 0.2 0.4 0.5 0.3 0.6-0.1 0.3 0.4 0.3-0.3 0.3-0.3 0.4-0.1 0.6 0.1 0.3 0 0.8 0.8 0.5 1.1 0.2 0.2 0.3 0.4 0 0.2-0.3 0.4 0 0.2 0.1 0.5-0.1 0.5 0 0.5 0.1 0.6-0.1 0.4 0.4-0.3 0.6 0.1 0.7 0.2 0.4-0.1 0.6 0 0.4 0.2 0.2-0.1 0.4-0.1 0.7 0 0.9 0.1 0.3 0.3 0.6 0.1 0.3 0 0.3 0.2 0.5 0.3 0.1z m-27.6 34.8l-0.2-0.5-0.3 0.1-0.2-0.1 0.1-0.3 0.4-0.2 0.4 0.2 0.4 0.5 0.2 0.3-0.8 0z m-3.1 0l0.6-0.7 0.9-1.3 0.6-0.7 0.4-0.1 0.2 0.8-0.1 0.6-0.5 0.4-0.3 0.3-0.1 0.3-0.1 0.2 0.1 0.2-1.7 0z m-116.1-35.6l0.7 0.9 0.2 1.5-0.2 0.7 0.2 1.2-0.1 1.4-0.8 1-0.5 0-0.4 0.2-0.2 0 0.1 0.3-0.3-0.2 0.1-0.4 0.3-0.2-0.3-0.7-0.1-0.5 0.1-0.6-0.2-0.6-0.4-0.5 0.3-0.5-0.3-0.9-0.2-0.5-0.4-0.4-0.6-0.5 0-0.5-0.2-0.5-0.1-0.5 0.1-0.6 0.2-0.6 0.6-0.4 0.8-0.3 0.3-0.5 0.7-0.1 0.5 0.3-0.5 0.5-0.3 0.4-0.1 0.5 0.2 0.7 0.4 0.6 0.4 0.3z m76.3 25.3l0.2 0.2 0.2-0.1 0.4 0 0.1 0.2-0.4 0-0.1 0.2-0.3 0.1-0.3-0.2-0.1-0.2 0.1-0.2 0.2 0z m59.6-25.5l0.2 0 0.2 0.1 0 0.1-0.1 0.2 0 0.1 0.1 0.1 0 0.2 0 0.3 0.1 0.2 0 0.2 0.1 0 0 0.2 0.2 0.1 0 0.1-0.3 0-0.2-0.1 0.1-0.1-0.1-0.2-0.2-0.1 0.1-0.2 0.1-0.1-0.2-0.1 0-0.2 0-0.2-0.2-0.1 0-0.2-0.2-0.2 0.3-0.1z m-25.8-29.4l0.4 0 0.1 0.6 0.1 0.3-0.3 0-0.4-0.2 0.1-0.4 0-0.3z m-48.7-17l0.1 0.1 0.2 0.2 0 0.2-0.3 0-0.3-0.1 0-0.2 0.3-0.2z m-32.7-64.7l0.1 0 0.1 0.2 0.1 0.3 0.1 0.3 0 0.3-0.1 0-0.1-0.4-0.1-0.3-0.1-0.1 0-0.3z"
         style={{ fill: getFill('Baja california'), stroke: getStroke('Baja california'), strokeWidth: hoveredState === 'Baja california' ? 1.5 : 0.8, cursor: 'pointer', transition: 'fill 0.2s' }}
         onMouseEnter={e => handleEnter('Baja california', e)}
         onMouseMove={e => handleMove('Baja california', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Baja california')}
+        onClick={() => onStateClick?.('Baja california')} data-state="Baja california"
       />
 
       {/* Baja California Sur */}
@@ -71,7 +133,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Baja california sur', e)}
         onMouseMove={e => handleMove('Baja california sur', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Baja california sur')}
+        onClick={() => onStateClick?.('Baja california sur')} data-state="Baja california sur"
       />
 
       {/* Sonora */}
@@ -81,7 +143,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Sonora', e)}
         onMouseMove={e => handleMove('Sonora', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Sonora')}
+        onClick={() => onStateClick?.('Sonora')} data-state="Sonora"
       />
 
       {/* Chihuahua */}
@@ -91,7 +153,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Chihuahua', e)}
         onMouseMove={e => handleMove('Chihuahua', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Chihuahua')}
+        onClick={() => onStateClick?.('Chihuahua')} data-state="Chihuahua"
       />
 
       {/* Coahuila */}
@@ -101,7 +163,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Coahuila', e)}
         onMouseMove={e => handleMove('Coahuila', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Coahuila')}
+        onClick={() => onStateClick?.('Coahuila')} data-state="Coahuila"
       />
 
       {/* Nuevo León */}
@@ -111,7 +173,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Nuevo leon', e)}
         onMouseMove={e => handleMove('Nuevo leon', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Nuevo leon')}
+        onClick={() => onStateClick?.('Nuevo leon')} data-state="Nuevo leon"
       />
 
       {/* Tamaulipas */}
@@ -121,7 +183,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Tamaulipas', e)}
         onMouseMove={e => handleMove('Tamaulipas', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Tamaulipas')}
+        onClick={() => onStateClick?.('Tamaulipas')} data-state="Tamaulipas"
       />
 
       {/* Sinaloa */}
@@ -131,7 +193,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Sinaloa', e)}
         onMouseMove={e => handleMove('Sinaloa', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Sinaloa')}
+        onClick={() => onStateClick?.('Sinaloa')} data-state="Sinaloa"
       />
 
       {/* Durango */}
@@ -141,7 +203,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Durango', e)}
         onMouseMove={e => handleMove('Durango', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Durango')}
+        onClick={() => onStateClick?.('Durango')} data-state="Durango"
       />
 
       {/* Zacatecas */}
@@ -151,7 +213,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Zacatecas', e)}
         onMouseMove={e => handleMove('Zacatecas', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Zacatecas')}
+        onClick={() => onStateClick?.('Zacatecas')} data-state="Zacatecas"
       />
 
       {/* San Luis Potosí */}
@@ -161,7 +223,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('San luis Potosi', e)}
         onMouseMove={e => handleMove('San luis Potosi', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('San luis Potosi')}
+        onClick={() => onStateClick?.('San luis Potosi')} data-state="San luis Potosi"
       />
 
       {/* Nayarit */}
@@ -171,7 +233,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Nayarit', e)}
         onMouseMove={e => handleMove('Nayarit', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Nayarit')}
+        onClick={() => onStateClick?.('Nayarit')} data-state="Nayarit"
       />
 
       {/* Jalisco */}
@@ -181,7 +243,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Jalisco', e)}
         onMouseMove={e => handleMove('Jalisco', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Jalisco')}
+        onClick={() => onStateClick?.('Jalisco')} data-state="Jalisco"
       />
 
       {/* Aguascalientes */}
@@ -191,7 +253,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Aguascalientes', e)}
         onMouseMove={e => handleMove('Aguascalientes', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Aguascalientes')}
+        onClick={() => onStateClick?.('Aguascalientes')} data-state="Aguascalientes"
       />
 
       {/* Guanajuato */}
@@ -201,7 +263,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Guanajuato', e)}
         onMouseMove={e => handleMove('Guanajuato', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Guanajuato')}
+        onClick={() => onStateClick?.('Guanajuato')} data-state="Guanajuato"
       />
 
       {/* Querétaro */}
@@ -211,7 +273,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Queretaro', e)}
         onMouseMove={e => handleMove('Queretaro', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Queretaro')}
+        onClick={() => onStateClick?.('Queretaro')} data-state="Queretaro"
       />
 
       {/* Hidalgo */}
@@ -221,7 +283,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Hidalgo', e)}
         onMouseMove={e => handleMove('Hidalgo', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Hidalgo')}
+        onClick={() => onStateClick?.('Hidalgo')} data-state="Hidalgo"
       />
 
       {/* Estado de México */}
@@ -231,7 +293,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Estado de mexico', e)}
         onMouseMove={e => handleMove('Estado de mexico', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Estado de mexico')}
+        onClick={() => onStateClick?.('Estado de mexico')} data-state="Estado de mexico"
       />
 
       {/* Ciudad de México */}
@@ -241,7 +303,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Ciudad de mexico', e)}
         onMouseMove={e => handleMove('Ciudad de mexico', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Ciudad de mexico')}
+        onClick={() => onStateClick?.('Ciudad de mexico')} data-state="Ciudad de mexico"
       />
 
       {/* Michoacán */}
@@ -251,7 +313,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Michoacan', e)}
         onMouseMove={e => handleMove('Michoacan', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Michoacan')}
+        onClick={() => onStateClick?.('Michoacan')} data-state="Michoacan"
       />
 
       {/* Morelos */}
@@ -261,7 +323,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Morelos', e)}
         onMouseMove={e => handleMove('Morelos', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Morelos')}
+        onClick={() => onStateClick?.('Morelos')} data-state="Morelos"
       />
 
       {/* Tlaxcala */}
@@ -271,7 +333,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Tlaxcala', e)}
         onMouseMove={e => handleMove('Tlaxcala', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Tlaxcala')}
+        onClick={() => onStateClick?.('Tlaxcala')} data-state="Tlaxcala"
       />
 
       {/* Puebla */}
@@ -281,7 +343,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Puebla', e)}
         onMouseMove={e => handleMove('Puebla', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Puebla')}
+        onClick={() => onStateClick?.('Puebla')} data-state="Puebla"
       />
 
       {/* Guerrero */}
@@ -291,7 +353,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Guerrero', e)}
         onMouseMove={e => handleMove('Guerrero', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Guerrero')}
+        onClick={() => onStateClick?.('Guerrero')} data-state="Guerrero"
       />
 
       {/* Veracruz */}
@@ -301,7 +363,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Veracruz', e)}
         onMouseMove={e => handleMove('Veracruz', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Veracruz')}
+        onClick={() => onStateClick?.('Veracruz')} data-state="Veracruz"
       />
 
       {/* Oaxaca */}
@@ -311,7 +373,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Oaxaca', e)}
         onMouseMove={e => handleMove('Oaxaca', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Oaxaca')}
+        onClick={() => onStateClick?.('Oaxaca')} data-state="Oaxaca"
       />
 
       {/* Chiapas */}
@@ -321,7 +383,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Chiapas', e)}
         onMouseMove={e => handleMove('Chiapas', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Chiapas')}
+        onClick={() => onStateClick?.('Chiapas')} data-state="Chiapas"
       />
 
       {/* Tabasco */}
@@ -331,7 +393,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Tabasco', e)}
         onMouseMove={e => handleMove('Tabasco', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Tabasco')}
+        onClick={() => onStateClick?.('Tabasco')} data-state="Tabasco"
       />
 
       {/* Campeche */}
@@ -341,7 +403,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Campeche', e)}
         onMouseMove={e => handleMove('Campeche', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Campeche')}
+        onClick={() => onStateClick?.('Campeche')} data-state="Campeche"
       />
 
       {/* Yucatán */}
@@ -351,7 +413,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Yucatan', e)}
         onMouseMove={e => handleMove('Yucatan', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Yucatan')}
+        onClick={() => onStateClick?.('Yucatan')} data-state="Yucatan"
       />
 
       {/* Quintana Roo */}
@@ -361,7 +423,7 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Quintana roo', e)}
         onMouseMove={e => handleMove('Quintana roo', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Quintana roo')}
+        onClick={() => onStateClick?.('Quintana roo')} data-state="Quintana roo"
       />
 
       {/* Colima */}
@@ -371,8 +433,9 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         onMouseEnter={e => handleEnter('Colima', e)}
         onMouseMove={e => handleMove('Colima', e)}
         onMouseLeave={() => setHoveredState(null)}
-        onClick={() => onStateClick?.('Colima')}
+        onClick={() => onStateClick?.('Colima')} data-state="Colima"
       />
+      </g>
       {hoveredState && (
         <g transform={`translate(${tooltip.x + 12}, ${tooltip.y - 10})`} style={{ pointerEvents: 'none' }}>
           <rect x="0" y="-18" width="160" height="26" rx="6" fill="white"
@@ -382,5 +445,30 @@ export default function AcosoMap({ heatData = {}, onStateClick, selectedState }:
         </g>
       )}
     </svg>
-  );
+    {magnifier.visible && (
+      <div style={{
+        position: 'fixed', left: magnifier.x - 70, top: magnifier.y - 170,
+        width: 140, height: 140, borderRadius: '50%', overflow: 'hidden',
+        border: '3px solid white', boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
+        pointerEvents: 'none', zIndex: 1000, background: '#ede9fe'
+      }}>
+        <svg viewBox={`${magnifier.svgX - 60} ${magnifier.svgY - 60} 120 120`} width="140" height="140">
+          <use href={`#${pathsGroupId}`} />
+          <line x1={magnifier.svgX - 8} y1={magnifier.svgY} x2={magnifier.svgX + 8} y2={magnifier.svgY} stroke="#6d28d9" strokeWidth="1" />
+          <line x1={magnifier.svgX} y1={magnifier.svgY - 8} x2={magnifier.svgX} y2={magnifier.svgY + 8} stroke="#6d28d9" strokeWidth="1" />
+          <circle cx={magnifier.svgX} cy={magnifier.svgY} r="2" fill="#6d28d9" />
+        </svg>
+        {hoveredState && (
+          <div style={{
+            position: 'absolute', bottom: 4, left: 4, right: 4, textAlign: 'center',
+            fontSize: 10, fontWeight: 600, color: '#4c1d95',
+            background: 'rgba(255,255,255,0.9)', borderRadius: 8, padding: '2px 0'
+          }}>
+            {DISPLAY[hoveredState] || hoveredState}
+          </div>
+        )}
+      </div>
+    )}
+  </>
+);
 }
