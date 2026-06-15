@@ -12,7 +12,6 @@ export const useAuth = () => {
       const { data } = await supabase.auth.getSession();
       setSession(data.session);
       setUser(data.session?.user ?? null);
-      await new Promise(r => setTimeout(r, 1500)); // ← quitar después de probar
       setLoading(false);
     };
 

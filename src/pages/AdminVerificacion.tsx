@@ -23,6 +23,7 @@ interface CasoPendiente {
   caracteriticas: string | null
   contacto_desaparecida: string | null
   estado: string
+  municipio_desaparicion?: string | null
   estado_verificacion_duplicado: string
   posible_duplicado_de: number | null
   coherencia_validada: boolean
@@ -92,7 +93,7 @@ const AdminVerificacion = () => {
         estado_verificacion_duplicado, posible_duplicado_de,
         coherencia_validada, errores_coherencia,
         fecha_consentimiento, consentimiento_proyeccion,
-proyeccion_path
+        proyeccion_path, municipio_desaparicion
       `)
       .eq("estado", "pendiente")
       .order("estado_verificacion_duplicado", { ascending: false })
@@ -115,7 +116,7 @@ proyeccion_path
         contacto_desaparecida, estado,
         estado_verificacion_duplicado, posible_duplicado_de,
         coherencia_validada, errores_coherencia,
-        fecha_consentimiento
+        fecha_consentimiento,  municipio_desaparicion
       `)
       .eq("id", id)
       .returns<CasoComparacion[]>()
@@ -317,6 +318,10 @@ proyeccion_path
                       <p className="text-muted-foreground">Estado</p>
                       <p className="font-medium">{casoSeleccionado["Entidad_desaparición"] || "—"}</p>
                     </div>
+                    <div>
+                      <p className="text-muted-foreground">Municipio</p>
+                      <p className="font-medium">{casoSeleccionado.municipio_desaparicion || "—"}</p>
+                    </div>
                   </div>
 
                   {/* Características */}
@@ -346,12 +351,23 @@ proyeccion_path
 
                   {/* Alerta de duplicado */}
                   {casoSeleccionado.estado_verificacion_duplicado !== "limpio" && (
-                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 rounded-lg p-3">
-                      <p className="text-sm font-medium text-red-800 dark:text-red-400 mb-2">
-                        {casoSeleccionado.estado_verificacion_duplicado === "posible_duplicado"
-                          ? "🔴 Posible duplicado detectado"
-                          : "🟡 Requiere revisión adicional"}
-                      </p>
+              <div className={`border rounded-lg p-3 ${
+                  casoDuplicado?.estado === "rechazado"
+                    ? "bg-amber-50 dark:bg-amber-900/20 border-amber-200"
+                    : "bg-red-50 dark:bg-red-900/20 border-red-200"
+                }`}>
+                  <p className={`text-sm font-medium mb-2 ${
+                    casoDuplicado?.estado === "rechazado"
+                      ? "text-amber-700 dark:text-amber-400"
+                      : "text-red-800 dark:text-red-400"
+                  }`}>
+                    {casoDuplicado?.estado === "rechazado"
+                      ? "⚠️ El caso similar fue rechazado — verifica que este sea legítimo antes de aprobar"
+                      : casoSeleccionado.estado_verificacion_duplicado === "posible_duplicado"
+                        ? "🔴 Posible duplicado detectado"
+                        : "🟡 Requiere revisión adicional"
+                    }
+                  </p>
 
                       {/* Comparación lado a lado */}
                       {casoDuplicado && (
@@ -366,6 +382,7 @@ proyeccion_path
                               <p className="text-muted-foreground">Folio: {casoDuplicado.folio}</p>
                               <p className="text-muted-foreground">{casoDuplicado["Desaparición"]}</p>
                               <p className="text-muted-foreground">{casoDuplicado["Entidad_desaparición"]}</p>
+                              <p className="text-muted-foreground">{casoDuplicado.municipio_desaparicion || "Sin municipio"}</p>
                             </div>
                             <div className="bg-white dark:bg-gray-800 rounded p-2">
                               <p className="font-medium text-red-700 mb-1">Caso nuevo</p>
@@ -373,6 +390,7 @@ proyeccion_path
                               <p className="text-muted-foreground">Folio: {casoSeleccionado.folio}</p>
                               <p className="text-muted-foreground">{casoSeleccionado["Desaparición"]}</p>
                               <p className="text-muted-foreground">{casoSeleccionado["Entidad_desaparición"]}</p>
+                              <p className="text-muted-foreground">{casoDuplicado.municipio_desaparicion || "Sin municipio"}</p>
                             </div>
                           </div>
                         </div>

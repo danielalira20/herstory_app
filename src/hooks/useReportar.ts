@@ -226,7 +226,8 @@ export function useReportar() {
             p_nombre: formData.Nombre,
             p_primer_apellido: formData.Primer_apellido,
             p_segundo_apellido: formData.Segundo_apellido || '',
-            p_folio: formData.folio || null
+            p_folio: formData.folio || null,
+            p_municipio: formData.municipio_desaparicion || null  
         })
 
         if (error) {
