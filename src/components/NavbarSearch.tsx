@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
-  Menu, User, LogOut, Map, FileText, Users, AlertTriangle, Heart, Mic,
+  Menu, User, LogOut, Map, FileText, Users, AlertTriangle, Heart, Mic, Shield, BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -33,13 +33,13 @@ const NavbarSearch = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems: NavItem[] = [
-    { label: "Mapa",              href: "/rastro-nacional",       icon: Map           },
+    { label: "Mapa",          href: "/rastro-nacional",       icon: Map           },
     { label: "Alertas",       href: "/mujeres-desaparecidas", icon: FileText      },
-    { label: "Ayuda",             href: "/ayuda",                 icon: Heart         },
-    { label: "Reportar",          href: "/reportar",              icon: AlertTriangle },
-    { label: "Colectivos",   href: "/para-colectivos",            icon: Users         },
-    // TODO [DEL-D01 — JESS, Semana 1]: Eliminar o ajustar según reunión de fin de semana 1.
-    //{ label: "Voces Silenciadas", href: "/voces-silenciadas",     icon: Mic           },
+    { label: "Ayuda",         href: "/ayuda",                 icon: Heart         },
+    { label: "Reportar",      href: "/reportar",              icon: AlertTriangle },
+    { label: "Colectivos",    href: "/para-colectivos",       icon: Users         },
+    { label: "Modo Campo",    href: "/modo-campo",            icon: Shield        },
+    { label: "Mapa de Acoso", href: "/mapa-acoso",            icon: BarChart3     },
   ];
 
   const universalItems: NavItem[] = [

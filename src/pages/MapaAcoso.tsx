@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Footprints, Bus, Briefcase, GraduationCap, Smartphone, CheckCircle2 } from 'lucide-react';
 import NavbarWrapper from '@/components/NavbarWrapper';
 import AcosoMap from '@/components/AcosoMap';
 
@@ -22,11 +23,11 @@ const ESTADOS_DISPLAY: Record<string, string> = {
 };
 
 const CATEGORIAS = [
-  { key: 'calle', label: 'Calle / espacio público', emoji: '🚶' },
-  { key: 'transporte', label: 'Transporte público', emoji: '🚌' },
-  { key: 'trabajo', label: 'Trabajo / oficina', emoji: '💼' },
-  { key: 'escolar', label: 'Escuela / universidad', emoji: '📚' },
-  { key: 'digital', label: 'Digital / redes sociales', emoji: '📱' },
+  { key: 'calle', label: 'Calle / espacio público', icon: Footprints },
+  { key: 'transporte', label: 'Transporte público', icon: Bus },
+  { key: 'trabajo', label: 'Trabajo / oficina', icon: Briefcase },
+  { key: 'escolar', label: 'Escuela / universidad', icon: GraduationCap },
+  { key: 'digital', label: 'Digital / redes sociales', icon: Smartphone },
 ];
 
 const ESTADOS_KEYS = Object.keys(ESTADOS_DISPLAY);
@@ -84,11 +85,22 @@ export default function MapaAcoso() {
     .slice(0, 5);
   const maxCount = topEstados[0]?.[1] || 1;
 
+  // Categoría más frecuente (con label legible, no la key cruda)
+  const topCategoriaKey = Object.entries(stats.byCategoria).sort((a, b) => b[1] - a[1])[0]?.[0];
+  const topCategoriaLabel = CATEGORIAS.find(c => c.key === topCategoriaKey)?.label || '—';
+
   // Estado seleccionado info
   const selectedInfo = selectedState ? {
     nombre: ESTADOS_DISPLAY[selectedState] || selectedState,
     total: stats.byEstado[selectedState] || 0
   } : null;
+
+  const statsCards = [
+    { label: 'Reportes totales', value: stats.total.toLocaleString(), small: false },
+    { label: 'Estados con reportes', value: String(Object.keys(stats.byEstado).length), small: false },
+    { label: 'Estado más afectado', value: topEstados[0] ? (ESTADOS_DISPLAY[topEstados[0][0]] || topEstados[0][0]) : '—', small: true },
+    { label: 'Tipo más frecuente', value: topCategoriaLabel, small: true },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-rose-50">
@@ -113,12 +125,7 @@ export default function MapaAcoso() {
       {/* Stats rápidas */}
       <div className="max-w-7xl mx-auto px-6 mb-6">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Reportes totales', value: stats.total.toLocaleString() },
-            { label: 'Estados con reportes', value: Object.keys(stats.byEstado).length },
-            { label: 'Estado más afectado', value: topEstados[0] ? ESTADOS_DISPLAY[topEstados[0][0]]?.split(' ')[0] : '—' },
-            { label: 'Tipo más frecuente', value: Object.entries(stats.byCategoria).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—' },
-          ].map((s, i) => (
+          {statsCards.map((s, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 8 }}
@@ -126,7 +133,12 @@ export default function MapaAcoso() {
               transition={{ delay: i * 0.07 }}
               className="bg-white/70 backdrop-blur-md border border-white/80 rounded-2xl p-4 shadow-sm"
             >
-              <p className="text-2xl font-bold text-purple-700">{s.value}</p>
+              <p
+                className={`font-bold text-purple-700 leading-tight ${s.small ? 'text-lg sm:text-xl' : 'text-2xl'}`}
+                title={s.value}
+              >
+                {s.value}
+              </p>
               <p className="text-xs text-gray-400 mt-1">{s.label}</p>
             </motion.div>
           ))}
@@ -209,12 +221,14 @@ export default function MapaAcoso() {
               Por tipo de acoso
             </h3>
             <div className="space-y-2.5">
-              {CATEGORIAS.map(({ key, label, emoji }) => {
+              {CATEGORIAS.map(({ key, label, icon: Icon }) => {
                 const count = stats.byCategoria[key] || 0;
                 const pct = stats.total > 0 ? Math.round((count / stats.total) * 100) : 0;
                 return (
                   <div key={key} className="flex items-center gap-2">
-                    <span className="text-base w-6">{emoji}</span>
+                    <span className="w-6 h-6 flex items-center justify-center rounded-full bg-rose-100 text-rose-500 flex-shrink-0">
+                      <Icon className="w-3.5 h-3.5" strokeWidth={2.25} />
+                    </span>
                     <div className="flex-1">
                       <div className="flex justify-between text-xs mb-0.5">
                         <span className="text-gray-600">{label}</span>
@@ -248,7 +262,7 @@ export default function MapaAcoso() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center py-4"
               >
-                <div className="text-3xl mb-2">✅</div>
+                <CheckCircle2 className="w-9 h-9 text-green-600 mx-auto mb-2" strokeWidth={2} />
                 <p className="text-green-700 font-medium text-sm">Reporte registrado</p>
                 <p className="text-gray-400 text-xs mt-1">Gracias por contribuir al mapa</p>
               </motion.div>
@@ -271,17 +285,18 @@ export default function MapaAcoso() {
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Tipo de acoso</label>
                   <div className="grid grid-cols-1 gap-1.5">
-                    {CATEGORIAS.map(({ key, label, emoji }) => (
+                    {CATEGORIAS.map(({ key, label, icon: Icon }) => (
                       <button
                         key={key}
                         onClick={() => setForm(f => ({ ...f, categoria: key }))}
-                        className={`text-left px-3 py-2 rounded-xl text-xs transition-all border ${
+                        className={`flex items-center gap-2 text-left px-3 py-2 rounded-xl text-xs transition-all border ${
                           form.categoria === key
                             ? 'bg-purple-100 border-purple-300 text-purple-700 font-medium'
                             : 'bg-white border-gray-200 text-gray-600 hover:border-purple-200'
                         }`}
                       >
-                        {emoji} {label}
+                        <Icon className="w-3.5 h-3.5 flex-shrink-0" strokeWidth={2.25} />
+                        <span>{label}</span>
                       </button>
                     ))}
                   </div>
