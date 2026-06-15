@@ -54,7 +54,7 @@ const Index = () => {
               Organizaciones de Apoyo
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed mb-6">
-              Conecta con fundaciones, colectivos y asociaciones comprometidas con los derechos
+              Conecta con fundaciones y asociaciones comprometidas con los derechos
               de las mujeres. Encuentra el apoyo que necesitas cerca de ti.
             </p>
             <div className="flex items-center gap-2 text-primary">
