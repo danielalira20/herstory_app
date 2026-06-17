@@ -60,9 +60,10 @@ const NavbarLearn = () => {
       <div className="container flex h-16 items-center gap-2">
 
         {/* Logo */}
+        
         <Link to="/" className="flex items-center gap-2 mr-4 shrink-0">
-          <img src="/img/logo/logo_story.png" alt="HerStory Logo" className="h-7 w-7" />
-          <span className="hidden font-bold sm:inline-block text-pink-900 dark:text-pink-200 text-sm">
+          <img src="/img/logo/logo_story.png" alt="HerStory Logo" className="h-20 w-20" />
+            <span className="hidden font-bold sm:inline-block text-pink-900 dark:text-pink-200 text-sm">
             HerStory
           </span>
         </Link>

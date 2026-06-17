@@ -59,7 +59,7 @@ const NavbarSearch = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 mr-4 shrink-0">
-          <img src="/img/logo/logo_story.png" alt="HerStory Logo" className="h-7 w-7" />
+          <img src="/img/logo/logo_story.png" alt="HerStory Logo" className="h-20 w-20" />
           <span className="hidden font-bold sm:inline-block text-purple-800 dark:text-purple-200 text-sm">
             HerStory
           </span>

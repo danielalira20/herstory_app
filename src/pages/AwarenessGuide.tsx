@@ -175,6 +175,7 @@ const AwarenessGuide = () => {
                     ))}
                   </ul>
                   <Button
+           
                     variant={guide.urgent ? "emergency" : "support"}
                     className="w-full mt-4"
                     onClick={() => setSelectedGuide(guide)}
