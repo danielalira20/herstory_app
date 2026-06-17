@@ -81,7 +81,8 @@ const Quiz = ({ onComplete }: QuizProps) => {
     setError(null);
 
     try {
-      const response = await fetch("/api/match/find", {
+      const BACKEND = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${BACKEND}/api/match/find`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
